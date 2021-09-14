@@ -131,15 +131,10 @@ solo('yet another test', async ({ is }) => {
 })
 ```
 
-When run normally, this will run all three tests, 
-when when run with the `BRITTLE_SOLO` environment
-variable will run the last two tests.
-
-```sh
-BRITTLE_SOLO=1 node test.js # will only run the second test
-```
-
 Note how there can be more than one `solo` tests.
+
+If a `solo` function is called, `test` functions will not execute,
+only `solo` functions.
 
 The `solo` method is also available on the `test` method,
 and can be used without a function like `test`:
@@ -149,6 +144,22 @@ import test from 'brittle'
 const { is } = test.solo('another test')
 is(true, false)
 ```
+
+The detection of a `solo` function is based on execution flow,
+there may be cases where `brittle` needs to be explicitly informed
+to enter solo mode. Use `solo.enable()` to explicitly enable solo mode:
+
+```js
+import { test, solo } from 'brittle'
+solo.enable()
+await test('some test', async ({ is }) => {
+  is(true, true)
+})
+solo('another test', async ({ is }) => {
+  is(true, false)
+})
+```
+
 
 #### `skip(description, async function)`
 
