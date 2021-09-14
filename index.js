@@ -5,6 +5,7 @@ const { AssertionError } = require('assert')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
+const grace = require('close-with-grace')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
 const kIncre = Symbol('brittle.increment')
@@ -18,77 +19,161 @@ const kThenned = Symbol('brittle.thenned')
 const kTimeout = Symbol('brittle.timeout')
 const kTeardowns = Symbol('brittle.teardowns')
 const kInfo = Symbol('brittle.info')
-const kTimes = Symbol('brittle.times')
 const kChildren = Symbol('brittle.children')
 const kEnding = Symbol('brittle.ending')
 const cwd = process.cwd()
 
-process.on('unhandledRejection', (reason, promise) => {
-  if (promise instanceof Test || reason instanceof TestError) {
-    console.error(reason)
-    return
-  }
-  const name = 'UnhandledPromiseRejectionWarning'
-  const warning = new Error(
-    'Unhandled promise rejection. This error originated either by ' +
-      'throwing inside of an async function without a catch block, ' +
-      'or by rejecting a promise which was not handled with .catch(). ' +
-      'To terminate the node process on unhandled promise ' +
-      'rejection, use the CLI flag `--unhandled-rejections=strict` (see ' +
-      'https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). '
-  )
-  warning.name = name
-  try {
-    if (reason instanceof Error) {
-      warning.stack = reason.stack
-      process.emitWarning(reason.stack, name)
-    } else {
-      process.emitWarning(reason, name)
-    }
-  } catch {}
+// process.on('unhandledRejection', (reason, promise) => {
+//   if (promise instanceof Test || reason instanceof TestError) {
+//     // console.error(reason)
+//     meta.stop = true
+//     return
+//   }
+//   const name = 'UnhandledPromiseRejectionWarning'
+//   const warning = new Error(
+//     'Unhandled promise rejection. This error originated either by ' +
+//       'throwing inside of an async function without a catch block, ' +
+//       'or by rejecting a promise which was not handled with .catch(). ' +
+//       'To terminate the node process on unhandled promise ' +
+//       'rejection, use the CLI flag `--unhandled-rejections=strict` (see ' +
+//       'https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). '
+//   )
+//   warning.name = name
+//   try {
+//     if (reason instanceof Error) {
+//       warning.stack = reason.stack
+//       process.emitWarning(reason.stack, name)
+//     } else {
+//       process.emitWarning(reason, name)
+//     }
+//   } catch {}
 
-  process.emitWarning(warning)
+//   process.emitWarning(warning)
+// })
+const meta = { start: 0, total: 0, passing: 0, failing: 0, stop: false }
+const { close } = grace({ delay: 50 }, async function closer ({ signal }) {
+  if (meta.stop) return
+  meta.stop = true
+  if (closer.closed) return
+  closer.closed = true
+
+  if (signal) return
+  const { output } = Tap.tests[0]
+  output.write(`1..${meta.total}\n`)
+  output.write(`# time=${(Number(process.hrtime.bigint() - meta.start)) / 1e6}ms\n`)
+  if (meta.failing) output.write(`# failed ${meta.failing} of ${meta.total}\n`)
 })
+process.on('exit', close)
+process.on('beforeExit', close)
 
 class Tap {
   constructor (test, output) {
     this.test = test
-    this.tapper = this.tap(test)
+    this.chunks = []
+    this.commands = []
+    if (test.parent === null) this.constructor.tests.push(test)
+    this.flowing = false
+    this.tapper = this.flow(this.tap(test))
     this.output = output
     this.tapper.next().then(({ value = '' }) => output.write(value))
   }
 
+  async * flow (tap) {
+    const { test } = this
+    const { tests } = this.constructor
+    const queue = tests.slice(0, tests.indexOf(test))
+    this.flowing = queue.length === 0
+    const { value, done } = await tap.next()
+    let next = this.flowing ? yield value : yield
+    if (done) return
+    const backlog = []
+    const ready = Promise.allSettled(queue)
+    ready.then(() => { this.flowing = true })
+    while (true) {
+      this.commands.push(next)
+      const { value, done } = await tap.next(next)
+      if (this.flowing) {
+        const out = backlog.length ? backlog.join('') + value : value
+        next = yield out
+        if (backlog.length) backlog.length = 0
+      } else {
+        backlog.push(value)
+        next = yield
+      }
+
+      if (done) {
+        await ready
+        yield backlog.join('')
+        backlog.length = 0
+        queue.length = 0
+        break
+      }
+    }
+  }
+
   async * tap (test) {
-    let backlog = []
     let parent = test.parent
     let level = +!!parent
     let top = parent || test
-    while (parent = parent?.parent) {
+    while (parent) {
+      parent = parent?.parent
       level += 1
       top = parent || top
     }
-    const indent = Array.from({ length: level }).map(() => '  ')
+    parent = test.parent
+
+    const indent = Array.from({ length: level + 1 }).map(() => '  ').join('')
+    const outdent = indent.slice(2)
     try {
-      let next = test.parent ? yield : yield 'TAP version 13\n'
+      let next = parent ? yield : yield 'TAP version 13\n'
       do {
+        if (parent !== null && parent) {
+          const ready = parent.count === parent[kCounted]
+          if (ready === false) {
+            await null // tick
+            continue
+          }
+        }
+
         const { type } = next
         if (type === 'drain') {
-          next = yield backlog.filter(Boolean).join('')
-          backlog.length = 0
+          next = yield this.chunks.filter(Boolean).join('')
+          this.chunks.length = 0
           continue
         }
         if (type === 'end') {
-          yield * backlog.filter(Boolean)
-          backlog.length = 0
+          yield * this.chunks.filter(Boolean)
+          this.chunks.length = 0
 
-          if (level === 0) {
-            await Promise.allSettled(top[kChildren])
-            top[kTimes].push((Number(process.hrtime.bigint() - test.start)) / 1e6)
-            yield `${indent}# time=${Math.max(...top[kTimes])}ms\n`
+          test.time = (Number(process.hrtime.bigint() - test.start)) / 1e6
+          const index = test.parent === null
+            ? Tap.tests.filter(({ parent }) => parent === null).indexOf(test) + 1
+            : parent[kChildren].indexOf(test) + 1 + parent[kCounted]
+
+          if (parent !== null) {
+            parent[kIncre]()
+            parent[kCount]()
           } else {
-            top[kTimes].push((Number(process.hrtime.bigint() - test.start)) / 1e6)
+            meta.total = index > meta.total ? index : meta.total
+            await Promise.allSettled(test[kChildren])
           }
+
+          let out = `ok ${index} - ${test.description} # time=${test.time}ms\n`
+          if (test.failing) {
+            meta.failing += 1
+            out = `not ${out}`
+          } else {
+            meta.passing += 1
+          }
+          out = `${outdent}${out}`
+          const plan = next.planned ? `${indent}1..${test.count}\n` : ''
+          yield `${plan}${out}`
           break
+        }
+        if (type === 'title') {
+          const { title } = next
+          next = yield `${outdent}# ${title.trim()}\n`
+          continue
         }
         if (type === 'comment') {
           const { comment } = next
@@ -111,11 +196,11 @@ class Tap {
           }
           test[kCount]()
           if (count > test[kCounted]) {
-            backlog[count] = out
+            this.chunks[count] = out
             next = yield
           } else {
-            out += backlog.slice(0, test[kCounted] + 1).filter(Boolean).join('')
-            backlog = backlog.slice(test[kCounted] + 1)
+            out += this.chunks.slice(0, test[kCounted] + 1).filter(Boolean).join('')
+            this.chunks = this.chunks.slice(test[kCounted] + 1)
             next = yield out
           }
           continue
@@ -137,6 +222,8 @@ class Tap {
   }
 }
 
+Tap.tests = []
+
 class TestError extends Error {
   constructor (...args) {
     super(...args)
@@ -153,13 +240,13 @@ class Timeout extends TestError {
 class Sink {
   once (evt, fn) { this.output.once(evt, fn) }
   write (chunk) {
-    if (this.ready && this.assert.count > 0) {
-      for (const chunk of this.backlog) this.output.write(chunk)
-      this.backlog.length = 0
+    if (this.ready && this.assert[kCounted] > 0) {
+      for (const chunk of this.chunks) this.output.write(chunk)
+      this.chunks.length = 0
       this.output.write(chunk)
       return
     }
-    this.backlog.push(chunk)
+    this.chunks.push(chunk)
   }
 
   init (assert) {
@@ -170,13 +257,9 @@ class Sink {
   constructor (output, parent) {
     this.assert = null
     this.ready = false
-    this.backlog = []
+    this.chunks = []
     this.output = output
     this.parent = parent
-    this.parent.then(() => {
-      for (const chunk of this.backlog) this.output.write(chunk)
-      this.backlog.length = 0
-    })
   }
 }
 
@@ -186,16 +269,20 @@ const coercables = ['is', 'not', 'alike', 'unlike']
 class Test extends Promise {
   static get [Symbol.species] () { return Promise }
   constructor (description, options = {}) {
+    const start = process.hrtime.bigint()
+    meta.start = meta.start || start
     let resolvers
-    const { timeout = 30000, output = process.stdout, parent = null } = options
+    const { timeout = 3000, output = process.stdout, parent = null } = options
     super((resolve, reject) => { resolvers = { resolve, reject } })
-    this.start = process.hrtime.bigint()
+    this.start = start
     this.parent = parent
     this.description = description
-    this.planned = -1
+    this.planned = 0
     this.count = 0
+    this.passing = 0
+    this.failing = 0
     this.error = null
-
+    this.time = null
     this.ended = false
     // non-enumerables:
     Object.defineProperties(this, {
@@ -206,15 +293,14 @@ class Test extends Promise {
       [kEnding]: { value: false, writable: true },
       [kThenned]: { value: false, writable: true },
       [kTeardowns]: { value: [] },
-      [kTimes]: { value: parent ? null : [] },
-      [kChildren]: { value: parent ? null : [] },
+      [kChildren]: { value: [] },
       [kResolvers]: { value: resolvers }
     })
 
     this.timeout(timeout)
     this.output.once('error', (err) => { this[kError](err, this.constructor) })
 
-    this.tap.step({ type: 'comment', comment: this.description })
+    this.tap.step({ type: 'title', title: this.description })
 
     for (const method of methods) this[method] = this[method].bind(this)
     for (const method of coercables) {
@@ -247,9 +333,10 @@ class Test extends Promise {
   [kIncre] () {
     if (this.error) throw this.error
     if (this[kEnding] || this.ended) {
-      if (this.planned > -1 && this.count + 1 > this.planned) {
+      if (this.planned > 0 && this.count + 1 > this.planned) {
         throw new TestError(`test count [${this.count + 1}] exceeds plan [${this.planned}]`)
       }
+
       throw new TestError('test after end')
     }
     this.count += 1
@@ -257,16 +344,27 @@ class Test extends Promise {
       this[kEnding] = true
       return
     }
-    if (this.planned > -1 && this.count > this.planned) {
+    if (this.planned > 0 && this.count > this.planned) {
       throw new TestError(`test count [${this.count}] exceeds plan [${this.planned}]`)
     }
   }
 
-  get done () { return this }
+  get assert () { return this }
   get [kReject] () { return this[kResolvers].reject }
   get [kResolve] () { return this[kResolvers].resolve }
 
   async end () {
+    if (this.count < this.planned) {
+      throw new TestError('premature end')
+    }
+
+    if (this[kCounted] < this.count) {
+      await null // tick
+      await this.tap.step({ type: 'drain' })
+      return this.end()
+    }
+    clearTimeout(this[kTimeout])
+    this[kTimeout] = null
     if (!this[kEnding]) {
       const count = this.count
       Object.defineProperty(this, 'count', {
@@ -277,20 +375,9 @@ class Test extends Promise {
       })
     }
     this[kEnding] = true
-    if (this.count < this.planned) {
-      throw new TestError('premature end')
-    }
 
-    if (this[kCounted] < this.count) {
-      queueMicrotask(async () => {
-        await this.tap.step({ type: 'drain' })
-      })
-      return
-    }
-    clearTimeout(this[kTimeout])
-    this[kTimeout] = null
-    if (this.planned === -1) await this.tap.step({ type: 'plan', planned: this[kCounted] })
-    await this.tap.step({ type: 'end' })
+    await this.tap.step({ type: 'end', planned: this.planned ? 0 : this.count })
+
     this.ended = true
     for (const fn of this[kTeardowns]) await fn()
     this[kResolve](this[kInfo]())
@@ -305,8 +392,11 @@ class Test extends Promise {
 
   then (onFulfilled, onRejected) {
     this[kThenned] = true
-    if (this.planned === -1 && onFulfilled) this.end()
-    return super.then(onFulfilled, onRejected)
+    if (this.planned === 0 && onFulfilled) this.end()
+    return super.then(onFulfilled, (err) => {
+      console.error(err)
+      onRejected(err)
+    })
   }
 
   test (description = this ? `${this.description} - subtest` : 'tbd', opts, fn) {
@@ -321,12 +411,14 @@ class Test extends Promise {
     }
 
     if (!fn) {
+      // this.count += 1
       const assert = new Test(description, opts)
-      if (opts?.output instanceof Sink) opts.output.init(assert)
       if (this && this[kChildren]) this[kChildren].push(assert)
+      if (opts?.output instanceof Sink) opts.output.init(assert)
       return assert
     }
     if (!(fn instanceof AsyncFunction)) throw TypeError('Brittle: test functions must be async')
+    // this.count += 1
     const assert = new Test(description, opts)
     if (opts?.output instanceof Sink) opts.output.init(assert)
     if (this && this[kChildren]) this[kChildren].push(assert)
@@ -346,6 +438,8 @@ class Test extends Promise {
     const ok = true
     const count = this.count
     const explanation = null
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -356,6 +450,8 @@ class Test extends Promise {
     const ok = false
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.fail)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -366,6 +462,8 @@ class Test extends Promise {
     const ok = assertion
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.ok, assertion, true)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -376,6 +474,8 @@ class Test extends Promise {
     const ok = !assertion
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.absent, assertion, false)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -383,9 +483,11 @@ class Test extends Promise {
     this[kIncre]()
     const type = 'assert'
     const assert = 'is'
-    const ok = strict ? actual === expected : actual == expected
+    const ok = strict ? actual === expected : actual == expected // eslint-disable-line
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.is, actual, expected)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -393,9 +495,11 @@ class Test extends Promise {
     this[kIncre]()
     const type = 'assert'
     const assert = 'not'
-    const ok = strict ? actual !== expected : actual != expected
+    const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.not, actual, expected)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -406,6 +510,8 @@ class Test extends Promise {
     const ok = deepEqual(actual, expected, { strict })
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.alike, actual, expected)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -416,6 +522,8 @@ class Test extends Promise {
     const ok = deepEqual(actual, expected, { strict }) === false
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.unlike, actual, expected)
+    if (ok) this.passing += 1
+    else this.failing += 1
     await this.tap.step({ type, assert, ok, message, count, explanation })
   }
 
@@ -450,10 +558,6 @@ class Test extends Promise {
 
   async execution (functionOrPromise, message) {
     this[kIncre]()
-    if (typeof expectedError === 'string') {
-      message = expectedError
-      expectedError = undefined
-    }
     const top = originFrame(Test.prototype.execution)
     const pristineMessage = message === undefined
     message = pristineMessage ? 'should complete' : message
@@ -540,4 +644,19 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
   return info
 }
 
+async function skip (description = 'tbd', opts, fn) {
+  if (typeof opts === 'function') {
+    fn = opts
+    opts = undefined
+  }
+
+  if (fn && !(fn instanceof AsyncFunction)) throw TypeError('Brittle: test functions must be async')
+
+  const assert = Test.prototype.test(description)
+  assert.pass(`${description} # SKIP`)
+  await assert
+}
+
 module.exports = Test.prototype.test
+module.exports.test = Test.prototype.test
+module.exports.skip = skip
