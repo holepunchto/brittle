@@ -4,13 +4,14 @@
   "description": "> tap à la mode",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "standard"
   },
   "keywords": [],
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "MIT",
   "dependencies": {
     "c8": "^7.8.0",
+    "close-with-grace": "^1.1.0",
     "deep-equal": "^2.0.5",
     "mockalicious": "0.0.16",
     "tap-yaml": "^1.0.0",
