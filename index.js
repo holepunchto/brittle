@@ -6,6 +6,7 @@ const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
 const grace = require('close-with-grace')
+const SonicBoom = require('sonic-boom')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
 const kIncre = Symbol('brittle.increment')
@@ -23,8 +24,8 @@ const kChildren = Symbol('brittle.children')
 const kEnding = Symbol('brittle.ending')
 const kMain = Symbol('brittle.main')
 const cwd = process.cwd()
-
 const noop = () => {}
+
 process.on('unhandledRejection', (reason, promise) => {
   if (promise instanceof Test || reason instanceof TestError) {
     console.error(reason)
@@ -51,10 +52,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
   process.emitWarning(warning)
 })
-const meta = { start: 0, total: 0, passing: 0, failing: 0, stop: false }
 const { close } = grace({ delay: 50 }, async function closer ({ signal }) {
-  if (meta.stop) return
-  meta.stop = true
   if (closer.closed) return
   closer.closed = true
   if (signal) return
@@ -188,7 +186,10 @@ class Tap {
           if (!ok) {
             const split = yaml.stringify(explanation).split('\n')
             const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
-            out += `${indent}  ---\n${lines}\n...\n`
+            out += `${indent}  ---\n${lines}\n${indent}  ...\n`
+            if (test.bail) {
+              out += `${indent}Bail out! Failed test - ${this.test.description}\n`
+            }
           }
           test[kCount]()
           if (count > test[kCounted]) {
@@ -221,7 +222,7 @@ class Tap {
     }
     const { value = '', done } = await this.tapper.next(cmd)
     if (done) {
-      const closer = this.output === process.stderr || this.output === process.stdout ? 'write' : 'end'
+      const closer = this.output === process.stderr || this.output === process.stdout || this.output instanceof SonicBoom ? 'write' : 'end'
       return this.output[closer](value)
     }
     this.output.write(value)
@@ -243,7 +244,7 @@ class Timeout extends TestError {
   }
 }
 
-const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'comment', 'timeout', 'teardown']
+const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'comment', 'timeout', 'teardown', 'configure']
 const coercables = ['is', 'not', 'alike', 'unlike']
 
 class Test extends Promise {
@@ -252,7 +253,7 @@ class Test extends Promise {
     const start = process.hrtime.bigint()
     const main = description === kMain
     let resolvers
-    const { timeout = 3000, output = process.stdout, parent = null } = options
+    const { parent = null } = options
     super((resolve, reject) => { resolvers = { resolve, reject } })
     if (parent) {
       parent[kChildren].push(this)
@@ -269,10 +270,9 @@ class Test extends Promise {
     this.error = null
     this.time = null
     this.ended = false
+    this.configure(options)
     // non-enumerables:
     Object.defineProperties(this, {
-      output: { value: output },
-      options: { value: options },
       [kMain]: { value: main },
       [kCounted]: { value: 0, writable: true },
       [kEnding]: { value: false, writable: true },
@@ -281,12 +281,9 @@ class Test extends Promise {
       [kChildren]: { value: [] },
       [kResolvers]: { value: resolvers }
     })
-    Object.defineProperty(this, 'tap', { value: new Tap(this, output) })
+    Object.defineProperty(this, 'tap', { value: new Tap(this, this.output) })
     this.output.once('error', (err) => { this[kError](err, this.constructor) })
-    if (this[kMain] === false) {
-      this.timeout(timeout)
-      this.tap.step({ type: 'title', title: this.description })
-    }
+    if (this[kMain] === false) this.tap.step({ type: 'title', title: this.description })
 
     for (const method of methods) this[method] = this[method].bind(this)
     for (const method of coercables) {
@@ -343,6 +340,20 @@ class Test extends Promise {
   get [kReject] () { return this[kResolvers].reject }
   get [kResolve] () { return this[kResolvers].resolve }
 
+  configure (options) {
+    if (this.count > 0) {
+      this[kError](new TestError('Brittle: Configuration must happen prior to registering any tests'), this.configure)
+      return
+    }
+    const { timeout = 3000, output = 1, bail = false } = options
+    Object.defineProperties(this, {
+      output: { value: typeof output === 'number' ? new SonicBoom({ fd: output }) : output, configurable: true },
+      options: { value: options, configurable: true },
+      bail: { value: bail, configurable: true }
+    })
+    if (this[kMain] === false) this.timeout(timeout)
+  }
+
   async end () {
     if (this.count < this.planned) {
       throw new TestError('premature end')
@@ -350,8 +361,6 @@ class Test extends Promise {
     if (this[kCounted] < this.count) {
       await null // tick
       await this.tap.step({ type: 'drain' })
-
-      return this.end()
     }
     clearTimeout(this[kTimeout])
     this[kTimeout] = null
@@ -390,9 +399,14 @@ class Test extends Promise {
         fn = opts
         opts = undefined
       }
-      opts = opts || this?.options
+      opts = opts || this.options
       if (this && opts) {
-        opts = { ...opts, parent: this }
+        opts = {
+          output: this.options.output,
+          bail: this.options.bail,
+          ...opts,
+          parent: this
+        }
       }
 
       if (!fn) return new Test(description, opts)
@@ -408,6 +422,7 @@ class Test extends Promise {
     }
     test.skip = this.skip.bind(this)
     test.todo = this.todo.bind(this)
+    test.configure = this.configure.bind(this)
     test.test = test
     Object.defineProperty(this, 'test', { value: test })
     return test
@@ -599,6 +614,7 @@ class Test extends Promise {
   }
 
   timeout (ms) {
+    clearTimeout(this[kTimeout])
     Object.defineProperties(this, {
       [kTimeout]: {
         configurable: true,
@@ -663,4 +679,5 @@ const main = new Test(kMain)
 module.exports = main.test.bind(main)
 module.exports.skip = main.skip.bind(main)
 module.exports.todo = main.todo.bind(main)
+module.exports.configure = main.configure.bind(main)
 module.exports.test = module.exports
