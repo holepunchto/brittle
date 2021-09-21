@@ -20,6 +20,8 @@ Every initializer accepts the same optional options object.
 
  * `timeout` (5000) - milliseconds to wait before ending a stalling test
  * `output` (process.stderr) - stream to write TAP output to
+ * `skip` - skip this test, alternatively use the `skip()` function
+ * `todo` - mark this test as todo and skip it, alternatively use the `todo()` function
 
 
 #### `test(description[, opts], async (assert) => {})`

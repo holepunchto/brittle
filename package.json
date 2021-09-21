@@ -1,10 +1,11 @@
 {
   "name": "brittle",
-  "version": "0.0.0-rc.2",
+  "version": "0.0.0",
   "description": "> tap à la mode",
   "main": "index.js",
   "scripts": {
-    "lint": "standard"
+    "lint": "standard index.js error.js",
+    "test": "node test/index.test.js"
   },
   "keywords": [],
   "author": "David Mark Clements (@davidmarkclem)",
@@ -19,7 +20,9 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "tap": "^15.0.9",
+    "tap-parser": "^10.1.0"
   },
   "repository": {
     "type": "git",
