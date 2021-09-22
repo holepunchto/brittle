@@ -4,7 +4,7 @@
   "description": "> tap à la mode",
   "main": "index.js",
   "scripts": {
-    "lint": "standard index.js error.js",
+    "lint": "standard index.js errors.js",
     "test": "node test/index.test.js"
   },
   "keywords": [],
@@ -14,6 +14,7 @@
     "c8": "^7.8.0",
     "close-with-grace": "^1.1.0",
     "deep-equal": "^2.0.5",
+    "error-stack-parser": "^2.0.6",
     "mockalicious": "0.0.16",
     "sonic-boom": "^2.2.3",
     "tap-yaml": "^1.0.0",

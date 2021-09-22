@@ -1,0 +1,27 @@
+
+name: test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 3
+      FORCE_HYPERLINK: 1
+      TERM: xterm-color
+      COLORTERM: truecolor
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        node: [ '16', '14' ]
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - run: npm test

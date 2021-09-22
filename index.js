@@ -6,8 +6,9 @@ const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
 const SonicBoom = require('sonic-boom')
+const StackParser = require('error-stack-parser')
 const { TestError, TestTypeError } = require('./errors')
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
+const parseStack = StackParser.parse.bind(StackParser)
 
 const kIncre = Symbol('brittle.increment')
 const kCount = Symbol('brittle.count')
@@ -22,9 +23,10 @@ const kEnding = Symbol('brittle.ending')
 const kSkip = Symbol('brittle.skip')
 const kTodo = Symbol('brittle.todo')
 const kMain = Symbol('brittle.main')
-const cwd = process.cwd()
 
 const noop = () => {}
+const cwd = process.cwd()
+const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 
 process.on('uncaughtException', (err) => {
   if (err instanceof Promise) return
@@ -67,7 +69,6 @@ process.once('exit', async () => {
 })
 
 class Tap {
-  static get [Symbol.species] () { return Promise }
   constructor (test, output) {
     this.test = test
     this.chunks = []
@@ -75,7 +76,7 @@ class Tap {
     this.flowing = false
     this.tapper = this.flow(this.tap(test))
     this.output = output
-    this.tapper.next().then(({ value = '' }) => output.write(value))
+    this.tapper.next().then(({ value = '' }) => output.write(value || ''))
   }
 
   buildQueue () {
@@ -220,7 +221,7 @@ class Tap {
         }
       } while (true)
     } catch (err) {
-      queueMicrotask(() => { test[kError](err, Test.constructor) })
+      queueMicrotask(() => { test[kError](err) })
     }
   }
 
@@ -233,10 +234,10 @@ class Tap {
     const { value = '', done } = await this.tapper.next(cmd)
     if (done) {
       const closer = this.output === process.stderr || this.output === process.stdout || this.output instanceof SonicBoom ? 'write' : 'end'
-      if (this.output.flushSync) this.output.flushSync()
-      return this.output[closer](value)
+      if (value) this.output[closer](value)
+      return
     }
-    this.output.write(value)
+    if (value) this.output.write(value)
 
     if (!done && cmd.type === 'end') return this.step(cmd)
   }
@@ -244,9 +245,20 @@ class Tap {
 
 const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'comment', 'timeout', 'teardown', 'configure']
 const coercables = ['is', 'not', 'alike', 'unlike']
+const booms = new Map()
+const stackScrub = (err) => {
+  if (err && err.stack) {
+    const scrubbed = parseStack(err).filter(({ fileName }) => fileName !== __filename)
+    if (scrubbed.length > 0) {
+      err.stack = `${Error.prototype.toString.call(err)}\n    at ${scrubbed.join('\n    at ')}`
+    }
+  }
+  return err
+}
 
 class Test extends Promise {
   static get [Symbol.species] () { return Promise }
+
   constructor (description, options = {}) {
     const start = process.hrtime.bigint()
     const main = description === kMain
@@ -257,7 +269,6 @@ class Test extends Promise {
       parent[kChildren].push(this)
       parent[kIncre]()
     }
-    this.assert = this
     this.index = parent?.count || 0
     this.start = start
     this.parent = parent
@@ -269,8 +280,25 @@ class Test extends Promise {
     this.error = null
     this.time = null
     this.ended = false
+
+    Object.defineProperty(this, 'failing', {
+      configurable: true,
+      enumerable: true,
+      get () { return 0 },
+      set (n) {
+        process.exitCode = 1
+        Object.defineProperty(this, 'failing', {
+          configurable: true,
+          writable: true,
+          enumerable: true,
+          value: n
+        })
+      }
+    })
+
     // non-enumerables:
     Object.defineProperties(this, {
+      assert: { value: this },
       [kMain]: { value: main },
       [kCounted]: { value: 0, writable: true },
       [kEnding]: { value: false, writable: true },
@@ -299,16 +327,19 @@ class Test extends Promise {
     }
   }
 
-  [kError] (err, from) {
+  get [Symbol.toStringTag] () {} // just the presence of this corrects the callframe name of this class from Promise to Test
+
+  [kError] (err) {
     if (this.error) return
-    Error.captureStackTrace(err, from)
     err.test = this.description
     err.plan = this.planned
     err.count = this.count
     err.ended = this.ended
+    stackScrub(err)
     clearTimeout(this[kTimeout])
     this[kTimeout] = null
     this.error = err
+
     if (this.ended) throw Promise.reject(err) // cause unhandled rejection
     this.execution(Promise.reject(err), err.message).then(() => {
       if (this[kEnding] === false) this.end()
@@ -320,7 +351,7 @@ class Test extends Promise {
     if (this[kEnding] && this.planned > 0 && this[kCounted] >= this.planned) return this.end()
   }
 
-  [kIncre] (from) {
+  [kIncre] () {
     try {
       if (this.error) throw this.error
       if (this.ended) {
@@ -339,18 +370,21 @@ class Test extends Promise {
         throw new TestError('ERR_COUNT_EXCEEDS_PLAN', { count: this.count, planned: this.planned })
       }
     } catch (err) {
-      this[kError](err, from)
+      this[kError](err)
     }
   }
 
   configure (options) {
     if (this.count > 0) {
-      this[kError](new TestError('ERR_CONFIGURE_FIRST'), this.configure)
+      this[kError](new TestError('ERR_CONFIGURE_FIRST'))
       return
     }
     const { timeout = 3000, output = 1, bail = false } = options
+    if (typeof output === 'number' && booms.has(output) === false) {
+      booms.set(output, new SonicBoom({ fd: output, sync: true }))
+    }
     Object.defineProperties(this, {
-      output: { value: typeof output === 'number' ? new SonicBoom({ fd: output }) : output, configurable: true },
+      output: { value: typeof output === 'number' ? booms.get(output) : output, configurable: true },
       options: { value: options, configurable: true },
       bail: { value: bail, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
@@ -362,7 +396,7 @@ class Test extends Promise {
 
   async end () {
     if (this.count < this.planned) {
-      this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned }), Test)
+      this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned }))
     }
 
     const teardowns = this[kTeardowns].slice()
@@ -469,7 +503,7 @@ class Test extends Promise {
   }
 
   async pass (message = 'passed') {
-    this[kIncre](Test.prototype.pass)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'pass'
     const ok = true
@@ -481,7 +515,7 @@ class Test extends Promise {
   }
 
   async fail (message = 'failed') {
-    this[kIncre](Test.prototype.fail)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'fail'
     const ok = false
@@ -493,7 +527,7 @@ class Test extends Promise {
   }
 
   async ok (assertion, message = 'expected truthy value') {
-    this[kIncre](Test.prototype.ok)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'ok'
     const ok = assertion
@@ -506,7 +540,7 @@ class Test extends Promise {
   }
 
   async absent (assertion, message = 'expected falsey value') {
-    this[kIncre](Test.prototype.absent)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'absent'
     const ok = !assertion
@@ -519,7 +553,7 @@ class Test extends Promise {
   }
 
   async is (actual, expected, message = 'should be equal', strict = true) {
-    this[kIncre](Test.prototype.is)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'is'
     const ok = strict ? actual === expected : actual == expected // eslint-disable-line
@@ -532,7 +566,7 @@ class Test extends Promise {
   }
 
   async not (actual, expected, message = 'should not be equal', strict = true) {
-    this[kIncre](Test.prototype.not)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'not'
     const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
@@ -545,7 +579,7 @@ class Test extends Promise {
   }
 
   async alike (actual, expected, message = 'should deep equal', strict = true) {
-    this[kIncre](Test.prototype.alike)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'alike'
     const ok = deepEqual(actual, expected, { strict })
@@ -558,7 +592,7 @@ class Test extends Promise {
   }
 
   async unlike (actual, expected, message = 'should not deep equal', strict = true) {
-    this[kIncre](Test.prototype.unlike)
+    this[kIncre]()
     const type = 'assert'
     const assert = 'unlike'
     const ok = deepEqual(actual, expected, { strict }) === false
@@ -571,7 +605,7 @@ class Test extends Promise {
   }
 
   async exception (functionOrPromise, expectedError, message) {
-    this[kIncre](Test.prototype.exception)
+    this[kIncre]()
     if (typeof expectedError === 'string') {
       message = expectedError
       expectedError = undefined
@@ -606,7 +640,7 @@ class Test extends Promise {
   }
 
   async execution (functionOrPromise, message) {
-    this[kIncre](Test.prototype.execution)
+    this[kIncre]()
     const top = originFrame(Test.prototype.execution)
     const pristineMessage = message === undefined
     message = pristineMessage ? 'should return' : message
@@ -636,7 +670,7 @@ class Test extends Promise {
 
   teardown (fn) {
     if (this.ended || this[kEnding]) {
-      this[kError](new TestError('ERR_TEARDOWN_AFTER_END'), Test.prototype.teardown)
+      this[kError](new TestError('ERR_TEARDOWN_AFTER_END'))
     }
     this[kTeardowns].push(fn)
   }
@@ -649,7 +683,7 @@ class Test extends Promise {
         writable: true,
         value: setTimeout(() => {
           if (this.ended) return
-          this[kError](new TestError('ERR_TIMEOUT', { ms }), Test.prototype.timeout)
+          this[kError](new TestError('ERR_TIMEOUT', { ms }))
         }, ms)
       }
     })
@@ -674,6 +708,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
   if (ok) return null
 
   const err = new AssertionError({ stackStartFunction, message, operator: assert, actual, expected })
+  stackScrub(err)
   if (top) {
     err.at = {
       line: top.getLineNumber(),
@@ -700,8 +735,11 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
     })
     if (match) line = line.replace(/file:\/?\/?\/?/, '')
     return line
-  }).join('\n')
-  if (!info.stack) delete info.stack
+  }).join('\n').trim()
+
+  if (!info.stack || code === 'ERR_TIMEOUT' || code === 'ERR_PREMATURE_END' || actual?.code === 'ERR_TIMEOUT' || actual?.code === 'ERR_PREMATURE_END') delete info.stack
+
+
   if (actual === undefined && expected === undefined) {
     delete info.actual
     delete info.expected
