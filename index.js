@@ -2,28 +2,32 @@
 const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
+const { EventEmitter, once } = require('events')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
 const SonicBoom = require('sonic-boom')
 const StackParser = require('error-stack-parser')
-const { TestError, TestTypeError } = require('./errors')
+const { TestError, TestTypeError } = require('./lib/errors')
+const {
+  kIncre,
+  kCount,
+  kCounted,
+  kError,
+  kResolve,
+  kTimeout,
+  kTeardowns,
+  kInfo,
+  kChildren,
+  kEnding,
+  kSkip,
+  kTodo,
+  kLevel,
+  kReset,
+  kMain
+} = require('./lib/symbols')
+
 const parseStack = StackParser.parse.bind(StackParser)
-
-const kIncre = Symbol('brittle.increment')
-const kCount = Symbol('brittle.count')
-const kCounted = Symbol('brittle.counted')
-const kError = Symbol('brittle.error')
-const kResolve = Symbol('brittle.resolve')
-const kTimeout = Symbol('brittle.timeout')
-const kTeardowns = Symbol('brittle.teardowns')
-const kInfo = Symbol('brittle.info')
-const kChildren = Symbol('brittle.children')
-const kEnding = Symbol('brittle.ending')
-const kSkip = Symbol('brittle.skip')
-const kTodo = Symbol('brittle.todo')
-const kMain = Symbol('brittle.main')
-
 const noop = () => {}
 const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
@@ -68,15 +72,26 @@ process.once('exit', async () => {
   if (main.ended === false) main.end()
 })
 
-class Tap {
+class Tap extends EventEmitter {
   constructor (test, output) {
+    super()
     this.test = test
     this.chunks = []
-    this.commands = []
     this.flowing = false
-    this.tapper = this.flow(this.tap(test))
-    this.output = output
-    this.tapper.next().then(({ value = '' }) => output.write(value || ''))
+    this.tapper = null
+    if (!this.test[kMain]) this.begin()
+  }
+
+  get output () {
+    return this.test.output
+  }
+
+  begin () {
+    this.tapper = this.tapper || this.flow(this.tap(this.test))
+    this.tapper.next().then(({ value = '' }) => {
+      this.output.write(value)
+      this.emit('begun')
+    })
   }
 
   buildQueue () {
@@ -104,8 +119,6 @@ class Tap {
     const ready = queue.length && Promise.allSettled(queue)
     if (queue.length) ready.then(() => { this.flowing = true })
     while (true) {
-      this.commands.push(next)
-
       const { value = '', done } = await tap.next(next)
       if (this.flowing) {
         const out = backlog.length ? backlog.join('') + value : value
@@ -135,10 +148,10 @@ class Tap {
       top = parent || top
     }
     parent = test.parent
-    const indent = Array.from({ length: level + 1 }).map(() => '    ').join('')
+    const indent = Array.from({ length: level + 1 + test[kLevel] }).map(() => '    ').join('')
     const outdent = indent.slice(4)
     try {
-      let next = test[kMain] ? yield 'TAP version 13\n' : yield
+      let next = test[kMain] && test[kLevel] === 0 ? yield 'TAP version 13\n' : yield
       do {
         const { type } = next
         if (type === 'drain') {
@@ -161,8 +174,8 @@ class Tap {
           }
           const comment = test[kSkip] ? '# SKIP\n' : (test[kTodo] ? '# TODO\n' : `# time=${test.time}ms\n`)
           let out = test[kMain]
-            ? comment
-            : `ok ${test.index} - ${test.description} ${comment}`
+            ? `${indent}${comment}`
+            : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
           if (test.parent !== null && test.parent[kMain]) out += '\n'
           if (test.failing) out = `not ${out}`
           out = `${outdent}${out}`
@@ -226,6 +239,7 @@ class Tap {
   }
 
   async step (cmd) {
+    if (this.tapper === null) await once(this, 'begun')
     if (this.test.parent && this.test.parent[kMain] === false) {
       const from = await this.tapper.next(cmd)
       await this.test.parent.tap.step({ type: 'subsert', from })
@@ -235,9 +249,11 @@ class Tap {
     if (done) {
       const closer = this.output === process.stderr || this.output === process.stdout || this.output instanceof SonicBoom ? 'write' : 'end'
       if (value) this.output[closer](value)
+      this.emit(cmd.type, cmd)
       return
     }
     if (value) this.output.write(value)
+    this.emit(cmd.type, cmd)
 
     if (!done && cmd.type === 'end') return this.step(cmd)
   }
@@ -260,11 +276,35 @@ class Test extends Promise {
   static get [Symbol.species] () { return Promise }
 
   constructor (description, options = {}) {
+    const resolver = {}
+    super((resolve) => { resolver.resolve = resolve })
+    Object.defineProperties(this, { [kResolve]: { value: resolver.resolve } })
+
+    this[kReset](description, options)
+
+    if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
+      this.tap.step({ type: 'title', title: this.description })
+    }
+
+    if (this[kSkip] || this[kTodo]) {
+      const end = this.end.bind(this)
+      for (const method of methods) this[method] = noop
+      for (const method of coercables) this[method].coercively = noop
+      end()
+    } else {
+      for (const method of methods) this[method] = this[method].bind(this)
+      for (const method of coercables) {
+        this[method].coercively = (actual, expected, message) => this[method](actual, expected, message, false)
+      }
+    }
+  }
+
+  get [Symbol.toStringTag] () {} // just the presence of this corrects the callframe name of this class from Promise to Test
+
+  [kReset] (description = this.description, options = this.options) {
     const start = process.hrtime.bigint()
     const main = description === kMain
-    const resolver = {}
     const { parent = null } = options
-    super((resolve) => { resolver.resolve = resolve })
     if (parent) {
       parent[kChildren].push(this)
       parent[kIncre]()
@@ -286,7 +326,7 @@ class Test extends Promise {
       enumerable: true,
       get () { return 0 },
       set (n) {
-        process.exitCode = 1
+        if (n > 0) process.exitCode = 1
         Object.defineProperty(this, 'failing', {
           configurable: true,
           writable: true,
@@ -297,37 +337,26 @@ class Test extends Promise {
     })
 
     // non-enumerables:
-    Object.defineProperties(this, {
-      assert: { value: this },
-      [kMain]: { value: main },
-      [kCounted]: { value: 0, writable: true },
-      [kEnding]: { value: false, writable: true },
-      [kTeardowns]: { value: [] },
-      [kChildren]: { value: [] },
-      [kResolve]: { value: resolver.resolve }
-
-    })
-    this.configure(options)
-    Object.defineProperty(this, 'tap', { value: new Tap(this, this.output) })
-
-    if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
-      this.tap.step({ type: 'title', title: this.description })
-    }
-
-    if (this[kSkip] || this[kTodo]) {
-      const end = this.end.bind(this)
-      for (const method of methods) this[method] = noop
-      for (const method of coercables) this[method].coercively = noop
-      end()
+    if (this.assert) {
+      this[kEnding] = false
+      this[kCounted] = 0
+      this[kTeardowns].length = 0
+      this[kChildren].length = 0
     } else {
-      for (const method of methods) this[method] = this[method].bind(this)
-      for (const method of coercables) {
-        this[method].coercively = (actual, expected, message) => this[method](actual, expected, message, false)
-      }
+      Object.defineProperties(this, {
+        assert: { value: this },
+        [kMain]: { value: main },
+        [kCounted]: { value: 0, writable: true },
+        [kEnding]: { value: false, writable: true },
+        [kTeardowns]: { value: [] },
+        [kChildren]: { value: [] }
+      })
     }
-  }
 
-  get [Symbol.toStringTag] () {} // just the presence of this corrects the callframe name of this class from Promise to Test
+    this.configure(options)
+
+    Object.defineProperty(this, 'tap', { value: new Tap(this, this.output), configurable: true })
+  }
 
   [kError] (err) {
     if (this.error) return
@@ -388,7 +417,8 @@ class Test extends Promise {
       options: { value: options, configurable: true },
       bail: { value: bail, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
-      [kTodo]: { value: options.todo === true, writable: true }
+      [kTodo]: { value: options.todo === true, writable: true },
+      [kLevel]: { value: options[kLevel] || 0, writable: true }
     })
 
     if (this[kMain] === false) this.timeout(timeout)
@@ -402,13 +432,12 @@ class Test extends Promise {
     const teardowns = this[kTeardowns].slice()
     this[kTeardowns].length = 0
     this[kEnding] = true
-
     await Promise.allSettled(this[kChildren])
-
     if (this[kCounted] < this.count) {
       await null // tick
       await this.tap.step({ type: 'drain' })
     }
+
     clearTimeout(this[kTimeout])
     this[kTimeout] = null
 
@@ -435,6 +464,7 @@ class Test extends Promise {
 
   get test () {
     function test (description = !this[kMain] ? `${this.description} - subtest` : 'tbd', opts, fn) {
+      if (this[kMain] && this.tap.tapper === null) this.tap.begin()
       if (typeof opts === 'function') {
         fn = opts
         opts = undefined
@@ -739,7 +769,6 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
 
   if (!info.stack || code === 'ERR_TIMEOUT' || code === 'ERR_PREMATURE_END' || actual?.code === 'ERR_TIMEOUT' || actual?.code === 'ERR_PREMATURE_END') delete info.stack
 
-
   if (actual === undefined && expected === undefined) {
     delete info.actual
     delete info.expected
@@ -753,3 +782,4 @@ module.exports.skip = main.skip.bind(main)
 module.exports.todo = main.todo.bind(main)
 module.exports.configure = main.configure.bind(main)
 module.exports.test = module.exports
+module.exports[kMain] = main

@@ -1,10 +1,11 @@
 {
   "name": "brittle",
   "version": "1.0.0",
-  "description": "> tap à la mode",
+  "description": "tap à la mode",
   "main": "index.js",
+  "bin": "./cmd.mjs",
   "scripts": {
-    "lint": "standard index.js errors.js",
+    "lint": "standard index.js lib/*.js",
     "test": "node test/index.test.js"
   },
   "keywords": [],
@@ -12,18 +13,22 @@
   "license": "MIT",
   "dependencies": {
     "c8": "^7.8.0",
+    "chokidar": "^3.5.2",
     "close-with-grace": "^1.1.0",
     "deep-equal": "^2.0.5",
     "error-stack-parser": "^2.0.6",
+    "glob": "^7.1.7",
+    "minimist": "^1.2.5",
     "mockalicious": "0.0.16",
     "sonic-boom": "^2.2.3",
+    "tap-mocha-reporter": "^5.0.1",
+    "tap-parser": "^10.1.0",
     "tap-yaml": "^1.0.0",
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
     "standard": "^16.0.3",
-    "tap": "^15.0.9",
-    "tap-parser": "^10.1.0"
+    "tap": "^15.0.9"
   },
   "repository": {
     "type": "git",
