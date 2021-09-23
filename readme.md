@@ -364,3 +364,66 @@ const result = await test('describe', async ({ plan, pass }) => {
 })
 console.log(result)
 ```
+
+## Runner
+
+Tests can be executed directly with `node`:
+
+```sh
+node path/to/my/test.js
+```
+
+A `brittle` runner is supplied for enhances functionality:
+
+```sh
+npm install -g brittle
+```
+
+```sh
+brittle path/to/tests/*.test.js
+```
+
+Note globbing is supported.
+
+For usage information run `brittle -h`
+
+
+```
+Brittle
+
+brittle [flags] [<files>]
+
+--help | -h         Show this help
+--watch | -w        Rerun tests when a file changes
+--reporter | -R     Set test reporter: tap, spec, dot
+--no-cov            Turn off coverage
+--100               Fail if coverage is not 100%
+--90                Fail if coverage is not 90%
+--85                Fail if coverage is not 85%
+--cov-report        Set coverage reporter:
+                    text, html, text-summary...
+
+--cov-help          Show advanced coverage options
+```
+
+### Example `package.json` `test` field setup
+
+The following would run all `.js` files in the test folder, output test results using the spec reporter and re-test a project every time a file changed while also
+enforcing an 85% coverage constraint. In a CI environment the watch functionality would be turned off, and the reporter would be the tap reporter.
+
+```json
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "brittle -R spec --85 -w test/*.js"
+  },
+  "devDependencies": {
+    "brittle": "^1.0.0"
+  }
+}
+```
+
+## License
+
+MIT
