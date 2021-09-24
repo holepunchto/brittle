@@ -2508,7 +2508,15 @@ ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
 
 `
@@ -2561,7 +2569,15 @@ ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
 
 `
@@ -2748,7 +2764,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         line: 40
         column: 3
         file: file:///snapshot.js
-      source: |-2
+      source: |2
         --^
         })
       stack: |-
@@ -2759,8 +2775,51 @@ not ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 not ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        not ok 1 - should match snapshot
+          ---
+          actual: "321"
+          expected: "123"
+          operator: snapshot
+          at:
+            line: 45
+            column: 10
+            file: file:///snapshot.js
+          source: |-2
+            ---------^
+              await assert.end()
+            })
+          stack: |-
+            fixtures/snapshot.js:13:37
+            fixtures/snapshot.js:13:37
+          ...
+
+        1..1
+    not ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
+# Snapshot "classic snapshot" is failing. To surgically update:
+# SNAP="classic snapshot" node fixtures/snapshot.js
+# Snapshot "inverted snapshot" is failing. To surgically update:
+# SNAP="inverted snapshot" node fixtures/snapshot.js
+# Snapshot "snapshot of a symbol" is failing. To surgically update:
+# SNAP="snapshot of a symbol" node fixtures/snapshot.js
+# Snapshot "snapshot of an Error" is failing. To surgically update:
+# SNAP="snapshot of an Error" node fixtures/snapshot.js
+# Snapshot "snapshot of number" is failing. To surgically update:
+# SNAP="snapshot of number" node fixtures/snapshot.js
+# Snapshot "snapshot of an object" is failing. To surgically update:
+# SNAP="snapshot of an object" node fixtures/snapshot.js
+# Snapshot "multiple snapshots" is failing. To surgically update:
+# SNAP="multiple snapshots" node fixtures/snapshot.js
+# Snapshot "multiple snapshots" is failing. To surgically update:
+# SNAP="multiple snapshots" node fixtures/snapshot.js
+# Snapshot "child snapshot > the child" is failing. To surgically update:
+# SNAP="child snapshot > the child" node fixtures/snapshot.js
 
 `
 
@@ -2812,7 +2871,15 @@ ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
 
 `
@@ -2865,7 +2932,15 @@ ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
 
 `
@@ -3052,7 +3127,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         line: 40
         column: 3
         file: file:///snapshot.js
-      source: |-2
+      source: |2
         --^
         })
       stack: |-
@@ -3063,8 +3138,51 @@ not ok 8 - snapshot of an object # time=1.3371337ms
     1..2
 not ok 9 - multiple snapshots # time=1.3371337ms
 
-1..9
+# child snapshot
+    # the child
+        not ok 1 - should match snapshot
+          ---
+          actual: "123"
+          expected: "321"
+          operator: snapshot
+          at:
+            line: 45
+            column: 10
+            file: file:///snapshot.js
+          source: |-2
+            ---------^
+              await assert.end()
+            })
+          stack: |-
+            fixtures/snapshot.js:13:37
+            fixtures/snapshot.js:13:37
+          ...
+
+        1..1
+    not ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
 # time=1.3371337ms
+# Snapshot "classic snapshot" is failing. To surgically update:
+# SNAP="classic snapshot" node fixtures/snapshot.js
+# Snapshot "inverted snapshot" is failing. To surgically update:
+# SNAP="inverted snapshot" node fixtures/snapshot.js
+# Snapshot "snapshot of a symbol" is failing. To surgically update:
+# SNAP="snapshot of a symbol" node fixtures/snapshot.js
+# Snapshot "snapshot of an Error" is failing. To surgically update:
+# SNAP="snapshot of an Error" node fixtures/snapshot.js
+# Snapshot "snapshot of number" is failing. To surgically update:
+# SNAP="snapshot of number" node fixtures/snapshot.js
+# Snapshot "snapshot of an object" is failing. To surgically update:
+# SNAP="snapshot of an object" node fixtures/snapshot.js
+# Snapshot "multiple snapshots" is failing. To surgically update:
+# SNAP="multiple snapshots" node fixtures/snapshot.js
+# Snapshot "multiple snapshots" is failing. To surgically update:
+# SNAP="multiple snapshots" node fixtures/snapshot.js
+# Snapshot "child snapshot > the child" is failing. To surgically update:
+# SNAP="child snapshot > the child" node fixtures/snapshot.js
 
 `
 

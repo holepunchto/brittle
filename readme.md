@@ -211,7 +211,6 @@ Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!==`.
 
-
 #### `ok(value, [ message ])`
 
 Checks that `value` is truthy: `!!value === true`
@@ -251,6 +250,12 @@ execution(async () => { })
 execution(Promise.resolve('cool'))
 ```
 
+#### `snapshot(actual, [ message ])`
+
+On the first run, this assertion automatically creates a fixture in the `__snapshots__` folder of project root.
+On subsequent test runs the `actual` value is asserted against the previously captured fixture as the expected value.
+If the input value matches the snapshot, the test passes. Test failure means either the code should be fixed or
+the snapshot should be updated. See [Updating Snapshots](#updating-snapshots) for how to regenerate snapshots.
 
 #### `is.coercively(actual, expected, [ message ])`
 
@@ -396,6 +401,8 @@ brittle [flags] [<files>]
 --help | -h         Show this help
 --watch | -w        Rerun tests when a file changes
 --reporter | -R     Set test reporter: tap, spec, dot
+--snap-all          Update all snapshots
+--snap <name>       Update specific snapshot by name
 --no-cov            Turn off coverage
 --100               Fail if coverage is not 100%
 --90                Fail if coverage is not 90%
@@ -405,6 +412,54 @@ brittle [flags] [<files>]
 
 --cov-help          Show advanced coverage options
 ```
+
+### Updating snapshots
+
+If a `snapshot` assert fails it is up to the developer to either verify that the current input is incorrect and fix it,
+or to establish that the input is an update and therefore correct. In the event that the input is correct the `SNAP` 
+environment variable or the `brittle` CLI tool can be used to update the snapshot.
+
+#### Directly with Node
+
+To update all snapshots:
+
+```sh
+SNAP=1 node path/to/test.js
+```
+
+To update a specific snapshot:
+
+```sh
+SNAP="name of snapshot" node path/to/test.js
+```
+
+The string is converted into a regular expression with global matching so partial matches and multiple
+matches are possible.
+
+#### `brittle` command-line
+
+To update all snapshots:
+
+```sh
+brittle --snap-all path/to/*.test.js
+```
+
+To update a specific snapshot:
+
+```sh
+brittle --snap "name of snapshot" path/to/*.test.js
+```
+
+The string is converted into a regular expression with global matching so partial matches and multiple
+matches are possible.
+
+
+#### `brittle` interactive watch mode
+
+If a snapshot assert fails in watch mode, an additional function key is provided: Press **s** to manage snapshots.
+
+This will provide a menu where individual failing snapshots can be selected so in order be individually updated.
+
 
 ### Example `package.json` `test` field setup
 

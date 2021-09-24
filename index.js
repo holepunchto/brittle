@@ -20,6 +20,7 @@ const {
   kResolve,
   kTimeout,
   kTeardowns,
+  kSnap,
   kInfo,
   kChildren,
   kEnding,
@@ -35,7 +36,7 @@ const parseStack = StackParser.parse.bind(StackParser)
 const noop = () => {}
 const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
-const SNAP = !!process.env.SNAP
+const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
 
 process.on('uncaughtException', (err) => {
   if (err instanceof Promise) return
@@ -179,7 +180,7 @@ class Tap extends EventEmitter {
           }
           const comment = test[kSkip] ? '# SKIP\n' : (test[kTodo] ? '# TODO\n' : `# time=${test.time}ms\n`)
           let out = test[kMain]
-            ? `${indent}${comment}`
+            ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}`
             : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
           if (test.parent !== null && test.parent[kMain]) out += '\n'
           if (test.failing) out = `not ${out}`
@@ -271,10 +272,13 @@ const stackScrub = (err) => {
   if (err && err.stack) {
     const scrubbed = parseStack(err).filter(({ fileName }) => fileName !== __filename)
     if (scrubbed.length > 0) {
-      err.stack = `${Error.prototype.toString.call(err)}\n    at ${scrubbed.join('\n    at ')}`
+      err.stack = `${Error.prototype.toString.call(err)}\n    at ${scrubbed.join('\n    at ').replace(/\?cacheBust=\d+/g, '')}`
     }
   }
   return err
+}
+const normalizeToFilePath = (f) => {
+  try { return fileURLToPath(f) } catch { return f }
 }
 
 class Test extends Promise {
@@ -289,6 +293,10 @@ class Test extends Promise {
 
     if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
       this.tap.step({ type: 'title', title: this.description })
+    } else {
+      this[kSnap] = SNAP
+      this.runner = false
+      this.advice = []
     }
 
     if (this[kSkip] || this[kTodo]) {
@@ -708,29 +716,51 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
+    const file = normalizeToFilePath(top.getFileName())
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
     let ok = true
     let expected = null
+    let specName = this.description
+    let parent = this.parent
+    do {
+      if (parent[kMain] === false) specName = `${parent.description} > ${specName}`
+    } while (parent = parent.parent) // eslint-disable-line
     try {
       ss.core({
         what: actual,
-        file: top.getFileName(),
-        specName: this.description,
+        file: file,
+        specName: specName,
         raiser (o) {
           expected = o.expected
           if (deepEqual(o.value, expected) === false) throw Error('snapshot match failed')
         },
         opts: {
-          update: SNAP
+          update: main[kSnap] instanceof RegExp ? main[kSnap].test(specName) : main[kSnap],
+          useRelativePath: true
+
         }
       })
     } catch {
       ok = false
     }
-    if (ok) this.passing += 1
-    else this.failing += 1
+    if (ok) {
+      this.passing += 1
+    } else {
+      this.failing += 1
+      main.advice.push(`# Snapshot "${specName}" is failing. To surgically update:\n`)
+      if (main.runner) {
+        main.advice.push({
+          specName,
+          file: file,
+          advice: `# brittle --snap "${specName}" ${process.argv.slice(2).join(' ')}\n`,
+          [Symbol.toPrimitive] () { return this.advice }
+        })
+      } else {
+        main.advice.push(`# SNAP="${specName}" node ${file.replace(cwd, '').slice(1)}\n`)
+      }
+    }
     const explanation = explain(ok, message, assert, Test.prototype.snapshot, actual, expected, top)
     await this.tap.step({ type, assert, ok, message, count, explanation })
     return ok
@@ -785,7 +815,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
     err.at = {
       line: top.getLineNumber(),
       column: top.getColumnNumber(),
-      file: top.getFileName()
+      file: top.getFileName().replace(/\?cacheBust=\d+/g, '')
     }
     try {
       const code = readFileSync(fileURLToPath(new URL(err.at.file, 'file:')), { encoding: 'utf-8' })

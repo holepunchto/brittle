@@ -9,6 +9,8 @@ ${bgYellow('    ')}
 ${bgYellow('    ')}  --help | -h         Show this help
 ${bgYellow('    ')}  --watch | -w        Rerun tests when a file changes
 ${bgYellow('    ')}  --reporter | -R     Set test reporter: ${italic('tap, spec, dot')}
+${bgYellow('    ')}  --snap-all          Update all snapshots
+${bgYellow('    ')}  --snap <name>       Update specific snapshot by name
 ${bgYellow('    ')}  --no-cov            Turn off coverage
 ${bgYellow('    ')}  --100               Fail if coverage is not 100%  
 ${bgYellow('    ')}  --90                Fail if coverage is not 90%

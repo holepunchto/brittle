@@ -39,3 +39,9 @@ test('multiple snapshots', async ({ snapshot }) => {
   snapshot(TEST_VALUE)
   snapshot({value: TEST_VALUE})
 })
+
+test('child snapshot', async ({ test }) => {
+  const assert = test('the child')
+  assert.snapshot(TEST_VALUE)
+  await assert.end()
+})
