@@ -1,4 +1,4 @@
-import { rmdir } from 'fs/promises'
+import { rm } from 'fs/promises'
 import { fileURLToPath } from 'url'
 import { dirname, join, resolve, sep } from 'path'
 import { promisify } from 'util'
@@ -186,10 +186,10 @@ test('snapshot', async function ({ matchSnapshot, ok, equal, teardown }) {
   process.chdir(testDir)
   const snapshots = resolve(testDir, '__snapshots__')
   teardown(async () => { 
+    await rm(snapshots, { recursive: true }) 
     process.chdir(cwd)
-    await rmdir(snapshots, { recursive: true }) 
   })
-  await rmdir(snapshots, { recursive: true })
+  await rm(snapshots, { recursive: true, force: true })
   
   {
     // snapshot create:
