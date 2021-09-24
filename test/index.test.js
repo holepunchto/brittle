@@ -1,3 +1,4 @@
+import { rmdir } from 'fs/promises'
 import { fileURLToPath } from 'url'
 import { dirname, join, resolve, sep } from 'path'
 import { promisify } from 'util'
@@ -20,7 +21,12 @@ const clean = (str) => {
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
 }
 const run = promisify(async (testPath, cb) => {
-  const sp = spawn(process.execPath, [join(fixtures, testPath)], { stdio: ['pipe', 'pipe', 'pipe'] })
+  let opts = {}
+  if (typeof testPath === 'object') {
+    opts = testPath
+    testPath = opts.test
+  }
+  const sp = spawn(process.execPath, [join(fixtures, testPath)], { stdio: ['pipe', 'pipe', 'pipe'], ...opts })
   const stdout = []
   const stderr = []
   sp.stdout.setEncoding('utf-8')
@@ -173,4 +179,58 @@ test('inverted after end teardown', async function ({ matchSnapshot, ok, equal }
   ok(valid(result), 'valid tap output')
   matchSnapshot(result.stdout)
   matchSnapshot(result.stderr)
+})
+
+test('snapshot', async function ({ matchSnapshot, ok, equal, teardown }) {
+  const cwd = process.cwd()
+  process.chdir(testDir)
+  const snapshots = resolve(testDir, '__snapshots__')
+  teardown(async () => { 
+    process.chdir(cwd)
+    await rmdir(snapshots, { recursive: true }) 
+  })
+  await rmdir(snapshots, { recursive: true })
+  
+  {
+    // snapshot create:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    equal(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
+  {
+    // snapshot pass:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    equal(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
+  {
+    // snapshot fail:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
+    equal(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
+  {
+    // snapshot update:
+    const result = await run({test: 'snapshot.js', env: { SNAP: '1', TEST_VALUE: '321' }})
+    equal(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
+  {
+    // snapshot pass with new value
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
+    equal(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
+  {
+    // snapshot fail with old value:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    equal(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    matchSnapshot(result.stdout)
+  }
 })

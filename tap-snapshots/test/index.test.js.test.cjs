@@ -2460,6 +2460,614 @@ ok 3 - run this one # time=1.3371337ms
 
 `
 
+exports[`test/index.test.js TAP snapshot > must match snapshot 1`] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
+exports[`test/index.test.js TAP snapshot > must match snapshot 2`] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
+exports[`test/index.test.js TAP snapshot > must match snapshot 3`] = `
+TAP version 13
+# classic snapshot
+    not ok 1 - should match snapshot
+      ---
+      actual: "321"
+      expected: "123"
+      operator: snapshot
+      at:
+        line: 6
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('classic snapshot', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    not ok 1 - should match snapshot
+      ---
+      actual: "321"
+      expected: "123"
+      operator: snapshot
+      at:
+        line: 10
+        column: 8
+        file: file:///snapshot.js
+      source: |
+        -------^
+        await assert.end()
+      stack: |-
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    not ok 1 - should match snapshot
+      ---
+      actual: <Symbol(321)>
+      expected: <Symbol(123)>
+      operator: snapshot
+      at:
+        line: 15
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of a symbol', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    not ok 1 - should match snapshot
+      ---
+      actual:
+        name: Error
+        message: "321"
+      expected:
+        name: Error
+        message: "123"
+      operator: snapshot
+      at:
+        line: 19
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of an Error', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    not ok 1 - should match snapshot
+      ---
+      actual: 321
+      expected: 123
+      operator: snapshot
+      at:
+        line: 31
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of number', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    not ok 1 - should match snapshot
+      ---
+      actual:
+        value: "321"
+        more:
+          nesting: props
+      expected:
+        value: "123"
+        more:
+          nesting: props
+      operator: snapshot
+      at:
+        line: 35
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of an object', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    not ok 1 - should match snapshot
+      ---
+      actual: "321"
+      expected: "123"
+      operator: snapshot
+      at:
+        line: 39
+        column: 3
+        file: file:///snapshot.js
+      source: |-
+        test('multiple snapshots', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    not ok 2 - should match snapshot
+      ---
+      actual:
+        value: "321"
+      expected:
+        value: "123"
+      operator: snapshot
+      at:
+        line: 40
+        column: 3
+        file: file:///snapshot.js
+      source: |-2
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..2
+not ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
+exports[`test/index.test.js TAP snapshot > must match snapshot 4`] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
+exports[`test/index.test.js TAP snapshot > must match snapshot 5`] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
+exports[`test/index.test.js TAP snapshot > must match snapshot 6`] = `
+TAP version 13
+# classic snapshot
+    not ok 1 - should match snapshot
+      ---
+      actual: "123"
+      expected: "321"
+      operator: snapshot
+      at:
+        line: 6
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('classic snapshot', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    not ok 1 - should match snapshot
+      ---
+      actual: "123"
+      expected: "321"
+      operator: snapshot
+      at:
+        line: 10
+        column: 8
+        file: file:///snapshot.js
+      source: |
+        -------^
+        await assert.end()
+      stack: |-
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    not ok 1 - should match snapshot
+      ---
+      actual: <Symbol(123)>
+      expected: <Symbol(321)>
+      operator: snapshot
+      at:
+        line: 15
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of a symbol', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    not ok 1 - should match snapshot
+      ---
+      actual:
+        name: Error
+        message: "123"
+      expected:
+        name: Error
+        message: "321"
+      operator: snapshot
+      at:
+        line: 19
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of an Error', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    not ok 1 - should match snapshot
+      ---
+      actual: 123
+      expected: 321
+      operator: snapshot
+      at:
+        line: 31
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of number', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    not ok 1 - should match snapshot
+      ---
+      actual:
+        value: "123"
+        more:
+          nesting: props
+      expected:
+        value: "321"
+        more:
+          nesting: props
+      operator: snapshot
+      at:
+        line: 35
+        column: 3
+        file: file:///snapshot.js
+      source: |
+        test('snapshot of an object', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..1
+not ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    not ok 1 - should match snapshot
+      ---
+      actual: "123"
+      expected: "321"
+      operator: snapshot
+      at:
+        line: 39
+        column: 3
+        file: file:///snapshot.js
+      source: |-
+        test('multiple snapshots', async ({ snapshot }) => {
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    not ok 2 - should match snapshot
+      ---
+      actual:
+        value: "123"
+      expected:
+        value: "321"
+      operator: snapshot
+      at:
+        line: 40
+        column: 3
+        file: file:///snapshot.js
+      source: |-2
+        --^
+        })
+      stack: |-
+        fixtures/snapshot.js:13:37
+        fixtures/snapshot.js:13:37
+      ...
+
+    1..2
+not ok 9 - multiple snapshots # time=1.3371337ms
+
+1..9
+# time=1.3371337ms
+
+`
+
 exports[`test/index.test.js TAP tappable errors > must match snapshot 1`] = `
 TAP version 13
 # generic

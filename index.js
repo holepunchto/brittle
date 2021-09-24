@@ -8,7 +8,10 @@ const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
 const SonicBoom = require('sonic-boom')
 const StackParser = require('error-stack-parser')
+const ss = require('snap-shot-core')
+const { serializeError } = require('serialize-error')
 const { TestError, TestTypeError } = require('./lib/errors')
+const { Console } = require('console')
 const {
   kIncre,
   kCount,
@@ -27,10 +30,12 @@ const {
   kMain
 } = require('./lib/symbols')
 
+const console = new Console(process.stdout, process.stderr)
 const parseStack = StackParser.parse.bind(StackParser)
 const noop = () => {}
 const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
+const SNAP = !!process.env.SNAP
 
 process.on('uncaughtException', (err) => {
   if (err instanceof Promise) return
@@ -259,7 +264,7 @@ class Tap extends EventEmitter {
   }
 }
 
-const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'comment', 'timeout', 'teardown', 'configure']
+const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'snapshot', 'comment', 'timeout', 'teardown', 'configure']
 const coercables = ['is', 'not', 'alike', 'unlike']
 const booms = new Map()
 const stackScrub = (err) => {
@@ -694,6 +699,43 @@ class Test extends Promise {
     return ok
   }
 
+  async snapshot (actual, message = 'should match snapshot') {
+    this[kIncre]()
+    if (actual === undefined) actual = `<${actual}>`
+    if (typeof actual === 'symbol') actual = `<${actual.toString()}>`
+    if (actual instanceof Error) {
+      actual = serializeError(actual)
+      delete actual.stack
+    }
+    const top = originFrame(Test.prototype.snapshot)
+    const type = 'assert'
+    const assert = 'snapshot'
+    const count = this.count
+    let ok = true
+    let expected = null
+    try {
+      ss.core({
+        what: actual,
+        file: top.getFileName(),
+        specName: this.description,
+        raiser (o) {
+          expected = o.expected
+          if (deepEqual(o.value, expected) === false) throw Error('snapshot match failed')
+        },
+        opts: {
+          update: SNAP
+        }
+      })
+    } catch {
+      ok = false
+    }
+    if (ok) this.passing += 1
+    else this.failing += 1
+    const explanation = explain(ok, message, assert, Test.prototype.snapshot, actual, expected, top)
+    await this.tap.step({ type, assert, ok, message, count, explanation })
+    return ok
+  }
+
   async comment (message) {
     this.tap.step({ type: 'comment', comment: message })
   }
@@ -734,7 +776,7 @@ function originFrame (stackStartFunction) {
   return top
 }
 
-function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction)) {
+function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
   if (ok) return null
 
   const err = new AssertionError({ stackStartFunction, message, operator: assert, actual, expected })

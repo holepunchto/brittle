@@ -15,15 +15,17 @@ import sleep from 'atomic-sleep'
 import Menu from 'menu-string'
 import open from 'open'
 import pkgDir from 'pkg-dir'
+import ciInfo from 'ci-info'
 import test, { configure } from './index.js'
 import usage, { covUsage } from './usage.mjs'
 import { kMain, kChildren, kLevel, kReset } from './lib/symbols.js'
 
-const { CI = 0, NODE_V8_COVERAGE } = process.env
+const { NODE_V8_COVERAGE } = process.env
+const CI = ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
   strings: ['reporter', 'cov-exclude', 'cov-include', 'cov-all', 'cov-dir', 'cov-reporter', 'cov-clean', 'lines', 'functions', 'statements', 'branches'],
-  boolean: ['watch', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help'],
+  boolean: ['watch', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap'],
   default: {
     cov: true,
     watch: false,
@@ -232,5 +234,3 @@ async function run (rerun = false) {
     process.stdout.write(`  Press ${bold('x')} to exit\n`)
   }
 }
-
-
