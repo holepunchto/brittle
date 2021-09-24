@@ -171,8 +171,6 @@ class Tap extends EventEmitter {
           yield * this.chunks.filter(Boolean)
           this.chunks.length = 0
 
-          test.time = (Number(process.hrtime.bigint() - test.start)) / 1e6
-
           if (parent !== null) {
             parent[kCount]()
           } else {
@@ -445,6 +443,9 @@ class Test extends Promise {
     const teardowns = this[kTeardowns].slice()
     this[kTeardowns].length = 0
     this[kEnding] = true
+
+    this.time = (Number(process.hrtime.bigint() - this.start)) / 1e6
+
     await Promise.allSettled(this[kChildren])
     if (this[kCounted] < this.count) {
       await null // tick

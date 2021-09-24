@@ -213,7 +213,7 @@ if (watch) {
       process.kill(process.pid, 'SIGINT')
     }
     if (ch === 'x') {
-      process.stdout.write('\n')
+      process.stdout.write('\nGenerating coverage report...\n')
       process.exit()
     }
     try {
@@ -230,7 +230,7 @@ if (watch) {
 await run()
 
 if (watch) {
-  const watcher = chokidar.watch(cwd, { ignoreInitial: true, ignored: /node_modules|coverage/, cwd: cwd })
+  const watcher = chokidar.watch(cwd, { ignoreInitial: true, ignored: /node_modules|coverage|__snapshots__/, cwd: cwd })
   for await (const [evt, file] of on(watcher, 'all')) {
   console.log(dim(`\nchange detected ${file} (${evt})`))
   await run(true)

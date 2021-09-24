@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join, resolve, sep } from 'path'
 import { promisify } from 'util'
 import { spawn } from 'child_process'
-import { test } from 'tap'
+import { test } from '../index.js'
 import Parser from 'tap-parser'
 const testDir = fileURLToPath(dirname(import.meta.url))
 const fixtures = join(testDir, 'fixtures')
@@ -58,130 +58,130 @@ const valid = (tap) => {
   }
 }
 
-test('classic pass', async function ({ matchSnapshot, ok, equal }) {
+test('classic pass', async function ({ snapshot, ok, is }) {
   const result = await run('classic-pass.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('classic fail', async function ({ matchSnapshot, ok, equal }) {
+test('classic fail', async function ({ snapshot, ok, is }) {
   const result = await run('classic-fail.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('classic assertions', async function ({ matchSnapshot, ok, equal }) {
+test('classic assertions', async function ({ snapshot, ok, is }) {
   const result = await run('classic-assertions.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('inverted pass', async function ({ matchSnapshot, ok, equal }) {
+test('inverted pass', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-pass.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('inverted fail', async function ({ matchSnapshot, ok, equal }) {
+test('inverted fail', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-fail.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('inverted assertions', async function ({ matchSnapshot, ok, equal }) {
+test('inverted assertions', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-assertions.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('nesting', async function ({ matchSnapshot, ok, equal }) {
+test('nesting', async function ({ snapshot, ok, is }) {
   const result = await run('nesting.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('teardown', async ({ matchSnapshot, ok, equal }) => {
+test('teardown', async ({ snapshot, ok, is }) => {
   const result = await run('teardown.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('timeout', async ({ matchSnapshot, ok, equal }) => {
+test('timeout', async ({ snapshot, ok, is }) => {
   const result = await run('timeout.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('comment', async ({ matchSnapshot, ok, equal }) => {
+test('comment', async ({ snapshot, ok, is }) => {
   const result = await run('comment.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('tappable errors', async ({ matchSnapshot, ok, equal }) => {
+test('tappable errors', async ({ snapshot, ok, is }) => {
   const result = await run('tappable-errors.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('skip', async ({ matchSnapshot, ok, equal }) => {
+test('skip', async ({ snapshot, ok, is }) => {
   const result = await run('skip.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('todo', async ({ matchSnapshot, ok, equal }) => {
+test('todo', async ({ snapshot, ok, is }) => {
   const result = await run('todo.js')
-  equal(result.code, 0)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
+  snapshot(result.stdout)
 })
 
-test('classic after end assert', async function ({ matchSnapshot, ok, equal }) {
+test('classic after end assert', async function ({ snapshot, ok, is }) {
   const result = await run('classic-after-end-assert.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
-  matchSnapshot(result.stderr)
+  snapshot(result.stdout)
+  snapshot(result.stderr)
 })
 
-test('classic after end teardown', async function ({ matchSnapshot, ok, equal }) {
+test('classic after end teardown', async function ({ snapshot, ok, is }) {
   const result = await run('classic-after-end-teardown.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
-  matchSnapshot(result.stderr)
+  snapshot(result.stdout)
+  snapshot(result.stderr)
 })
 
-test('inverted after end assert', async function ({ matchSnapshot, ok, equal }) {
+test('inverted after end assert', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-after-end-assert.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
-  matchSnapshot(result.stderr)
+  snapshot(result.stdout)
+  snapshot(result.stderr)
 })
 
-test('inverted after end teardown', async function ({ matchSnapshot, ok, equal }) {
+test('inverted after end teardown', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-after-end-teardown.js')
-  equal(result.code, 1)
+  is(result.code, 1)
   ok(valid(result), 'valid tap output')
-  matchSnapshot(result.stdout)
-  matchSnapshot(result.stderr)
+  snapshot(result.stdout)
+  snapshot(result.stderr)
 })
 
-test('snapshot', async function ({ matchSnapshot, ok, equal, teardown }) {
+test('snapshot', async function ({ snapshot, ok, is, teardown }) {
   const cwd = process.cwd()
   process.chdir(testDir)
   const snapshots = resolve(testDir, '__snapshots__')
@@ -194,43 +194,43 @@ test('snapshot', async function ({ matchSnapshot, ok, equal, teardown }) {
   {
     // snapshot create:
     const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
-    equal(result.code, 0)
+    is(result.code, 0)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
   {
     // snapshot pass:
     const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
-    equal(result.code, 0)
+    is(result.code, 0)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
   {
     // snapshot fail:
     const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
-    equal(result.code, 1)
+    is(result.code, 1)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
   {
     // snapshot update:
     const result = await run({test: 'snapshot.js', env: { SNAP: '1', TEST_VALUE: '321' }})
-    equal(result.code, 0)
+    is(result.code, 0)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
   {
     // snapshot pass with new value
     const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
-    equal(result.code, 0)
+    is(result.code, 0)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
   {
     // snapshot fail with old value:
     const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
-    equal(result.code, 1)
+    is(result.code, 1)
     ok(valid(result), 'valid tap output')
-    matchSnapshot(result.stdout)
+    snapshot(result.stdout)
   }
 })
