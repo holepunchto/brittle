@@ -149,8 +149,71 @@ test('todo', async ({ snapshot, ok, is }) => {
   snapshot(result.stdout)
 })
 
+test('default description', async function ({ snapshot, ok, is }) {
+  const result = await run('default-description.js')
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
+test('async functions only', async function ({ snapshot, ok, is }) {
+  const result = await run('async-functions-only.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('configure output stream', async function ({ snapshot, ok, is }) {
+  const result = await run('configure-output-stream.js')
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  is(result.stdout, '')
+  snapshot(result.stderr)
+})
+
+test('configure output fd', async function ({ snapshot, ok, is }) {
+  const result = await run('configure-output-fd.js')
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  is(result.stdout, '')
+  snapshot(result.stderr)
+})
+
+test('classic configure first', async function ({ snapshot, ok, is }) {
+  const result = await run('classic-configure-first.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('classic plan must be integer', async function ({ snapshot, ok, is }) {
+  const result = await run('classic-plan-must-be-integer.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('classic plan must be positive', async function ({ snapshot, ok, is }) {
+  const result = await run('classic-plan-must-be-positive.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
 test('classic after end assert', async function ({ snapshot, ok, is }) {
   const result = await run('classic-after-end-assert.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('classic after end count exceeds plan', async function ({ snapshot, ok, is }) {
+  const result = await run('classic-after-end-count-exceeds-plan.js')
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
@@ -165,8 +228,40 @@ test('classic after end teardown', async function ({ snapshot, ok, is }) {
   snapshot(result.stderr)
 })
 
+test('inverted configure first', async function ({ snapshot, ok, is }) {
+  const result = await run('inverted-configure-first.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('inverted plan must be integer', async function ({ snapshot, ok, is }) {
+  const result = await run('inverted-plan-must-be-integer.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('inverted plan must be positive', async function ({ snapshot, ok, is }) {
+  const result = await run('inverted-plan-must-be-positive.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
 test('inverted after end assert', async function ({ snapshot, ok, is }) {
   const result = await run('inverted-after-end-assert.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
+test('inverted after end count exceeds plan', async function ({ snapshot, ok, is }) {
+  const result = await run('inverted-after-end-count-exceeds-plan.js')
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
@@ -181,7 +276,61 @@ test('inverted after end teardown', async function ({ snapshot, ok, is }) {
   snapshot(result.stderr)
 })
 
-test('snapshot', async function ({ snapshot, ok, is, teardown }) {
+await test('snapshot', async function ({ snapshot, ok, is, teardown }) {
+  const cwd = process.cwd()
+  process.chdir(testDir)
+  const snapshots = resolve(testDir, '__snapshots__')
+  teardown(async () => { 
+    await rm(snapshots, { recursive: true }) 
+    process.chdir(cwd)
+  })
+  await rm(snapshots, { recursive: true, force: true })
+  
+  {
+    // snapshot create:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    is(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    // snapshot pass:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    is(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    // snapshot fail:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
+    is(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    // snapshot update:
+    const result = await run({test: 'snapshot.js', env: { SNAP: '1', TEST_VALUE: '321' }})
+    is(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    // snapshot pass with new value
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '321' }})
+    is(result.code, 0)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    // snapshot fail with old value:
+    const result = await run({test: 'snapshot.js', env: { TEST_VALUE: '123' }})
+    is(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+})
+
+test('snapshot CJS', async function ({ snapshot, ok, is, teardown }) {
   const cwd = process.cwd()
   process.chdir(testDir)
   const snapshots = resolve(testDir, '__snapshots__')

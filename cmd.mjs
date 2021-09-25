@@ -51,7 +51,9 @@ const normalizeToFilePath = (f) => {
 process.stdout.write(esc.cursorHide)
 onExit(() => {
   process.stdout.write(esc.cursorShow)
-  if (args['cov-report'] === 'html') open(join(args['cov-dir'], 'index.html'))
+  if (!NODE_V8_COVERAGE) {
+    if (args['cov-report'] === 'html') open(join(args['cov-dir'], 'index.html'))
+  }
 })
 
 const { _: files, cov, scr } = args
@@ -247,6 +249,7 @@ async function run (rerun = false) {
   }
   advisements.length = 0
   const output = await report(reporter)
+  let failing = 0
   const main = test[kMain]
   main.runner = true
   main[kReset]()
@@ -260,6 +263,7 @@ async function run (rerun = false) {
     output.write(`\n# ${title}\n`)
     await import(`${path}?cacheBust=${Date.now()}`)
     const results = await Promise.allSettled(main[kChildren])
+    failing += results.reduce((sum, { value }) => sum + value.failing, 0)
     await main.end()
     ss.restore()
     main[kReset]()
@@ -274,8 +278,11 @@ async function run (rerun = false) {
     output.write(`${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
   }
   await Promise.allSettled(main[kChildren])
+
   output.write(`\n1..${index - 1}\n`)
   output.write(`# time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
+  if (failing > 0) output.write(`# failing=${failing}\n`)
+
   if (!watch) output.write(main.advice.join(''))
   advisements.push(...main.advice.filter((adv) => typeof adv === 'object'))
   main.advice.length = 0

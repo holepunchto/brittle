@@ -11,3 +11,7 @@ todo('todo this one', async ({ pass }) => {
 test('run this one', async ({ pass }) => {
   pass()
 })
+
+const assert = todo()
+assert.pass()
+await assert.end()

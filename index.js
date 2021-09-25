@@ -148,98 +148,98 @@ class Tap extends EventEmitter {
   async * tap (test) {
     let parent = test.parent
     let level = +!!parent - 1
-    let top = parent || test
     while (parent = parent?.parent) { // eslint-disable-line
       level += 1
-      top = parent || top
     }
     parent = test.parent
     const indent = Array.from({ length: level + 1 + test[kLevel] }).map(() => '    ').join('')
     const outdent = indent.slice(4)
-    try {
-      let next = test[kMain] && test[kLevel] === 0 ? yield 'TAP version 13\n' : yield
-      do {
-        const { type } = next
-        if (type === 'drain') {
-          next = yield this.chunks.filter(Boolean).join('')
-          this.chunks.length = 0
-          continue
+    let next = test[kMain] && test[kLevel] === 0 ? yield 'TAP version 13\n' : yield
+    do {
+      const { type } = next
+      if (type === 'drain') {
+        next = yield this.chunks.filter(Boolean).join('')
+        this.chunks.length = 0
+        continue
+      }
+
+      if (type === 'end') {
+        await Promise.allSettled(this.queue)
+        yield * this.chunks.filter(Boolean)
+        this.chunks.length = 0
+
+        if (parent !== null) {
+          parent[kCount]()
+        } else {
+          await Promise.allSettled(test[kChildren])
         }
+        const failSummary = test[kMain] ? (await main[kChildren]).map(({ failing }) => failing).reduce((sum, n) => sum + n, 0) : ''
+        const comment = test[kSkip]
+          ? '# SKIP\n'
+          : (test[kTodo]
+              ? '# TODO\n'
+              : (main.runner ? '' : `# time=${test.time}ms\n${failSummary ? `# failing=${failSummary}\n` : ''}`)
+            )
+        let out = test[kMain]
+          ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}`
+          : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
+        if (test.parent !== null && test.parent[kMain]) out += '\n'
+        if (test.failing) out = `not ${out}`
+        out = `${outdent}${out}`
+        const plan = next.planned ? `${indent}1..${test.count}\n` : ''
 
-        if (type === 'end') {
-          await Promise.allSettled(this.queue)
-          yield * this.chunks.filter(Boolean)
-          this.chunks.length = 0
+        yield `${plan}${out}`
+        break
+      }
 
-          if (parent !== null) {
-            parent[kCount]()
-          } else {
-            await Promise.allSettled(test[kChildren])
+      if (type === 'title') {
+        const { title } = next
+        next = yield `${outdent}# ${title.trim()}\n`
+        continue
+      }
+      if (type === 'comment') {
+        const { comment } = next
+        next = yield `${indent}# ${comment.trim()}\n`
+        continue
+      }
+      if (type === 'plan') {
+        const { planned, comment } = next
+        next = yield `${indent}1..${planned}${comment ? ` # ${comment.trim()}` : ''}\n`
+        continue
+      }
+      if (type === 'assert') {
+        const { message, ok, explanation, count } = next
+
+        let out = `${indent}${ok ? 'ok' : 'not ok'} ${count}`
+        out += ` - ${message.trim().replace(/[\n\r]/g, ' ').replace(/\t/g, `${indent}  `)}\n`
+        if (!ok) {
+          const split = yaml.stringify(explanation).split('\n')
+          const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
+          out += `${indent}  ---\n${lines}\n${indent}  ...\n\n`
+          if (test.bail) {
+            out += `${indent}Bail out! Failed test - ${this.test.description}\n`
           }
-          const comment = test[kSkip] ? '# SKIP\n' : (test[kTodo] ? '# TODO\n' : `# time=${test.time}ms\n`)
-          let out = test[kMain]
-            ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}`
-            : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
-          if (test.parent !== null && test.parent[kMain]) out += '\n'
-          if (test.failing) out = `not ${out}`
-          out = `${outdent}${out}`
-          const plan = next.planned ? `${indent}1..${test.count}\n` : ''
+        }
+        test[kCount]()
 
-          yield `${plan}${out}`
-          break
+        if (count > test[kCounted]) {
+          this.chunks[count] = out
+          next = yield
+        } else {
+          out += this.chunks.slice(0, test[kCounted] + 1).filter(Boolean).join('')
+          this.chunks = this.chunks.slice(test[kCounted] + 1)
+          next = yield out
         }
 
-        if (type === 'title') {
-          const { title } = next
-          next = yield `${outdent}# ${title.trim()}\n`
-          continue
-        }
-        if (type === 'comment') {
-          const { comment } = next
-          next = yield `${indent}# ${comment.trim()}\n`
-          continue
-        }
-        if (type === 'plan') {
-          const { planned, comment } = next
-          next = yield `${indent}1..${planned}${comment ? ` # ${comment.trim()}` : ''}\n`
-          continue
-        }
-        if (type === 'assert') {
-          const { message, ok, explanation, count } = next
-
-          let out = `${indent}${ok ? 'ok' : 'not ok'} ${count}`
-          out += ` - ${message.trim().replace(/[\n\r]/g, ' ').replace(/\t/g, `${indent}  `)}\n`
-          if (!ok) {
-            const split = yaml.stringify(explanation).split('\n')
-            const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
-            out += `${indent}  ---\n${lines}\n${indent}  ...\n\n`
-            if (test.bail) {
-              out += `${indent}Bail out! Failed test - ${this.test.description}\n`
-            }
-          }
-          test[kCount]()
-
-          if (count > test[kCounted]) {
-            this.chunks[count] = out
-            next = yield
-          } else {
-            out += this.chunks.slice(0, test[kCounted] + 1).filter(Boolean).join('')
-            this.chunks = this.chunks.slice(test[kCounted] + 1)
-            next = yield out
-          }
-
-          continue
-        }
-        if (type === 'subsert') {
-          const { from } = next
-          const { value = '' } = await from
-          next = yield value
-          continue
-        }
-      } while (true)
-    } catch (err) {
-      queueMicrotask(() => { test[kError](err) })
-    }
+        continue
+      }
+      if (type === 'subsert') {
+        const { from } = next
+        const { value = '' } = await from
+        next = yield value
+        continue
+      }
+    } while (true)
   }
 
   async step (cmd) {
@@ -274,9 +274,6 @@ const stackScrub = (err) => {
     }
   }
   return err
-}
-const normalizeToFilePath = (f) => {
-  try { return fileURLToPath(f) } catch { return f }
 }
 
 class Test extends Promise {
@@ -381,6 +378,7 @@ class Test extends Promise {
     this.error = err
 
     if (this.ended) throw Promise.reject(err) // cause unhandled rejection
+    if (err.code === 'ERR_CONFIGURE_FIRST') throw Promise.reject(err)
     this.execution(Promise.reject(err), err.message).then(() => {
       if (this[kEnding] === false) this.end()
     })
@@ -396,7 +394,11 @@ class Test extends Promise {
       if (this.error) throw this.error
       if (this.ended) {
         if (this.planned > 0 && this.count + 1 > this.planned) {
-          throw new TestError('ERR_COUNT_EXCEEDS_PLAN', { count: this.count + 1, planned: this.planned })
+          throw new TestError('ERR_COUNT_EXCEEDS_PLAN_AFTER_END', {
+            count: this.count + 1,
+            planned: this.planned,
+            description: this.description
+          })
         }
 
         throw new TestError('ERR_ASSERT_AFTER_END', { description: this.description })
@@ -419,7 +421,7 @@ class Test extends Promise {
       this[kError](new TestError('ERR_CONFIGURE_FIRST'))
       return
     }
-    const { timeout = 3000, output = 1, bail = false } = options
+    const { timeout = 30000, output = 1, bail = false } = options
     if (typeof output === 'number' && booms.has(output) === false) {
       booms.set(output, new SonicBoom({ fd: output, sync: true }))
     }
@@ -495,7 +497,7 @@ class Test extends Promise {
 
       if (!fn) return new Test(description, opts)
 
-      if (!(fn instanceof AsyncFunction)) throw TestTypeError('ERR_ASYNC_ONLY')
+      if (!(fn instanceof AsyncFunction)) throw new TestTypeError('ERR_ASYNC_ONLY')
 
       const assert = new Test(description, opts)
       const promise = (async () => {
@@ -530,7 +532,7 @@ class Test extends Promise {
     return this.test(description, opts, fn)
   }
 
-  todo (description = !this[kMain] ? `${this.description} - subtest` : 'tbd', opts, fn) {
+  todo (description, opts = {}, fn) {
     if (typeof opts === 'function') {
       fn = opts
       opts = {}
@@ -651,8 +653,7 @@ class Test extends Promise {
   async exception (functionOrPromise, expectedError, message) {
     this[kIncre]()
     if (typeof expectedError === 'string') {
-      message = expectedError
-      expectedError = undefined
+      [message, expectedError] = [expectedError, message]
     }
     const top = originFrame(Test.prototype.exception)
     const pristineMessage = message === undefined
@@ -717,7 +718,7 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
-    const file = normalizeToFilePath(top.getFileName())
+    const file = fileURLToPath(new URL(top.getFileName(), 'file:'))
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
@@ -785,7 +786,6 @@ class Test extends Promise {
         configurable: true,
         writable: true,
         value: setTimeout(() => {
-          if (this.ended) return
           this[kError](new TestError('ERR_TIMEOUT', { ms }))
         }, ms)
       }
@@ -824,7 +824,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
       const point = Array.from({ length: err.at.column - 1 }).map(() => '-').join('') + '^'
       const source = [...split.slice(err.at.line - 2, err.at.line), point, ...split.slice(err.at.line, err.at.line + 2)]
       err.source = source.join('\n')
-    } catch {}
+    } /* c8 ignore next */ catch {}
   }
   const { code, generatedMessage, ...info } = err
   err.code = code

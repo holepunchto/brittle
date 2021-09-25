@@ -11,3 +11,7 @@ skip('skip this one', async ({ pass }) => {
 test('run this one', async ({ pass }) => {
   pass()
 })
+
+const assert = todo()
+assert.skip()
+await assert.end()
