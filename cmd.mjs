@@ -26,7 +26,7 @@ const CI = ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
   strings: ['reporter', 'cov-exclude', 'cov-include', 'cov-all', 'cov-dir', 'cov-reporter', 'cov-clean', 'lines', 'functions', 'statements', 'branches', 'snap'],
-  boolean: ['watch', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all'],
+  boolean: ['watch', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all', 'ec'],
   default: {
     cov: true,
     watch: false,
@@ -38,10 +38,13 @@ const args = minimist(argv, {
     help: ['h'],
     reporter: ['R', 'r'],
     watch: ['w'],
+    ec: ['e'],
     'cov-report': ['cov-reporter'],
     'show-cov-report': ['scr']
   }
 })
+
+if (args.ec) args['cov-report'] = args['cov-reporter'] = 'html'
 
 const cwd = process.cwd()
 const advisements = []

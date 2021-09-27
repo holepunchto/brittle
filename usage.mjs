@@ -6,19 +6,20 @@ ${bgYellowBright(' 🥜 ')} ${underline(('Brittle'))}
 ${bgYellow('    ')}
 ${bgYellow('    ')}  brittle [flags] [<files>]
 ${bgYellow('    ')}
-${bgYellow('    ')}  --help | -h         Show this help
-${bgYellow('    ')}  --watch | -w        Rerun tests when a file changes
-${bgYellow('    ')}  --reporter | -R     Set test reporter: ${italic('tap, spec, dot')}
-${bgYellow('    ')}  --snap-all          Update all snapshots
-${bgYellow('    ')}  --snap <name>       Update specific snapshot by name
-${bgYellow('    ')}  --no-cov            Turn off coverage
-${bgYellow('    ')}  --100               Fail if coverage is not 100%  
-${bgYellow('    ')}  --90                Fail if coverage is not 90%
-${bgYellow('    ')}  --85                Fail if coverage is not 85%
-${bgYellow('    ')}  --cov-report        Set coverage reporter: 
-${bgYellow('    ')}                      ${italic('text, html, text-summary...')}
-${bgYellow('    ')} 
-${bgYellowBright(' 🥜 ')}  --cov-help          Show advanced coverage options   
+${bgYellow('    ')}  --help | -h           Show this help
+${bgYellow('    ')}  --watch | -w          Rerun tests when a file changes
+${bgYellow('    ')}  --reporter | -R | -r  Set test reporter: ${italic('tap, spec, dot')}
+${bgYellow('    ')}  --snap-all            Update all snapshots
+${bgYellow('    ')}  --snap <name>         Update specific snapshot by name
+${bgYellow('    ')}  --no-cov              Turn off coverage
+${bgYellow('    ')}  --100                 Fail if coverage is not 100%  
+${bgYellow('    ')}  --90                  Fail if coverage is not 90%
+${bgYellow('    ')}  --85                  Fail if coverage is not 85%
+${bgYellow('    ')}  --ec | -e             Explore coverage: ${italic('--cov-report=html')}
+${bgYellow('    ')}  --cov-report          Set coverage reporter:
+${bgYellow('    ')}                        ${italic('text, html, text-summary...')}
+${bgYellow('    ')}
+${bgYellowBright(' 🥜 ')}  --cov-help            Show advanced coverage options
 ${bgYellow('    ')}
 ${bgYellow('    ')}
 
@@ -34,12 +35,15 @@ ${bgYellow('    ')}  --lines <n>         Fail if line coverage doesn't meet <n>
 ${bgYellow('    ')}  --functions <n>     Fail if function coverage doesn't meet <n>
 ${bgYellow('    ')}  --statements <n>    Fail if statement coverage doesn't meet <n>
 ${bgYellow('    ')}  --branches <n>      Fail if branch coverage doesn't meet <n>
-${bgYellow('    ')}  --cov-all           Apply coverage to all instead of only runtime-loaded files
+${bgYellow('    ')}  --cov-all           Apply coverage to all files, instead of 
+${bgYellow('    ')}                      only runtime-loaded files
 ${bgYellow('    ')}  --cov-exclude       Exclude files from coverage report
 ${bgYellow('    ')}  --cov-include       Include files in coverage report
-${bgYellow('    ')}  --cov-dir           Set the coverage output directory: ${italic('<project>/coverage')}
-${bgYellow('    ')}  --no-cov-clean      Do not wipe the coverage folder before each run                        
-${bgYellow('    ')}  --cov-report        Set coverage reporter: 
+${bgYellow('    ')}  --cov-dir           Set the coverage output directory: 
+${bgYellow('    ')}                     ${italic('<project>/coverage')}
+${bgYellow('    ')}  --no-cov-clean      Do not wipe coverage folder before each run
+${bgYellow('    ')}  --ec | -e           Explore coverage: ${italic('--cov-report=html')}
+${bgYellow('    ')}  --cov-report        Set coverage reporter:
 ${bgYellow('    ')}                      ${italic('text, html, text-summary...')}
 ${bgYellow('    ')}  --100               Fail if coverage is not 100%  
 ${bgYellow('    ')}  --90                Fail if coverage is not 90%

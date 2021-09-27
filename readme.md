@@ -2,7 +2,7 @@
 
 > tap à la mode
 
-A fullstack TAP test runner built for modern times.
+A TAP test runner built for modern times.
 
 <img width=300 height=200 src=brittle.png>
 
@@ -394,23 +394,26 @@ For usage information run `brittle -h`
 
 
 ```
-Brittle
+ 🥜  Brittle
+    
+      brittle [flags] [<files>]
+    
+      --help | -h           Show this help
+      --watch | -w          Rerun tests when a file changes
+      --reporter | -R | -r  Set test reporter: tap, spec, dot
+      --snap-all            Update all snapshots
+      --snap <name>         Update specific snapshot by name
+      --no-cov              Turn off coverage
+      --100                 Fail if coverage is not 100%  
+      --90                  Fail if coverage is not 90%
+      --85                  Fail if coverage is not 85%
+      --ec | -e             Explore coverage: --cov-report=html
+      --cov-report          Set coverage reporter:
+                            text, html, text-summary...
+    
+ 🥜   --cov-help            Show advanced coverage options
 
-brittle [flags] [<files>]
 
---help | -h         Show this help
---watch | -w        Rerun tests when a file changes
---reporter | -R     Set test reporter: tap, spec, dot
---snap-all          Update all snapshots
---snap <name>       Update specific snapshot by name
---no-cov            Turn off coverage
---100               Fail if coverage is not 100%
---90                Fail if coverage is not 90%
---85                Fail if coverage is not 85%
---cov-report        Set coverage reporter:
-                    text, html, text-summary...
-
---cov-help          Show advanced coverage options
 ```
 
 ### Updating snapshots
@@ -421,7 +424,7 @@ environment variable or the `brittle` CLI tool can be used to update the snapsho
 
 #### Directly with Node
 
-To update all snapshots:
+To update all snapshots in a test file:
 
 ```sh
 SNAP=1 node path/to/test.js
@@ -438,7 +441,7 @@ matches are possible.
 
 #### `brittle` command-line
 
-To update all snapshots:
+To update all snapshots in for all test files specified:
 
 ```sh
 brittle --snap-all path/to/*.test.js
@@ -478,6 +481,11 @@ enforcing an 85% coverage constraint. In a CI environment the watch functionalit
   }
 }
 ```
+
+## Supported Engines
+
+* Node 14
+* Node 16
 
 ## License
 
