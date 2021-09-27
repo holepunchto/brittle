@@ -329,3 +329,10 @@ await test('snapshot', async function ({ snapshot, ok, is, teardown }) {
     snapshot(result.stdout)
   }
 })
+
+test('self bail', async function ({ snapshot, ok, is }) {
+  const result = await run('self-bail.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})

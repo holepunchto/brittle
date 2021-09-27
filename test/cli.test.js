@@ -204,6 +204,20 @@ await test('--reporter tap', async ({ is, snapshot }) => {
   }
 })
 
+await test('--bail', async ({ is, snapshot }) => {
+  {
+    const result = await run([ '--bail', fixture('should-bail.js')])
+    is(result.code, 1)
+    snapshot(result.stdout)
+  }
+  {
+    const result = await run([ '--bail', fixture('should-bail.js')])
+    is(result.code, 1)
+    snapshot(result.stdout)
+  }
+
+})
+
 await test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
   const { output } = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],

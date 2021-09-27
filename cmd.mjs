@@ -26,9 +26,10 @@ const CI = ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
   strings: ['reporter', 'cov-exclude', 'cov-include', 'cov-all', 'cov-dir', 'cov-reporter', 'cov-clean', 'lines', 'functions', 'statements', 'branches', 'snap'],
-  boolean: ['watch', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all', 'ec'],
+  boolean: ['watch', 'bail', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all', 'ec'],
   default: {
     cov: true,
+    bail: false,
     watch: false,
     reporter: 'tap',
     'cov-clean': true,
@@ -39,12 +40,14 @@ const args = minimist(argv, {
     reporter: ['R', 'r'],
     watch: ['w'],
     ec: ['e'],
+    bail: ['b'],
     'cov-report': ['cov-reporter'],
     'show-cov-report': ['scr']
   }
 })
 
 if (args.ec) args['cov-report'] = args['cov-reporter'] = 'html'
+if (args.bail) args.cov = false
 
 const cwd = process.cwd()
 const advisements = []
@@ -61,7 +64,7 @@ onExit(() => {
   }
 })
 
-const { _: files, cov, scr } = args
+const { _: files, cov, scr, bail } = args
 
 if (args.help) {
   process.stdout.write(usage)
@@ -260,7 +263,7 @@ async function run (rerun = false) {
   const main = test[kMain]
   main.runner = true
   main[kReset]()
-  configure({ output, [kLevel]: 1 })
+  configure({ output, [kLevel]: 1, bail })
   let index = 1
   const start = process.hrtime.bigint()
   output.write('TAP version 13')

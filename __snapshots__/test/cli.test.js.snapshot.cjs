@@ -1980,3 +1980,55 @@ ok 1.3371337ms\r
    Press [1mx[22m to exit\r
 
 `
+
+exports['--bail 1'] = `
+[?25lTAP version 13
+# test/fixtures/should-bail.js
+    # success
+        ok 1 - passed
+        1..1
+    ok 1 - success 
+    # fail
+        not ok 1 - failed
+          ---
+          operator: fail
+          at:
+            line: 5
+            column: 34
+            file: file:///should-bail.js
+          source: |-
+            ---------------------------------^
+          stack: |-
+            test/fixtures/should-bail.js:13:37
+            test/fixtures/should-bail.js:13:37
+          ...
+
+        Bail out! Failed test - fail
+[?25h
+`
+
+exports['--bail 2'] = `
+[?25lTAP version 13
+# test/fixtures/should-bail.js
+    # success
+        ok 1 - passed
+        1..1
+    ok 1 - success 
+    # fail
+        not ok 1 - failed
+          ---
+          operator: fail
+          at:
+            line: 5
+            column: 34
+            file: file:///should-bail.js
+          source: |-
+            ---------------------------------^
+          stack: |-
+            test/fixtures/should-bail.js:13:37
+            test/fixtures/should-bail.js:13:37
+          ...
+
+        Bail out! Failed test - fail
+[?25h
+`

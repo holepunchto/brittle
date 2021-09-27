@@ -410,6 +410,7 @@ For usage information run `brittle -h`
       --help | -h           Show this help
       --watch | -w          Rerun tests when a file changes
       --reporter | -R | -r  Set test reporter: tap, spec, dot
+      --bail | -b           Bail out on first assert failure
       --snap-all            Update all snapshots
       --snap <name>         Update specific snapshot by name
       --no-cov              Turn off coverage

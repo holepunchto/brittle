@@ -3902,3 +3902,29 @@ ok 10 - child snapshot # time=1.3371337ms
 # SNAP="child snapshot > the child" node fixtures/snapshot.js
 
 `
+
+exports['self bail 1'] = `
+TAP version 13
+# success
+    ok 1 - passed
+    1..1
+ok 1 - success # time=1.3371337ms
+
+# fail
+    not ok 1 - failed
+      ---
+      operator: fail
+      at:
+        line: 7
+        column: 34
+        file: file:///self-bail.js
+      source: |-
+        ---------------------------------^
+      stack: |-
+        test/fixtures/self-bail.js:13:37
+        test/fixtures/self-bail.js:13:37
+      ...
+
+    Bail out! Failed test - fail
+
+`

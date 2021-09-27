@@ -216,8 +216,10 @@ class Tap extends EventEmitter {
           const split = yaml.stringify(explanation).split('\n')
           const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
           out += `${indent}  ---\n${lines}\n${indent}  ...\n\n`
+
           if (test.bail) {
             out += `${indent}Bail out! Failed test - ${this.test.description}\n`
+            main.bailing = true
           }
         }
         test[kCount]()
@@ -250,6 +252,13 @@ class Tap extends EventEmitter {
       return
     }
     const { value = '', done } = await this.tapper.next(cmd)
+    if ('bailing' in main && / {4}Bail out! Failed test -/.test(value)) {
+      const match = value.match(/Bail out!.+/)
+      this.output.write(value.slice(0, match.index + match[0].length) + '\n')
+      if (this.output.flushSync) this.output.flushSync()
+      else await new Promise((resolve) => setTimeout(resolve, 1000))
+      process.exit(1)
+    }
     if (done) {
       const closer = this.output === process.stderr || this.output === process.stdout || this.output instanceof SonicBoom ? 'write' : 'end'
       if (value) this.output[closer](value)
