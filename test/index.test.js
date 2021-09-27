@@ -16,7 +16,7 @@ const clean = (str) => {
     .replace(fixturesRx, '') // remove fixture call frames
     .replace(dirRx, '') // remove project dir occurrences
     .replace(/.+\(internal\/.+\n/gm, '') // remove node call frames
-    .replace(/.+\ at (node:)?internal\/.+\n/gm, '') // remove node call frames
+    .replace(/.+\ at.+(node:)?internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\(((?!\/).+)\)\n/gm, '') // remove node call frames
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
 }
