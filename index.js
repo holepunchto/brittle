@@ -738,6 +738,7 @@ class Test extends Promise {
           expected = o.expected
           if (deepEqual(o.value, expected) === false) throw Error('snapshot match failed')
         },
+        ext: '.snapshot.cjs',
         opts: {
           update: main[kSnap] instanceof RegExp ? main[kSnap].test(specName) : main[kSnap],
           useRelativePath: true
