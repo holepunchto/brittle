@@ -6,7 +6,7 @@
   "bin": "./cmd.mjs",
   "scripts": {
     "lint": "standard index.js lib/*.js",
-    "test": "node cmd.mjs test/*.test.js"
+    "test": "node cmd.mjs test/index.test.js test/cli.test.js"
   },
   "keywords": [],
   "author": "David Mark Clements (@davidmarkclem)",
@@ -37,6 +37,7 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
+    "node-pty-prebuilt-multiarch": "^0.10.1-pre.4",
     "standard": "^16.0.3"
   },
   "repository": {

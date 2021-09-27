@@ -21,7 +21,7 @@ import usage, { covUsage } from './usage.mjs'
 import ss from 'snap-shot-core'
 import { kMain, kChildren, kLevel, kReset, kSnap } from './lib/symbols.js'
 
-const { NODE_V8_COVERAGE } = process.env
+const { NODE_V8_COVERAGE, FORCE_TTY } = process.env
 const CI = ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
@@ -51,9 +51,11 @@ const advisements = []
 const normalizeToFilePath = (f) => {
   try { return fileURLToPath(f)  } catch { return f }
 }
-process.stdout.write(esc.cursorHide)
+
+if (process.stdout.isTTY || FORCE_TTY) process.stdout.write(esc.cursorHide)
+
 onExit(() => {
-  process.stdout.write(esc.cursorShow)
+  if (process.stdout.isTTY || FORCE_TTY) process.stdout.write(esc.cursorShow)
   if (!NODE_V8_COVERAGE) {
     if (args['cov-report'] === 'html') open(join(args['cov-dir'], 'index.html'))
   }
@@ -81,6 +83,7 @@ if (CI) {
   watch = false
   reporter = 'tap'
 }
+
 const paths = [...new Set(files.flatMap((f) => glob.sync(f)).filter((f) => /\.(c|m)?js/.test(f)).map((f) => pathToFileURL(resolve(cwd, f)).href))]
 
 if (!scr && paths.length === 0) {
@@ -218,7 +221,8 @@ if (watch) {
       process.kill(process.pid, 'SIGINT')
     }
     if (ch === 'x') {
-      process.stdout.write('\nGenerating coverage report...\n')
+      if (cov) process.stdout.write('\nGenerating coverage report...\n')
+      else process.stdout.write('\nExiting...\n')
       process.exit()
     }
     try {
@@ -278,7 +282,7 @@ async function run (rerun = false) {
       }
     }
     summary += `ok ${index++} - ${title}`
-    output.write(`${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
+    output.write(`\n${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
   }
   await Promise.allSettled(main[kChildren])
 

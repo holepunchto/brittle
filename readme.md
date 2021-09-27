@@ -65,6 +65,34 @@ setTimeout(() => {
 await assert // won't proceed past here until plan is fulfilled
 ```
 
+For inverted tests without a plan, the `end` method must be called:
+
+```js
+import test from 'brittle'
+
+const assert = test('some test')
+
+setTimeout(() => {
+  assert.is(true, true)
+  assert.end()
+}, 1000)
+
+await assert
+```
+
+If an inverted test without a plan does not need to wait for a callback to trigger an assert (e.g. if an asynchronous operation can be awaited instead or if no asynchronous operations are needed in this test), then `end` can be called inline like so:
+
+```js
+import test from 'brittle'
+
+const assert = test('some test')
+
+assert.is(true, true)
+
+await assert.end()
+```
+
+
 #### `assert.test(description[, opts]) => assert`
 #### `assert.test(description[, opts], async (assert) => {})`
 
@@ -74,11 +102,11 @@ style can be very useful for flow control within a test:
 
 ```js
 import test from 'brittle'
-test('some test', async ({ test, ok }) => {
-  const assert1 = test('some sub test')
-  const assert2 = test('some other sub test')
+test('some test', async ({ assert, ok }) => {
+  const assert1 = assert.test('some sub test')
+  const assert2 = assert.test('some other sub test')
   assert1.plan(1)
-  assert2.plan(2)
+  assert2.plan(1)
 
   setTimeout(() => { assert1.is(true, true) }, Math.random() * 1000)
 
@@ -92,29 +120,10 @@ test('some test', async ({ test, ok }) => {
 })
 ```
 
-The `assert` object also has a `done` property which is a circular reference to the `assert`
-object, this can instead be awaited to determine sub test completion:
+Note how the `assert` object also has an `assert` property which is a circular reference to itself.
+This is used to above so that the `assert` object and the `ok` assertion are destructured from 
+the test function argument.
 
-
-```js
-import test from 'brittle'
-test('some test', async ({ test, ok }) => {
-  const { plan, done } = test('some sub test')
-  const assert2 = test('some other sub test')
-  plan(1)
-  assert2.plan(2)
-
-  setTimeout(() => { assert1.is(true, true) }, Math.random() * 1000)
-
-  setTimeout(() => { assert2.is(true, true) }, Math.random() * 1000)
-  
-  // won't proceed past here until both assert1 and assert2 plans are fulfilled
-  await done
-  await assert2
-
-  ok('cool')
-})
-```
 
 #### `solo(description, async function)`
 
@@ -481,6 +490,70 @@ enforcing an 85% coverage constraint. In a CI environment the watch functionalit
   }
 }
 ```
+
+## Test execution control flow
+
+Classic tests will run immediately, buffering the results until any prior TAP output catches up. 
+
+In the following example `fn1` and `fn2` (both async functions) are called around the same time
+as each other, so they run concurrently (because they're async). 
+
+```js
+test('first test', fn1)
+test('second test', fn2)
+```
+
+In some scenarios this concurrent execution can lead to race conditions that cause (sometimes) intermittent
+test failure. Setting up and tearing down a folder, for instance, can lead to this. To make tests execute
+serially, `await` them:
+
+```js
+await test('first test', fn1) // runs first
+test('second test', fn2) // waits until the prior tests is complete
+```
+
+At the top level this can only be done using ESM (native `import` syntax). Regardless of whether a project
+is for CJS, ESM or both, it's recommended to write tests using ESM for this reason.
+
+Control flow of inverted is entirely dependent on where its `assert` is awaited. The following executes
+one test after another:
+
+```js
+const assert1 = test('first test')
+const assert2 = test('second test')
+assert1.plan(1)
+assert2.plan(1)
+assert1.pass()
+await assert1
+assert2.pass()
+await assert2
+```
+
+These test can be executed at about the same time by changing where the `assert1` is awaited:
+
+```js
+const assert1 = test('first test')
+const assert2 = test('second test')
+assert1.plan(1)
+assert2.plan(1)
+assert1.pass()
+assert2.pass()
+await assert1
+await assert2
+```
+
+For full concurrency pass the asserts to `Promise.allSettled` like so:
+
+```js
+const assert1 = test('first test')
+const assert2 = test('second test')
+assert1.plan(1)
+assert2.plan(1)
+assert1.pass()
+assert2.pass()
+await Promise.allSettled([assert1, assert2])
+```
+
 
 ## Supported Engines
 

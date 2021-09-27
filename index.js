@@ -10,7 +10,7 @@ const SonicBoom = require('sonic-boom')
 const StackParser = require('error-stack-parser')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
-const { TestError, TestTypeError } = require('./lib/errors')
+const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
 const { Console } = require('console')
 const {
   kIncre,
@@ -368,6 +368,7 @@ class Test extends Promise {
 
   [kError] (err) {
     if (this.error) return
+    if (typeof err !== 'object' || err === null) err = new PrimitiveError(err)
     err.test = this.description
     err.plan = this.planned
     err.count = this.count
@@ -500,6 +501,7 @@ class Test extends Promise {
       if (!(fn instanceof AsyncFunction)) throw new TestTypeError('ERR_ASYNC_ONLY')
 
       const assert = new Test(description, opts)
+
       const promise = (async () => {
         try {
           return await fn(assert)
@@ -509,7 +511,7 @@ class Test extends Promise {
       })()
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
-        queueMicrotask(() => assert.end())
+        if (assert.planned === 0) queueMicrotask(() => assert.end())
         return await assert
       }), assert[kInfo]())
     }

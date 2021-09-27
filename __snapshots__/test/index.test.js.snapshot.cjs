@@ -783,15 +783,15 @@ not ok 2 - timeout option, inverted, no plan # time=1.3371337ms
 
 # timeout option, classic, plan
     1..1
-    not ok 0 - test ended prematurely [test count (0) did not reach plan (1)]
+    not ok 0 - test timed out after 10ms
       ---
       actual:
         !error
         name: Error
-        message: test ended prematurely [test count (0) did not reach plan (1)]
+        message: test timed out after 10ms
         stack: |-
-          Error: test ended prematurely [test count (0) did not reach plan (1)]
-        code: ERR_PREMATURE_END
+          Error: test timed out after 10ms
+        code: ERR_TIMEOUT
         test: timeout option, classic, plan
         plan: 1
         count: 0
@@ -865,15 +865,15 @@ not ok 6 - timeout method, inverted, no plan # time=1.3371337ms
 
 # timeout method, classic, plan
     1..1
-    not ok 0 - test ended prematurely [test count (0) did not reach plan (1)]
+    not ok 0 - test timed out after 10ms
       ---
       actual:
         !error
         name: Error
-        message: test ended prematurely [test count (0) did not reach plan (1)]
+        message: test timed out after 10ms
         stack: |-
-          Error: test ended prematurely [test count (0) did not reach plan (1)]
-        code: ERR_PREMATURE_END
+          Error: test timed out after 10ms
+        code: ERR_TIMEOUT
         test: timeout method, classic, plan
         plan: 1
         count: 0
