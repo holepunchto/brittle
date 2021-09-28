@@ -256,7 +256,6 @@ class Tap extends EventEmitter {
       const match = value.match(/Bail out!.+/)
       this.output.write(value.slice(0, match.index + match[0].length) + '\n')
       if (this.output.flushSync) this.output.flushSync()
-      else await new Promise((resolve) => setTimeout(resolve, 1000))
       process.exit(1)
     }
     if (done) {

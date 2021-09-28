@@ -20,6 +20,18 @@ ok 3 - classic, plan w/comment # time=1.3371337ms
 
 `
 
+exports['inverted pass 1'] = `
+TAP version 13
+# inverted
+    ok 1 - passed
+    1..1
+ok 1 - inverted # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
 exports['classic fail 1'] = `
 TAP version 13
 # classic, no plan
@@ -69,15 +81,19 @@ not ok 2 - classic, with plan # time=1.3371337ms
 
 `
 
-exports['inverted pass 1'] = `
+exports['sync functions allowed 1'] = `
 TAP version 13
-# inverted
+# sync function allowed
     ok 1 - passed
     1..1
-ok 1 - inverted # time=1.3371337ms
+ok 1 - sync function allowed # time=1.3371337ms
 
 1..1
 # time=1.3371337ms
+
+`
+
+exports['sync functions allowed 2'] = `
 
 `
 
@@ -109,39 +125,6 @@ not ok 1 - inverted # time=1.3371337ms
 
 `
 
-exports['skip 1'] = `
-TAP version 13
-# run this one
-    ok 1 - passed
-    1..1
-ok 1 - run this one # time=1.3371337ms
-
-ok 2 - skip this one # SKIP
-
-# run this one
-    ok 1 - passed
-    1..1
-ok 3 - run this one # time=1.3371337ms
-
-1..3
-# time=1.3371337ms
-
-`
-
-exports['async functions only 1'] = `
-TAP version 13
-
-`
-
-exports['async functions only 2'] = `
-Brittle: Fatal Error
-TestTypeError: test functions must be async
-    at file:///async-functions-only.js:13:37
-  code: 'ERR_ASYNC_ONLY'
-}
-
-`
-
 exports['default description 1'] = `
 TAP version 13
 # tbd
@@ -167,6 +150,58 @@ ok 2 - classic # time=1.3371337ms
 
 `
 
+exports['configure output stream 1'] = `
+TAP version 13
+# configure: output
+    ok 1 - passed
+    1..1
+ok 1 - configure: output # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
+exports['classic plan must be integer 1'] = `
+TAP version 13
+# plan must be integer
+ok 1 - plan must be integer # time=1.3371337ms
+
+
+`
+
+exports['classic plan must be integer 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///classic-plan-must-be-integer.js:13:37
+    at index.js:13:37
+    at file:///classic-plan-must-be-integer.js:13:37
+  code: 'ERR_PLAN_POSITIVE'
+}
+
+`
+
+exports['classic configure first 1'] = `
+TAP version 13
+# a test
+ok 1 - a test # time=1.3371337ms
+
+
+`
+
+exports['classic configure first 2'] = `
+Brittle: Fatal Error
+TestError: configuration must happen prior to registering any tests
+    at file:///classic-configure-first.js:13:37
+  code: 'ERR_CONFIGURE_FIRST',
+  test: '',
+  plan: 0,
+  count: 1,
+  ended: false
+}
+
+`
+
 exports['todo 1'] = `
 TAP version 13
 # run this one
@@ -184,6 +219,37 @@ ok 3 - run this one # time=1.3371337ms
 ok 4 - tbd # TODO
 
 1..4
+# time=1.3371337ms
+
+`
+
+exports['configure output fd 1'] = `
+TAP version 13
+# configure: output
+    ok 1 - passed
+    1..1
+ok 1 - configure: output # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
+exports['skip 1'] = `
+TAP version 13
+# run this one
+    ok 1 - passed
+    1..1
+ok 1 - run this one # time=1.3371337ms
+
+ok 2 - skip this one # SKIP
+
+# run this one
+    ok 1 - passed
+    1..1
+ok 3 - run this one # time=1.3371337ms
+
+1..3
 # time=1.3371337ms
 
 `
@@ -283,18 +349,6 @@ ok 9 - inverted comment inside classic child # time=1.3371337ms
 ok 10 - inverted comment on inverted child # time=1.3371337ms
 
 1..10
-# time=1.3371337ms
-
-`
-
-exports['configure output stream 1'] = `
-TAP version 13
-# configure: output
-    ok 1 - passed
-    1..1
-ok 1 - configure: output # time=1.3371337ms
-
-1..1
 # time=1.3371337ms
 
 `
@@ -429,136 +483,21 @@ not ok 5 - count exceeds plan # time=1.3371337ms
 
 `
 
-exports['teardown 1'] = `
+exports['classic plan must be positive 1'] = `
 TAP version 13
-# teardown classic
-    ok 1 - passed
-    1..1
-ok 1 - teardown classic # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (classic) 
-
-# teardown inverted
-    ok 1 - passed
-    1..1
-ok 2 - teardown inverted # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (inverted) 
-
-# teardown after error classic
-    not ok 0 - test
-      ---
-      actual:
-        !error
-        name: Error
-        message: test
-        stack: >-
-          Error: test
-              at file:///teardown.js:13:37
-              at file:///teardown.js:13:37
-        test: teardown after error classic
-        plan: 0
-        count: 0
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test::"
-      ...
-
-not ok 3 - teardown after error classic # time=1.3371337ms
-
-# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
-
-1..3
-# time=1.3371337ms
-# failing=1
-
-`
-
-exports['classic after end count exceeds plan 1'] = `
-TAP version 13
-# count exceeds plan after end
-    1..1
-    ok 1 - passed
-ok 1 - count exceeds plan after end # time=1.3371337ms
+# plan must be positive
+ok 1 - plan must be positive # time=1.3371337ms
 
 
 `
 
-exports['classic after end count exceeds plan 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
-    at file:///classic-after-end-count-exceeds-plan.js:13:37 {
-  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
-  test: 'count exceeds plan after end',
-  plan: 1,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['inverted after end teardown 1'] = `
-TAP version 13
-# teardown after end
-    ok 1 - passed
-    1..1
-ok 1 - teardown after end # time=1.3371337ms
-
-
-`
-
-exports['inverted after end teardown 2'] = `
-Brittle: Fatal Error
-TestError: teardown must be called before test ends
-    at file:///inverted-after-end-teardown.js:13:37 {
-  code: 'ERR_TEARDOWN_AFTER_END',
-  test: 'teardown after end',
-  plan: 0,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['classic plan must be integer 1'] = `
-TAP version 13
-# plan must be integer
-ok 1 - plan must be integer # time=1.3371337ms
-
-
-`
-
-exports['classic plan must be integer 2'] = `
+exports['classic plan must be positive 2'] = `
 Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
-    at file:///classic-plan-must-be-integer.js:13:37
+    at file:///classic-plan-must-be-positive.js:13:37
     at index.js:13:37
-    at file:///classic-plan-must-be-integer.js:13:37
+    at file:///classic-plan-must-be-positive.js:13:37
   code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['inverted after end count exceeds plan 1'] = `
-TAP version 13
-# count exceeds plan after end
-    1..1
-    ok 1 - passed
-ok 1 - count exceeds plan after end # time=1.3371337ms
-
-
-`
-
-exports['inverted after end count exceeds plan 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
-    at file:///inverted-after-end-count-exceeds-plan.js:13:37 {
-  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
-  test: 'count exceeds plan after end',
-  plan: 1,
-  count: 1,
-  ended: true
 }
 
 `
@@ -575,25 +514,6 @@ exports['inverted plan must be integer 2'] = `
 Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
     at file:///inverted-plan-must-be-integer.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['classic plan must be positive 1'] = `
-TAP version 13
-# plan must be positive
-ok 1 - plan must be positive # time=1.3371337ms
-
-
-`
-
-exports['classic plan must be positive 2'] = `
-Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///classic-plan-must-be-positive.js:13:37
-    at index.js:13:37
-    at file:///classic-plan-must-be-positive.js:13:37
   code: 'ERR_PLAN_POSITIVE'
 }
 
@@ -616,6 +536,23 @@ TestError: configuration must happen prior to registering any tests
   plan: 0,
   count: 1,
   ended: false
+}
+
+`
+
+exports['inverted plan must be positive 1'] = `
+TAP version 13
+# plan must be integer
+ok 1 - plan must be integer # time=1.3371337ms
+
+
+`
+
+exports['inverted plan must be positive 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///inverted-plan-must-be-positive.js:13:37
+  code: 'ERR_PLAN_POSITIVE'
 }
 
 `
@@ -666,19 +603,71 @@ TestError: assert after end in "assert after end"
 
 `
 
-exports['inverted plan must be positive 1'] = `
+exports['inverted after end count exceeds plan 1'] = `
 TAP version 13
-# plan must be integer
-ok 1 - plan must be integer # time=1.3371337ms
+# count exceeds plan after end
+    1..1
+    ok 1 - passed
+ok 1 - count exceeds plan after end # time=1.3371337ms
 
 
 `
 
-exports['inverted plan must be positive 2'] = `
+exports['inverted after end count exceeds plan 2'] = `
 Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///inverted-plan-must-be-positive.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
+TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
+    at file:///inverted-after-end-count-exceeds-plan.js:13:37 {
+  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
+  test: 'count exceeds plan after end',
+  plan: 1,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['inverted after end teardown 1'] = `
+TAP version 13
+# teardown after end
+    ok 1 - passed
+    1..1
+ok 1 - teardown after end # time=1.3371337ms
+
+
+`
+
+exports['inverted after end teardown 2'] = `
+Brittle: Fatal Error
+TestError: teardown must be called before test ends
+    at file:///inverted-after-end-teardown.js:13:37 {
+  code: 'ERR_TEARDOWN_AFTER_END',
+  test: 'teardown after end',
+  plan: 0,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['classic after end count exceeds plan 1'] = `
+TAP version 13
+# count exceeds plan after end
+    1..1
+    ok 1 - passed
+ok 1 - count exceeds plan after end # time=1.3371337ms
+
+
+`
+
+exports['classic after end count exceeds plan 2'] = `
+Brittle: Fatal Error
+TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
+    at file:///classic-after-end-count-exceeds-plan.js:13:37 {
+  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
+  test: 'count exceeds plan after end',
+  plan: 1,
+  count: 1,
+  ended: true
 }
 
 `
@@ -703,39 +692,6 @@ TestError: assert after end in "assert after end"
   count: 1,
   ended: true
 }
-
-`
-
-exports['classic configure first 1'] = `
-TAP version 13
-# a test
-ok 1 - a test # time=1.3371337ms
-
-
-`
-
-exports['classic configure first 2'] = `
-Brittle: Fatal Error
-TestError: configuration must happen prior to registering any tests
-    at file:///classic-configure-first.js:13:37
-  code: 'ERR_CONFIGURE_FIRST',
-  test: '',
-  plan: 0,
-  count: 1,
-  ended: false
-}
-
-`
-
-exports['configure output fd 1'] = `
-TAP version 13
-# configure: output
-    ok 1 - passed
-    1..1
-ok 1 - configure: output # time=1.3371337ms
-
-1..1
-# time=1.3371337ms
 
 `
 
@@ -911,6 +867,52 @@ not ok 8 - timeout method, inverted, plan # time=1.3371337ms
 
 `
 
+exports['teardown 1'] = `
+TAP version 13
+# teardown classic
+    ok 1 - passed
+    1..1
+ok 1 - teardown classic # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (classic) 
+
+# teardown inverted
+    ok 1 - passed
+    1..1
+ok 2 - teardown inverted # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (inverted) 
+
+# teardown after error classic
+    not ok 0 - test
+      ---
+      actual:
+        !error
+        name: Error
+        message: test
+        stack: >-
+          Error: test
+              at file:///teardown.js:13:37
+              at file:///teardown.js:13:37
+        test: teardown after error classic
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test::"
+      ...
+
+not ok 3 - teardown after error classic # time=1.3371337ms
+
+# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
+
+1..3
+# time=1.3371337ms
+# failing=1
+
+`
+
 exports['snapshot 1'] = `
 TAP version 13
 # classic snapshot
@@ -968,6 +970,393 @@ ok 9 - multiple snapshots # time=1.3371337ms
 ok 10 - child snapshot # time=1.3371337ms
 
 1..10
+# time=1.3371337ms
+
+`
+
+exports['nesting 1'] = `
+TAP version 13
+# nesting - inverted parent, classic child, no plans
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 1 - nesting - inverted parent, classic child, no plans # time=1.3371337ms
+
+# nesting - inverted parent, classic child, no plans, await child
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 2 - nesting - inverted parent, classic child, no plans, await child # time=1.3371337ms
+
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 3 - nesting - inverted parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
+
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 4 - nesting - inverted parent, inverted child, no plans (await child before parent assert) # time=1.3371337ms
+
+# nesting - inverted parent, classic child, parent plan
+    1..3
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+ok 5 - nesting - inverted parent, classic child, parent plan # time=1.3371337ms
+
+# nesting - inverted parent, classic child, parent+child plan
+    1..3
+    ok 1 - parent pass
+    # child test
+        1..1
+        ok 1 - child pass
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+ok 6 - nesting - inverted parent, classic child, parent+child plan # time=1.3371337ms
+
+    1..3
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+ok 7 - nesting - inverted parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
+
+    1..3
+    ok 1 - parent pass
+    # child assert
+        1..1
+        ok 1 - child pass
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+ok 8 - nesting - inverted parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
+
+    1..2
+    # before await child
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 1 - child assert # time=1.3371337ms
+    # after await child
+    ok 2 - parent pass
+ok 9 - nesting - inverted parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
+
+    1..2
+    # child assert
+        1..1
+        ok 1 - child pass
+    ok 1 - child assert # time=1.3371337ms
+    ok 2 - parent pass
+ok 10 - nesting - inverted parent, inverted child, parent+child plan (await child before parent assert) # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 11 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 12 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 13 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children
+    1..3
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 14 - nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
+    1..3
+    # before await child1
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # after await child1, before await child2
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    # after await child1
+    ok 3 - parent pass
+ok 15 - nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
+
+# nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
+    1..3
+    # before await child2
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    # after await child2, before await child1
+    # after await child1
+    ok 3 - parent pass
+ok 16 - nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
+
+# nesting - classic parent, classic child, no plans
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 17 - nesting - classic parent, classic child, no plans # time=1.3371337ms
+
+# nesting - classic parent, classic child, no plans, await child
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 18 - nesting - classic parent, classic child, no plans, await child # time=1.3371337ms
+
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 19 - nesting - classic parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
+
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+    1..3
+ok 20 - nesting - classic parent, inverted child, no plans (await child before parent assert) # time=1.3371337ms
+
+# nesting - classic parent, classic child, parent plan
+    1..3
+    ok 1 - parent pass
+    # child test
+        ok 1 - child pass
+        1..1
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+ok 21 - nesting - classic parent, classic child, parent plan # time=1.3371337ms
+
+# nesting - classic parent, classic child, parent+child plan
+    1..3
+    ok 1 - parent pass
+    # child test
+        1..1
+        ok 1 - child pass
+    ok 2 - child test # time=1.3371337ms
+    ok 3 - parent pass
+ok 22 - nesting - classic parent, classic child, parent+child plan # time=1.3371337ms
+
+    1..3
+    ok 1 - parent pass
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+ok 23 - nesting - classic parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
+
+    1..3
+    ok 1 - parent pass
+    # child assert
+        1..1
+        ok 1 - child pass
+    ok 2 - child assert # time=1.3371337ms
+    ok 3 - parent pass
+ok 24 - nesting - classic parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
+
+    1..2
+    # before await child
+    # child assert
+        ok 1 - child pass
+        1..1
+    ok 1 - child assert # time=1.3371337ms
+    # after await child
+    ok 2 - parent pass
+ok 25 - nesting - classic parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
+
+    1..2
+    # child assert
+        1..1
+        ok 1 - child pass
+    ok 1 - child assert # time=1.3371337ms
+    ok 2 - parent pass
+ok 26 - nesting - classic parent, inverted child, parent+child plan (await child before parent assert) # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 27 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 28 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order
+    1..3
+    # child one
+        ok 1 - passed
+        ok 2 - expected truthy value
+        1..2
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        ok 1 - expected truthy value
+        ok 2 - passed
+        1..2
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 29 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children
+    1..3
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    ok 3 - parent pass
+ok 30 - nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
+    1..3
+    # before await child1
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # after await child1, before await child2
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    # after await child1
+    ok 3 - parent pass
+ok 31 - nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
+
+# nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
+    1..3
+    # before await child2
+    # child one
+        1..2
+        ok 1 - passed
+        ok 2 - expected truthy value
+    ok 1 - child one # time=1.3371337ms
+    # child two
+        1..2
+        ok 1 - expected truthy value
+        ok 2 - passed
+    ok 2 - child two # time=1.3371337ms
+    # after await child2, before await child1
+    # after await child1
+    ok 3 - parent pass
+ok 32 - nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
+
+1..32
 # time=1.3371337ms
 
 `
@@ -1862,454 +2251,6 @@ not ok 5 - passing and failing mixed # time=1.3371337ms
 1..5
 # time=1.3371337ms
 # failing=52
-
-`
-
-exports['nesting 1'] = `
-TAP version 13
-# nesting - inverted parent, classic child, no plans
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 1 - nesting - inverted parent, classic child, no plans # time=1.3371337ms
-
-# nesting - inverted parent, classic child, no plans, await child
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 2 - nesting - inverted parent, classic child, no plans, await child # time=1.3371337ms
-
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 3 - nesting - inverted parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
-
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 4 - nesting - inverted parent, inverted child, no plans (await child before parent assert) # time=1.3371337ms
-
-# nesting - inverted parent, classic child, parent plan
-    1..3
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-ok 5 - nesting - inverted parent, classic child, parent plan # time=1.3371337ms
-
-# nesting - inverted parent, classic child, parent+child plan
-    1..3
-    ok 1 - parent pass
-    # child test
-        1..1
-        ok 1 - child pass
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-ok 6 - nesting - inverted parent, classic child, parent+child plan # time=1.3371337ms
-
-    1..3
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-ok 7 - nesting - inverted parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
-
-    1..3
-    ok 1 - parent pass
-    # child assert
-        1..1
-        ok 1 - child pass
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-ok 8 - nesting - inverted parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
-
-    1..2
-    # before await child
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 1 - child assert # time=1.3371337ms
-    # after await child
-    ok 2 - parent pass
-ok 9 - nesting - inverted parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
-
-    1..2
-    # child assert
-        1..1
-        ok 1 - child pass
-    ok 1 - child assert # time=1.3371337ms
-    ok 2 - parent pass
-ok 10 - nesting - inverted parent, inverted child, parent+child plan (await child before parent assert) # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 11 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 12 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 13 - nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children
-    1..3
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 14 - nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
-    1..3
-    # before await child1
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # after await child1, before await child2
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    # after await child1
-    ok 3 - parent pass
-ok 15 - nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
-
-# nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
-    1..3
-    # before await child2
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    # after await child2, before await child1
-    # after await child1
-    ok 3 - parent pass
-ok 16 - nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
-
-# nesting - classic parent, classic child, no plans
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 17 - nesting - classic parent, classic child, no plans # time=1.3371337ms
-
-# nesting - classic parent, classic child, no plans, await child
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 18 - nesting - classic parent, classic child, no plans, await child # time=1.3371337ms
-
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 19 - nesting - classic parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
-
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-    1..3
-ok 20 - nesting - classic parent, inverted child, no plans (await child before parent assert) # time=1.3371337ms
-
-# nesting - classic parent, classic child, parent plan
-    1..3
-    ok 1 - parent pass
-    # child test
-        ok 1 - child pass
-        1..1
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-ok 21 - nesting - classic parent, classic child, parent plan # time=1.3371337ms
-
-# nesting - classic parent, classic child, parent+child plan
-    1..3
-    ok 1 - parent pass
-    # child test
-        1..1
-        ok 1 - child pass
-    ok 2 - child test # time=1.3371337ms
-    ok 3 - parent pass
-ok 22 - nesting - classic parent, classic child, parent+child plan # time=1.3371337ms
-
-    1..3
-    ok 1 - parent pass
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-ok 23 - nesting - classic parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
-
-    1..3
-    ok 1 - parent pass
-    # child assert
-        1..1
-        ok 1 - child pass
-    ok 2 - child assert # time=1.3371337ms
-    ok 3 - parent pass
-ok 24 - nesting - classic parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
-
-    1..2
-    # before await child
-    # child assert
-        ok 1 - child pass
-        1..1
-    ok 1 - child assert # time=1.3371337ms
-    # after await child
-    ok 2 - parent pass
-ok 25 - nesting - classic parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
-
-    1..2
-    # child assert
-        1..1
-        ok 1 - child pass
-    ok 1 - child assert # time=1.3371337ms
-    ok 2 - parent pass
-ok 26 - nesting - classic parent, inverted child, parent+child plan (await child before parent assert) # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 27 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 28 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order
-    1..3
-    # child one
-        ok 1 - passed
-        ok 2 - expected truthy value
-        1..2
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        ok 1 - expected truthy value
-        ok 2 - passed
-        1..2
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 29 - nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children
-    1..3
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    ok 3 - parent pass
-ok 30 - nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
-    1..3
-    # before await child1
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # after await child1, before await child2
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    # after await child1
-    ok 3 - parent pass
-ok 31 - nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
-
-# nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
-    1..3
-    # before await child2
-    # child one
-        1..2
-        ok 1 - passed
-        ok 2 - expected truthy value
-    ok 1 - child one # time=1.3371337ms
-    # child two
-        1..2
-        ok 1 - expected truthy value
-        ok 2 - passed
-    ok 2 - child two # time=1.3371337ms
-    # after await child2, before await child1
-    # after await child1
-    ok 3 - parent pass
-ok 32 - nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order # time=1.3371337ms
-
-1..32
-# time=1.3371337ms
-
-`
-
-exports['snapshot 2'] = `
-TAP version 13
-# classic snapshot
-    ok 1 - should match snapshot
-    1..1
-ok 1 - classic snapshot # time=1.3371337ms
-
-# inverted snapshot
-    ok 1 - should match snapshot
-    1..1
-ok 2 - inverted snapshot # time=1.3371337ms
-
-# snapshot of a symbol
-    ok 1 - should match snapshot
-    1..1
-ok 3 - snapshot of a symbol # time=1.3371337ms
-
-# snapshot of an Error
-    ok 1 - should match snapshot
-    1..1
-ok 4 - snapshot of an Error # time=1.3371337ms
-
-# snapshot of undefined
-    ok 1 - should match snapshot
-    1..1
-ok 5 - snapshot of undefined # time=1.3371337ms
-
-# snapshot of null
-    ok 1 - should match snapshot
-    1..1
-ok 6 - snapshot of null # time=1.3371337ms
-
-# snapshot of number
-    ok 1 - should match snapshot
-    1..1
-ok 7 - snapshot of number # time=1.3371337ms
-
-# snapshot of an object
-    ok 1 - should match snapshot
-    1..1
-ok 8 - snapshot of an object # time=1.3371337ms
-
-# multiple snapshots
-    ok 1 - should match snapshot
-    ok 2 - should match snapshot
-    1..2
-ok 9 - multiple snapshots # time=1.3371337ms
-
-# child snapshot
-    # the child
-        ok 1 - should match snapshot
-        1..1
-    ok 1 - the child # time=1.3371337ms
-    1..1
-ok 10 - child snapshot # time=1.3371337ms
-
-1..10
-# time=1.3371337ms
 
 `
 
@@ -3294,6 +3235,67 @@ not ok 5 - passing and failing mixed # time=1.3371337ms
 1..5
 # time=1.3371337ms
 # failing=52
+
+`
+
+exports['snapshot 2'] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
+# time=1.3371337ms
 
 `
 

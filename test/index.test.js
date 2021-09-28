@@ -158,7 +158,7 @@ test('default description', async function ({ snapshot, ok, is }) {
 
 test('sync functions allowed', async function ({ snapshot, ok, is }) {
   const result = await run('sync-functions-allowed.js')
-  is(result.code, 1)
+  is(result.code, 0)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
   snapshot(result.stderr)

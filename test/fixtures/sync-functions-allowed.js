@@ -1,5 +1,5 @@
 import { test } from '../../index.js'
 
-test('sync function allows', ({ pass }) => {
+test('sync function allowed', ({ pass }) => {
   pass()
 })
