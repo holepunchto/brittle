@@ -388,10 +388,8 @@ not ok 1 - generic # time=1.3371337ms
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: >-
+        stack: |-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
-              at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
         code: ERR_PREMATURE_END
         test: premature end
         plan: 2
@@ -438,9 +436,8 @@ not ok 3 - count exceeds plan # time=1.3371337ms
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: >-
+        stack: |-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
-              at file:///tappable-errors.js:13:37
         code: ERR_PREMATURE_END
         test: premature end
         plan: 2

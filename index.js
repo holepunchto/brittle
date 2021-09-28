@@ -71,9 +71,26 @@ process.on('unhandledRejection', (reason, promise) => {
   process.emitWarning(warning)
 })
 
-process.once('beforeExit', async () => {
-  if (main.ended === false) main.end()
+async function ender (tests = main[kChildren]) {
+  for (const test of tests) {
+    const children = test[kChildren]
+    const endedTest = (children.length > 0) && await ender(children)
+    if (endedTest) return true
+    if (test.ended === false) {
+      test.end()
+      return true
+    }
+  }
+  return false
+}
+
+process.on('beforeExit', async () => {
+  const endedTest = await ender()
+  if (endedTest === false && main.ended === false) main.end()
+  // allow another beforeExit
+  if (endedTest) setImmediate(() => {})
 })
+
 process.once('exit', async () => {
   if (main.ended === false) main.end()
 })
@@ -804,6 +821,7 @@ class Test extends Promise {
         }, ms)
       }
     })
+    this[kTimeout].unref()
   }
 }
 

@@ -7,16 +7,14 @@ function f () {
   x()
 }
 
-
 test('generic', async ({ pass }) => {
   pass()
   f()
 })
 
-test('premature end', async ({ plan, pass, end }) => {
+test('premature end', async ({ plan, pass }) => {
   plan(2)
   pass()
-  end()
 })
 
 test('count exceeds plan', async ({ plan, pass }) => {
@@ -26,15 +24,16 @@ test('count exceeds plan', async ({ plan, pass }) => {
 })
 
 {
-  const { plan, pass, end } = test('premature end')
+  const { plan, pass, assert } = test('premature end')
   plan(2)
   pass()
-  end()
+  await assert
 }
 
 {
-  const { plan, pass } = test('count exceeds plan')
+  const { plan, pass, assert } = test('count exceeds plan')
   plan(1)
   pass()
   pass()
+  await assert
 }
