@@ -507,7 +507,10 @@ class Test extends Promise {
 
       if (!fn) return new Test(description, opts)
 
-      if (!(fn instanceof AsyncFunction)) throw new TestTypeError('ERR_ASYNC_ONLY')
+      if (!(fn instanceof AsyncFunction)) {
+        const syncFn = fn
+        fn = async (...args) => syncFn(...args)
+      }
 
       const assert = new Test(description, opts)
 

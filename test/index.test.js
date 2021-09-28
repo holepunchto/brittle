@@ -156,8 +156,8 @@ test('default description', async function ({ snapshot, ok, is }) {
   snapshot(result.stdout)
 })
 
-test('async functions only', async function ({ snapshot, ok, is }) {
-  const result = await run('async-functions-only.js')
+test('sync functions allowed', async function ({ snapshot, ok, is }) {
+  const result = await run('sync-functions-allowed.js')
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
