@@ -18,6 +18,7 @@ const {
   kCounted,
   kError,
   kResolve,
+  kReject,
   kTimeout,
   kTeardowns,
   kSnap,
@@ -27,6 +28,7 @@ const {
   kSkip,
   kTodo,
   kLevel,
+  kInverted,
   kReset,
   kMain
 } = require('./lib/symbols')
@@ -38,12 +40,12 @@ const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
 
-process.on('uncaughtException', (err) => {
-  if (err instanceof Promise) return
+process.on('uncaughtException', (err, fromPromise) => {
+  if (fromPromise) return
   Promise.reject(err)
 })
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason, promise, ...args) => {
   if (promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
     console.error('Brittle: Fatal Error')
     console.error(reason)
@@ -77,7 +79,7 @@ async function ender (tests = main[kChildren]) {
     const endedTest = (children.length > 0) && await ender(children)
     if (endedTest) return true
     if (test.ended === false) {
-      test.end()
+      try { await test.end() } catch {}
       return true
     }
   }
@@ -86,7 +88,7 @@ async function ender (tests = main[kChildren]) {
 
 process.on('beforeExit', async () => {
   const endedTest = await ender()
-  if (endedTest === false && main.ended === false) main.end()
+  if (endedTest === false && main.ended === false) await main.end()
   // allow another beforeExit
   if (endedTest) setImmediate(() => {})
 })
@@ -306,9 +308,10 @@ class Test extends Promise {
 
   constructor (description, options = {}) {
     const resolver = {}
-    super((resolve) => { resolver.resolve = resolve })
+    super((resolve, reject) => { Object.assign(resolver, { resolve, reject }) })
     Object.defineProperties(this, { [kResolve]: { value: resolver.resolve } })
-
+    Object.defineProperties(this, { [kReject]: { value: resolver.reject } })
+    this[kInverted] = options[kInverted] || false
     this[kReset](description, options)
 
     if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
@@ -405,14 +408,21 @@ class Test extends Promise {
 
     if (this.ended) throw Promise.reject(err) // cause unhandled rejection
     if (err.code === 'ERR_CONFIGURE_FIRST') throw Promise.reject(err)
-    this.execution(Promise.reject(err), err.message).then(() => {
-      if (this[kEnding] === false) this.end()
-    })
+
+    if (this[kInverted] && this.parent[kMain] === false) {
+      err.message += ' (' + this.description + ')'
+      this[kReject](err)
+    } else {
+      if (this[kInverted]) this[kReject](err)
+      this.execution(Promise.reject(err), err.message).then(() => {
+        if (this[kEnding] === false) this.end().catch(noop)
+      })
+    }
   }
 
   [kCount] () {
     this[kCounted] += 1
-    if (this[kEnding] && this.planned > 0 && this[kCounted] >= this.planned) return this.end()
+    if (this[kEnding] && this.planned > 0 && this[kCounted] >= this.planned) return this.end().catch(noop)
   }
 
   [kIncre] () {
@@ -464,8 +474,9 @@ class Test extends Promise {
   }
 
   async end () {
-    if (this.count < this.planned) {
-      this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned }))
+    const premature = (this.count < this.planned)
+    if (premature) {
+      this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
 
     const teardowns = this[kTeardowns].slice()
@@ -521,7 +532,10 @@ class Test extends Promise {
         }
       }
 
-      if (!fn) return new Test(description, opts)
+      if (!fn) {
+        opts[kInverted] = true
+        return new Test(description, opts)
+      }
 
       if (!(fn instanceof AsyncFunction)) {
         const syncFn = fn
@@ -529,7 +543,6 @@ class Test extends Promise {
       }
 
       const assert = new Test(description, opts)
-
       const promise = (async () => {
         try {
           return await fn(assert)
@@ -539,7 +552,7 @@ class Test extends Promise {
       })()
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
-        if (assert.planned === 0) queueMicrotask(() => assert.end())
+        if (assert.planned === 0) queueMicrotask(() => assert.end().catch((noop)))
         return await assert
       }), assert[kInfo]())
     }

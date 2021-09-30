@@ -23,17 +23,24 @@ test('count exceeds plan', async ({ plan, pass }) => {
   pass()
 })
 
-{
-  const { plan, pass, assert } = test('premature end')
+test('premature end', async ({ test, comment }) => {
+  const { plan, pass, assert } = test('inverted child of premature end')
   plan(2)
   pass()
   await assert
-}
+  comment('THIS LINE SHOULD NEVER BE REACHED')
+})
 
-{
-  const { plan, pass, assert } = test('count exceeds plan')
+test('count exceeds plan', async ({ test }) => {
+  const { plan, pass, assert } = test('inverted child of count exceeds plan')
   plan(1)
   pass()
   pass()
   await assert
-}
+})
+
+const { plan, pass, assert  } = test('inverted adult')
+plan(2)
+pass()
+await assert
+console.log('THIS LOG SHOULD NEVER OUTPUT')

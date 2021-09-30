@@ -428,18 +428,69 @@ not ok 2 - premature end # time=1.3371337ms
 not ok 3 - count exceeds plan # time=1.3371337ms
 
 # premature end
-    1..2
-    ok 1 - passed
-    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]
       ---
       actual:
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: |-
+        stack: >-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
         code: ERR_PREMATURE_END
         test: premature end
+        plan: 0
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+    # inverted child of premature end
+        1..2
+        ok 1 - passed
+    ok 1 - inverted child of premature end # time=1.3371337ms
+    1..1
+not ok 4 - premature end # time=1.3371337ms
+
+# count exceeds plan
+      ---
+      actual:
+        !error
+        name: Error
+        stack: >-
+          Error: test count [2] exceeds plan [1] (inverted child of count exceeds
+          plan)
+              at file:///tappable-errors.js:13:37
+              at file:///tappable-errors.js:13:37
+        code: ERR_COUNT_EXCEEDS_PLAN
+        test: count exceeds plan
+        plan: 0
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1] inverted
+        child of count exceeds plan::"
+      ...
+
+    1..1
+not ok 5 - count exceeds plan # time=1.3371337ms
+
+# inverted adult
+    1..2
+    ok 1 - passed
+    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]. This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+      ---
+      actual:
+        !error
+        name: Error
+        message: >-
+          test ended prematurely [test count (1) did not reach plan (2)].
+          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+        stack: >-
+          Error: test ended prematurely [test count (1) did not reach plan (2)].
+          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+        code: ERR_PREMATURE_END
+        test: inverted adult
         plan: 2
         count: 1
         ended: false
@@ -447,36 +498,11 @@ not ok 3 - count exceeds plan # time=1.3371337ms
       operator: execution
       ...
 
-not ok 4 - premature end # time=1.3371337ms
+not ok 6 - inverted adult # time=1.3371337ms
 
-# count exceeds plan
-    1..1
-    ok 1 - passed
-    ok 2 - passed
-    not ok 2 - test count [2] exceeds plan [1]
-      ---
-      actual:
-        !error
-        name: Error
-        message: test count [2] exceeds plan [1]
-        stack: >-
-          Error: test count [2] exceeds plan [1]
-              at file:///tappable-errors.js:13:37
-        code: ERR_COUNT_EXCEEDS_PLAN
-        test: count exceeds plan
-        plan: 1
-        count: 2
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1]::"
-      ...
-
-not ok 5 - count exceeds plan # time=1.3371337ms
-
-1..5
+1..6
 # time=1.3371337ms
-# failing=5
+# failing=6
 
 `
 
