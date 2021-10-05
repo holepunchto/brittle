@@ -12,6 +12,6 @@ test('run this one', async ({ pass }) => {
   pass()
 })
 
-const assert = todo()
-assert.skip()
+const assert = skip()
+assert.pass()
 await assert.end()

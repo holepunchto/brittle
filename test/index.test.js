@@ -336,3 +336,18 @@ test('self bail', async function ({ snapshot, ok, is }) {
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
 })
+
+test('extraneous error propagation', async function ({ snapshot, ok, is }) {
+  {
+    const result = await run('extraneous-error-propagation.js')
+    is(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+  {
+    const result = await run('extraneous-error-propagation.cjs')
+    is(result.code, 1)
+    ok(valid(result), 'valid tap output')
+    snapshot(result.stdout)
+  }
+})

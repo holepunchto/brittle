@@ -40,13 +40,13 @@ const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
 
-process.on('uncaughtException', (err, fromPromise) => {
-  if (fromPromise) return
+process.setUncaughtExceptionCaptureCallback((err) => {
+  Object.defineProperty(err, 'fatal', { value: true })
   Promise.reject(err)
 })
 
 process.on('unhandledRejection', (reason, promise, ...args) => {
-  if (promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
+  if (reason.fatal || promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
     console.error('Brittle: Fatal Error')
     console.error(reason)
     process.exit(1)
@@ -552,7 +552,7 @@ class Test extends Promise {
       })()
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
-        if (assert.planned === 0) queueMicrotask(() => assert.end().catch((noop)))
+        if (assert.planned === 0) queueMicrotask(() => assert.end())
         return await assert
       }), assert[kInfo]())
     }

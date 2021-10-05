@@ -249,7 +249,9 @@ ok 2 - skip this one # SKIP
     1..1
 ok 3 - run this one # time=1.3371337ms
 
-1..3
+ok 4 - tbd # SKIP
+
+1..4
 # time=1.3371337ms
 
 `
@@ -3951,5 +3953,13 @@ ok 1 - success # time=1.3371337ms
       ...
 
     Bail out! Failed test - fail
+
+`
+
+exports['extraneous error propagation 1'] = `
+
+`
+
+exports['extraneous error propagation 2'] = `
 
 `

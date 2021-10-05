@@ -39,8 +39,10 @@ test('count exceeds plan', async ({ test }) => {
   await assert
 })
 
-const { plan, pass, assert  } = test('inverted adult')
-plan(2)
-pass()
-await assert
-console.log('THIS LOG SHOULD NEVER OUTPUT')
+try { 
+  const { plan, pass, assert  } = test('inverted adult')
+  plan(2)
+  pass()
+  await assert
+  console.log('THIS LOG SHOULD NEVER OUTPUT')
+} catch {}
