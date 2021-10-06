@@ -224,7 +224,7 @@ using `!==`.
 
 Checks that `value` is truthy: `!!value === true`
 
-#### `not(value, [ message ])`
+#### `absent(value, [ message ])`
 
 Checks that `value` is falsy: `!!value === false`
 
