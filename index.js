@@ -532,11 +532,11 @@ class Test extends Promise {
         }
       }
 
-      if (!fn) {
-        opts[kInverted] = true
+      if (opts.skip || opts.todo || !fn) {
+        if (!fn) opts[kInverted] = true
         return new Test(description, opts)
       }
-
+      
       if (!(fn instanceof AsyncFunction)) {
         const syncFn = fn
         fn = async (...args) => syncFn(...args)
