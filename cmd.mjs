@@ -285,7 +285,7 @@ async function run (rerun = false) {
       }
     }
     summary += `ok ${index++} - ${title}`
-    output.write(`\n${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
+    output.write(`${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
   }
   await Promise.allSettled(main[kChildren])
 

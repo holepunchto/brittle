@@ -197,12 +197,12 @@ class Tap extends EventEmitter {
           ? '# SKIP\n'
           : (test[kTodo]
               ? '# TODO\n'
-              : (main.runner ? '' : `# time=${test.time}ms\n${failSummary ? `# failing=${failSummary}\n` : ''}`)
+              : (main.runner && test[kMain] ? '' : `# time=${test.time}ms\n${failSummary ? `# failing=${failSummary}\n` : ''}`)
             )
         let out = test[kMain]
-          ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}`
+          ? comment ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}` : ''
           : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
-        if (test.parent !== null && test.parent[kMain]) out += '\n'
+        if (test.parent !== null && test.parent[kMain] && !main.runner) out += '\n'
         if (test.failing) out = `not ${out}`
         out = `${outdent}${out}`
         const plan = next.planned ? `${indent}1..${test.count}\n` : ''
@@ -536,7 +536,7 @@ class Test extends Promise {
         if (!fn) opts[kInverted] = true
         return new Test(description, opts)
       }
-      
+
       if (!(fn instanceof AsyncFunction)) {
         const syncFn = fn
         fn = async (...args) => syncFn(...args)
