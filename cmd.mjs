@@ -97,7 +97,8 @@ if (!scr && paths.length === 0) {
 
 if (cov === true && (!NODE_V8_COVERAGE || scr)) {
   const require = createRequire(import.meta.url)
-  const c8 = await realpath(require.resolve('.bin/c8'))
+  const { bin } = require('c8/package.json')
+  const c8 = require.resolve(`c8/${bin.c8}`)
   const covStringArgs = Object.entries({
     '--exclude': args['cov-exclude'],
     '--include': args['cov-include'],
