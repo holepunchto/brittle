@@ -3,10 +3,12 @@
   "version": "1.3.6",
   "description": "tap à la mode",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "bin": "./cmd.mjs",
   "scripts": {
     "lint": "standard index.js lib/*.js",
-    "test": "node cmd.mjs test/index.test.js"
+    "test": "node cmd.mjs test/index.test.js",
+    "types": "tsc"
   },
   "keywords": [],
   "author": "David Mark Clements (@davidmarkclem)",
@@ -37,8 +39,10 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^16.10.3",
     "node-pty-prebuilt-multiarch": "^0.10.1-pre.4",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "typescript": "^4.4.3"
   },
   "repository": {
     "type": "git",
