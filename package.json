@@ -1,6 +1,6 @@
 {
   "name": "brittle",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "tap à la mode",
   "main": "index.js",
   "bin": "./cmd.mjs",
