@@ -563,7 +563,7 @@ class Test extends Promise {
         } catch (err) {
           assert[kError](err)
         }
-      }, assert)
+      })
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
         if (assert.planned === 0) queueMicrotask(() => assert.end())
@@ -921,11 +921,10 @@ class PromiseQueue {
     this.drain()
   }
 
-  async add (fn, assert) {
+  async add (fn) {
     return new Promise((resolve, reject) => {
       const run = async () => {
         this.pending++
-        assert.catch(reject)
         try { resolve(await fn()) } catch (err) { reject(err) }
         this.pending--
         this.next()
