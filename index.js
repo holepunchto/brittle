@@ -3,6 +3,7 @@ const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { EventEmitter, once } = require('events')
+const { Console } = require('console')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
@@ -11,7 +12,7 @@ const StackParser = require('error-stack-parser')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
-const { Console } = require('console')
+
 const {
   kIncre,
   kCount,
@@ -30,6 +31,7 @@ const {
   kLevel,
   kInverted,
   kReset,
+  kQueue,
   kMain
 } = require('./lib/symbols')
 
@@ -40,12 +42,14 @@ const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
 
+Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
+
 process.setUncaughtExceptionCaptureCallback((err) => {
   Object.defineProperty(err, 'fatal', { value: true })
   Promise.reject(err)
 })
 
-process.on('unhandledRejection', (reason, promise, ...args) => {
+process.on('unhandledRejection', (reason, promise) => {
   if (reason.fatal || promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
     console.error('Brittle: Fatal Error')
     console.error(reason)
@@ -457,7 +461,13 @@ class Test extends Promise {
       this[kError](new TestError('ERR_CONFIGURE_FIRST'))
       return
     }
-    const { timeout = 30000, output = 1, bail = false } = options
+    const {
+      timeout = 30000,
+      output = this.output || 1,
+      bail = this.bail || false,
+      serial = false,
+      concurrency = this.concurrency || 5
+    } = options
     if (typeof output === 'number' && booms.has(output) === false) {
       booms.set(output, new SonicBoom({ fd: output, sync: true }))
     }
@@ -465,10 +475,20 @@ class Test extends Promise {
       output: { value: typeof output === 'number' ? booms.get(output) : output, configurable: true },
       options: { value: options, configurable: true },
       bail: { value: bail, configurable: true },
+      concurrency: { value: serial ? 1 : concurrency, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
       [kTodo]: { value: options.todo === true, writable: true },
       [kLevel]: { value: options[kLevel] || 0, writable: true }
     })
+
+    if (this[kQueue] && (Object.hasOwn(options, 'concurrency') || serial)) {
+      this[kQueue].setConcurrency(this.concurrency)
+    } else {
+      Object.defineProperty(this, kQueue, {
+        value: new PromiseQueue({ concurrency: this.concurrency }),
+        configurable: true
+      })
+    }
 
     if (this[kMain] === false) this.timeout(timeout)
   }
@@ -522,18 +542,11 @@ class Test extends Promise {
         fn = opts
         opts = undefined
       }
-      opts = opts || this.options
-      if (this && opts) {
-        opts = {
-          output: this.options.output,
-          bail: this.options.bail,
-          ...opts,
-          parent: this
-        }
-      }
+      opts = opts || { ...this.options }
+      opts[kInverted] = !fn
+      opts.parent = this
 
       if (opts.skip || opts.todo || !fn) {
-        if (!fn) opts[kInverted] = true
         return new Test(description, opts)
       }
 
@@ -543,13 +556,14 @@ class Test extends Promise {
       }
 
       const assert = new Test(description, opts)
-      const promise = (async () => {
+      const promise = this[kQueue].add(async () => {
         try {
+          assert.start = process.hrtime.bigint()
           return await fn(assert)
         } catch (err) {
           assert[kError](err)
         }
-      })()
+      }, assert)
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
         if (assert.planned === 0) queueMicrotask(() => assert.end())
@@ -892,6 +906,47 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
     delete info.expected
   }
   return info
+}
+
+class PromiseQueue {
+  constructor ({ concurrency }) {
+    this.promises = []
+    this.concurrency = concurrency
+    this.pending = 0
+    this.drain()
+  }
+
+  setConcurrency (concurrency) {
+    this.concurrency = concurrency
+    this.drain()
+  }
+
+  async add (fn, assert) {
+    return new Promise((resolve, reject) => {
+      const run = async () => {
+        this.pending++
+        assert.catch(reject)
+        try { resolve(await fn()) } catch (err) { reject(err) }
+        this.pending--
+        this.next()
+      }
+      this.promises.push(run)
+      this.next()
+    })
+  }
+
+  next () {
+    if (this.promises.length === 0) return false
+    if (this.pending >= this.concurrency) return false
+    const run = this.promises.shift()
+    if (!run) return false
+    run()
+    return true
+  }
+
+  drain () {
+    while (this.next()) {} // eslint-disable-line
+  }
 }
 
 const main = new Test(kMain)

@@ -10,9 +10,9 @@ const fixtures = join(testDir, 'fixtures')
 const fixturesRx = new RegExp(fixtures, 'g')
 const dirRx = new RegExp(resolve(testDir, '..') + sep, 'g')
 
-const clean = (str) => {
+const clean = (str, opts = {}) => {
+  if (!opts.dirtyTime) str = str.replace(/(time=).*(ms)/g, '$11.3371337$2') // generalize timestamps
   return str
-    .replace(/(time=).*(ms)/g, '$11.3371337$2') // generalize timestamps
     .replace(fixturesRx, '') // remove fixture call frames
     .replace(dirRx, '') // remove project dir occurrences
     .replace(/.+\(internal\/.+\n/gm, '') // remove node call frames
@@ -36,11 +36,11 @@ const run = promisify(async (testPath, cb) => {
   sp.stdout.on('end', (chunk) => { if (chunk) stdout.push(chunk) })
   sp.stderr.on('end', (chunk) => { if (chunk) stderr.push(chunk) })
   sp.on('close', (code) => {
-    const out = clean(stdout.join(''))
-    cb(null, { stdout: out, stderr: clean(stderr.join('')), code, [Symbol.toPrimitive] () { return out } })
+    const out = clean(stdout.join(''), opts)
+    cb(null, { stdout: out, stderr: clean(stderr.join(''), opts), code, [Symbol.toPrimitive] () { return out } })
   })
 })
-const valid = (tap) => {
+const valid = (tap, returnParsed = false) => {
   try {
     const result = Parser.parse(tap, {
       bail: false,
@@ -50,11 +50,11 @@ const valid = (tap) => {
       flat: false
     })
     for (const [type] of result) {
-      if (type === 'extra') return false
+      if (type === 'extra') return returnParsed ? { isValid: false, parsed: result } : false
     }
-    return true
+    return returnParsed ? { isValid: true, parsed: result } : true
   } catch (err) {
-    return false
+    return returnParsed ? { isValid: false, parsed: null } : false
   }
 }
 
@@ -350,4 +350,41 @@ test('extraneous error propagation', async function ({ snapshot, ok, is }) {
     ok(valid(result), 'valid tap output')
     snapshot(result.stdout)
   }
+})
+
+test('serial', async function ({ snapshot, ok, is }) {
+  const result = await run({ test: 'serial.js', dirtyTime: true })
+  is(result.code, 0)
+  const { isValid, parsed } = valid(result, true)
+  ok(isValid, 'valid tap output')
+  const sum = Math.round(
+    parsed
+      .filter(([type]) => type === 'assert')
+      .map(([, { time }]) => time)
+      .reduce((sum, n) => sum + n) / 50
+  ) * 50
+  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+  is(sum, time)
+})
+
+test('concurrency: 2', async function ({ snapshot, ok, is }) {
+  const result = await run({ test: 'concurrency.js', dirtyTime: true })
+  is(result.code, 0)
+  const { isValid, parsed } = valid(result, true)
+  ok(isValid, 'valid tap output')
+  const times = parsed.filter(([type]) => type === 'assert').map(([, { time }]) => time)
+  const sum =  Math.round((Math.max(...times.slice(0, 1)) + times[2]) / 50) * 50
+  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+  is(sum, time)
+})
+
+test('concurrency default (concurrency: 5)', async function ({ snapshot, ok, is }) {
+  const result = await run({ test: 'concurrency-default.js', dirtyTime: true })
+  is(result.code, 0)
+  const { isValid, parsed } = valid(result, true)
+  ok(isValid, 'valid tap output')
+  const times = parsed.filter(([type]) => type === 'assert').map(([, { time }]) => time)
+  const sum =  Math.round((Math.max(...times)) / 50) * 50
+  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+  is(sum, time)
 })

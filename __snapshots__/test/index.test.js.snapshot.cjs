@@ -175,7 +175,8 @@ Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
     at file:///classic-plan-must-be-integer.js:13:37
     at index.js:13:37
-    at file:///classic-plan-must-be-integer.js:13:37
+    at index.js:13:37
+    at file:///classic-plan-must-be-integer.js:13:37 {
   code: 'ERR_PLAN_POSITIVE'
 }
 
@@ -368,7 +369,6 @@ TAP version 13
         stack: >-
           Error: check
               at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
         test: generic
         plan: 0
         count: 1
@@ -416,7 +416,6 @@ not ok 2 - premature end # time=1.3371337ms
         stack: >-
           Error: test count [2] exceeds plan [1]
               at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
         code: ERR_COUNT_EXCEEDS_PLAN
         test: count exceeds plan
         plan: 1
@@ -461,7 +460,6 @@ not ok 4 - premature end # time=1.3371337ms
         stack: >-
           Error: test count [2] exceeds plan [1] (inverted child of count exceeds
           plan)
-              at file:///tappable-errors.js:13:37
               at file:///tappable-errors.js:13:37
         code: ERR_COUNT_EXCEEDS_PLAN
         test: count exceeds plan
@@ -521,7 +519,8 @@ Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
     at file:///classic-plan-must-be-positive.js:13:37
     at index.js:13:37
-    at file:///classic-plan-must-be-positive.js:13:37
+    at index.js:13:37
+    at file:///classic-plan-must-be-positive.js:13:37 {
   code: 'ERR_PLAN_POSITIVE'
 }
 
@@ -2516,6 +2515,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
+              at index.js:13:37
               at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
@@ -2539,7 +2539,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -2562,7 +2562,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -2830,6 +2830,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
+              at index.js:13:37
               at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
@@ -2853,7 +2854,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -2876,7 +2877,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -3146,6 +3147,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
+              at index.js:13:37
               at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
@@ -3169,7 +3171,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -3195,7 +3197,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
               at file:///classic-assertions.js:13:37
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at file:///classic-assertions.js:13:37
+              at index.js:13:37
       expected: null
       operator: execution
       at:
@@ -3468,9 +3470,7 @@ not ok 7 - snapshot of number # time=1.3371337ms
         test('snapshot of an object', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3490,9 +3490,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         test('multiple snapshots', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     not ok 2 - should match snapshot
@@ -3509,9 +3507,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
       source: |2
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..2
@@ -3532,9 +3528,7 @@ not ok 9 - multiple snapshots # time=1.3371337ms
             ---------^
               await assert.end()
             })
-          stack: |-
-            fixtures/snapshot.js:13:37
-            fixtures/snapshot.js:13:37
+          stack: fixtures/snapshot.js:13:37
           ...
 
         1..1
@@ -3832,9 +3826,7 @@ not ok 7 - snapshot of number # time=1.3371337ms
         test('snapshot of an object', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3854,9 +3846,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         test('multiple snapshots', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     not ok 2 - should match snapshot
@@ -3873,9 +3863,7 @@ not ok 8 - snapshot of an object # time=1.3371337ms
       source: |2
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..2
@@ -3896,9 +3884,7 @@ not ok 9 - multiple snapshots # time=1.3371337ms
             ---------^
               await assert.end()
             })
-          stack: |-
-            fixtures/snapshot.js:13:37
-            fixtures/snapshot.js:13:37
+          stack: fixtures/snapshot.js:13:37
           ...
 
         1..1
