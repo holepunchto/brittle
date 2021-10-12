@@ -17,7 +17,7 @@ const clean = (str, opts = {}) => {
     .replace(dirRx, '') // remove project dir occurrences
     .replace(/.+\(internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\ at.+(node:)?internal\/.+\n/gm, '') // remove node call frames
-    .replace(/.+\(((?!\/).+)\)\n/gm, '') // remove node call frames
+    .replace(/.+\(((?!\/).+:.+:.+)\)\n/gm, '') // remove node call frames
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
 }
 const run = promisify(async (testPath, cb) => {
@@ -387,4 +387,11 @@ test('concurrency default (concurrency: 5)', async function ({ snapshot, ok, is 
   const sum =  Math.round((Math.max(...times)) / 50) * 50
   const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
   is(sum, time)
+})
+
+test('multitick execution/exception', async function ({ snapshot, ok, is }) {
+  const result = await run('multitick-execution-exception.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
 })

@@ -32,6 +32,7 @@ const {
   kInverted,
   kReset,
   kQueue,
+  kAssertQ,
   kMain
 } = require('./lib/symbols')
 
@@ -389,7 +390,8 @@ class Test extends Promise {
         [kCounted]: { value: 0, writable: true },
         [kEnding]: { value: false, writable: true },
         [kTeardowns]: { value: [] },
-        [kChildren]: { value: [] }
+        [kChildren]: { value: [] },
+        [kAssertQ]: { value: new PromiseQueue(), configurable: true }
       })
     }
 
@@ -494,6 +496,7 @@ class Test extends Promise {
   }
 
   async end () {
+    await this[kAssertQ].empty()
     const premature = (this.count < this.planned)
     if (premature) {
       this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
@@ -708,62 +711,69 @@ class Test extends Promise {
   }
 
   async exception (functionOrPromise, expectedError, message) {
-    this[kIncre]()
-    if (typeof expectedError === 'string') {
-      [message, expectedError] = [expectedError, message]
-    }
-    const top = originFrame(Test.prototype.exception)
-    const pristineMessage = message === undefined
-    message = pristineMessage ? 'should throw' : message
-    const type = 'assert'
-    const assert = 'exception'
-    const count = this.count
-    let syncThrew = true
-    let ok = null
-    try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
-      syncThrew = false
-      if (functionOrPromise instanceof Promise && pristineMessage) message = 'should reject'
-      await functionOrPromise
-      ok = false
-    } catch (err) {
-      if (syncThrew) await null // tick
-      if (!expectedError) {
-        ok = true
-      } else {
-        ok = tmatch(err, expectedError)
+    async function exception (functionOrPromise, expectedError, message) {
+      this[kIncre]()
+      if (typeof expectedError === 'string') {
+        [message, expectedError] = [expectedError, message]
       }
+      const top = originFrame(Test.prototype.exception)
+      const pristineMessage = message === undefined
+      message = pristineMessage ? 'should throw' : message
+      const type = 'assert'
+      const assert = 'exception'
+      const count = this.count
+      let syncThrew = true
+      let ok = null
+      try {
+        if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+        syncThrew = false
+        if (functionOrPromise instanceof Promise && pristineMessage) message = 'should reject'
+        await functionOrPromise
+        ok = false
+      } catch (err) {
+        if (syncThrew) await null // tick
+        if (!expectedError) {
+          ok = true
+        } else {
+          ok = tmatch(err, expectedError)
+        }
+      }
+      if (ok) this.passing += 1
+      else this.failing += 1
+      const explanation = explain(ok, message, assert, Test.prototype.exception, false, expectedError, top)
+      await this.tap.step({ type, assert, ok, message, count, explanation })
+      return ok
     }
-    if (ok) this.passing += 1
-    else this.failing += 1
-    const explanation = explain(ok, message, assert, Test.prototype.exception, false, expectedError, top)
-    await this.tap.step({ type, assert, ok, message, count, explanation })
-    return ok
+    return this[kAssertQ].add(exception.bind(this, functionOrPromise, expectedError, message))
   }
 
   async execution (functionOrPromise, message) {
-    this[kIncre]()
-    const top = originFrame(Test.prototype.execution)
-    const pristineMessage = message === undefined
-    message = pristineMessage ? 'should return' : message
-    const type = 'assert'
-    const assert = 'execution'
-    const count = this.count
-    let ok = false
-    let error = null
-    try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
-      if (functionOrPromise instanceof Promise && pristineMessage) message = 'should resolve'
-      await functionOrPromise
-      ok = true
-    } catch (err) {
-      error = err
+    async function execution (functionOrPromise, message) {
+      this[kIncre]()
+      const top = originFrame(Test.prototype.execution)
+      const pristineMessage = message === undefined
+      message = pristineMessage ? 'should return' : message
+      const type = 'assert'
+      const assert = 'execution'
+      const count = this.count
+      let ok = false
+      let error = null
+      try {
+        if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+        if (functionOrPromise instanceof Promise && pristineMessage) message = 'should resolve'
+        await functionOrPromise
+        ok = true
+      } catch (err) {
+        error = err
+      }
+      if (ok) this.passing += 1
+      else this.failing += 1
+      const explanation = explain(ok, message, assert, Test.prototype.execution, error, null, top)
+      await this.tap.step({ type, assert, ok, message, count, explanation })
+      return ok
     }
-    if (ok) this.passing += 1
-    else this.failing += 1
-    const explanation = explain(ok, message, assert, Test.prototype.execution, error, null, top)
-    await this.tap.step({ type, assert, ok, message, count, explanation })
-    return ok
+
+    return this[kAssertQ].add(execution.bind(this, functionOrPromise, message))
   }
 
   async snapshot (actual, message = 'should match snapshot') {
@@ -908,11 +918,12 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
   return info
 }
 
-class PromiseQueue {
-  constructor ({ concurrency }) {
-    this.promises = []
+class PromiseQueue extends Array {
+  constructor ({ concurrency } = {}) {
+    super()
     this.concurrency = concurrency
     this.pending = 0
+    this.jobs = []
     this.drain()
   }
 
@@ -921,7 +932,15 @@ class PromiseQueue {
     this.drain()
   }
 
-  async add (fn) {
+  async empty () {
+    if (this.pending === 0) return
+    if (this.length === 0) return
+    do {
+      await Promise.allSettled(this)
+    } while (this.pending > 0)
+  }
+
+  add (fn) {
     return new Promise((resolve, reject) => {
       const run = async () => {
         this.pending++
@@ -929,17 +948,17 @@ class PromiseQueue {
         this.pending--
         this.next()
       }
-      this.promises.push(run)
+      this.jobs.push(run)
       this.next()
     })
   }
 
   next () {
-    if (this.promises.length === 0) return false
+    if (this.jobs.length === 0) return false
     if (this.pending >= this.concurrency) return false
-    const run = this.promises.shift()
+    const run = this.jobs.shift()
     if (!run) return false
-    run()
+    this.push(run())
     return true
   }
 
@@ -955,3 +974,4 @@ module.exports.todo = main.todo.bind(main)
 module.exports.configure = main.configure.bind(main)
 module.exports.test = module.exports
 module.exports[kMain] = main
+
