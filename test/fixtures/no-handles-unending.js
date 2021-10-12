@@ -4,5 +4,5 @@ import test from '../../index.js'
 
 test('never resolve', {timeout: 100}, async function (t) {
   await new Promise((resolve) => {}) // never resolves
-  t.pass('a')
+  // t.pass('a')
 })

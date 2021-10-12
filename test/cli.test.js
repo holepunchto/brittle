@@ -55,7 +55,6 @@ const term = promisify(({ args, ctrlC = true, autoExit = false, ready }, cb) => 
   })
   let output = ''
   let timeout = null
-
   const finalize = () => {
     if (autoExit) {
       terminal.onExit(() => {

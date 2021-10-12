@@ -84,13 +84,7 @@ async function ender (tests = main[kChildren]) {
     const endedTest = (children.length > 0) && await ender(children)
     if (endedTest) return true
     if (test.ended === false) {
-      if (test[kInverted] === false) {
-        const delta = Math.round(Number(process.hrtime.bigint() - test.start) / 1000000)
-        const wait = test[kTimeout]._idleTimeout - delta
-        await new Promise((resolve) => setTimeout(resolve, wait))
-      }
       try { await test.end() } catch {}
-
       return true
     }
   }
@@ -503,9 +497,12 @@ class Test extends Promise {
 
   async end () {
     await this[kAssertQ].empty()
-    const premature = (this.count < this.planned)
-    if (premature) {
+
+    if (this.count < this.planned) {
       this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
+    }
+    if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false && this.count === 0 && this.planned === 0) {
+      this[kError](new TestError('ERR_NO_ASSERTS', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
 
     const teardowns = this[kTeardowns].slice()
