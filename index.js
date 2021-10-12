@@ -84,7 +84,13 @@ async function ender (tests = main[kChildren]) {
     const endedTest = (children.length > 0) && await ender(children)
     if (endedTest) return true
     if (test.ended === false) {
+      if (test[kInverted] === false) {
+        const delta = Math.round(Number(process.hrtime.bigint() - test.start) / 1000000)
+        const wait = test[kTimeout]._idleTimeout - delta
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
       try { await test.end() } catch {}
+
       return true
     }
   }

@@ -3191,7 +3191,7 @@ not ok 7 - thrown primitive (symbol) # time=1.3371337ms
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: >-
+        stack: |-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
         code: ERR_PREMATURE_END
         test: premature end
@@ -4624,6 +4624,34 @@ not ok 1 - tbd # time=1.3371337ms
 ok 2 - tbd2 # time=1.3371337ms
 
 1..2
+# time=1.3371337ms
+# failing=1
+
+`
+
+exports['timeout no active handles unplanned unending 1'] = `
+TAP version 13
+# never resolve
+    not ok 0 - test timed out after 100ms
+      ---
+      actual:
+        !error
+        name: Error
+        message: test timed out after 100ms
+        stack: |-
+          Error: test timed out after 100ms
+        code: ERR_TIMEOUT
+        test: never resolve
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+not ok 1 - never resolve # time=1.3371337ms
+
+1..1
 # time=1.3371337ms
 # failing=1
 

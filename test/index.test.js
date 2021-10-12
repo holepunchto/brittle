@@ -402,3 +402,10 @@ test('timeout failure cascade avoidance', async function ({ snapshot, ok, is }) 
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
 })
+
+test('timeout no active handles unplanned unending', async function ({ snapshot, ok, is }) {
+  const result = await run('timeout-no-handles-unending.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})

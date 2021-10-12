@@ -36,9 +36,10 @@ test('thrown primitive (symbol)', async ({ pass }) => {
   throw Symbol('fuck me')
 })
 
-test('premature end', async ({ plan, pass }) => {
+test('premature end', async ({ assert, plan, pass }) => {
   plan(2)
   pass()
+  assert.end()
 })
 
 test('count exceeds plan', async ({ plan, pass }) => {
