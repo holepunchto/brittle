@@ -4595,3 +4595,36 @@ ok 4 - multi-tick exception (promise reject) # time=1.3371337ms
 # failing=2
 
 `
+
+exports['timeout failure cascade avoidance 1'] = `
+TAP version 13
+# tbd
+    not ok 0 - test timed out after 10ms
+      ---
+      actual:
+        !error
+        name: Error
+        message: test timed out after 10ms
+        stack: |-
+          Error: test timed out after 10ms
+        code: ERR_TIMEOUT
+        test: tbd
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+not ok 1 - tbd # time=1.3371337ms
+
+# tbd2
+    ok 1 - passed
+    1..1
+ok 2 - tbd2 # time=1.3371337ms
+
+1..2
+# time=1.3371337ms
+# failing=1
+
+`

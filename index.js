@@ -559,9 +559,11 @@ class Test extends Promise {
       }
 
       const assert = new Test(description, opts)
+      clearTimeout(assert[kTimeout])
       const promise = this[kQueue].add(async () => {
         try {
           assert.start = process.hrtime.bigint()
+          assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
           return await fn(assert)
         } catch (err) {
           assert[kError](err)
@@ -571,7 +573,7 @@ class Test extends Promise {
         await Promise.allSettled(assert[kChildren])
         if (assert.planned === 0) queueMicrotask(() => assert.end())
         return await assert
-      }), assert[kInfo]())
+      }))
     }
     test.skip = this.skip.bind(this)
     test.todo = this.todo.bind(this)
@@ -974,4 +976,3 @@ module.exports.todo = main.todo.bind(main)
 module.exports.configure = main.configure.bind(main)
 module.exports.test = module.exports
 module.exports[kMain] = main
-

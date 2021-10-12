@@ -395,3 +395,10 @@ test('multitick execution/exception', async function ({ snapshot, ok, is }) {
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
 })
+
+test('timeout failure cascade avoidance', async function ({ snapshot, ok, is }) {
+  const result = await run('timeout-failure-cascade.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
