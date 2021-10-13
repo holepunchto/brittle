@@ -26,7 +26,16 @@ declare interface Utilities {
   end(): Promise<Test>
 }
 
-declare interface Test extends Promise<unknown>, Assertions, Utilities {
+declare interface Metadata {
+  start: bigint
+  description: string
+  planned: number
+  count: number
+  error: Error | null
+  ended: boolean
+}
+
+declare interface Test extends Promise<Metadata>, Assertions, Utilities, Metadata {
   test: TestFn
   skip: TestFn
   todo: TestFn
