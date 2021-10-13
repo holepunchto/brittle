@@ -43,8 +43,8 @@ declare interface Test extends Promise<Metadata>, Assertions, Utilities, Metadat
 }
 
 declare interface TestFn {
-  (description: string, fn?: (assert: Test) => Promise<unknown>): Test;
-  (description: string, options: TestOptions, fn?: (assert: Test) => Promise<unknown>): Test;
+  (description: string, fn?: (assert: Test) => Promise<unknown>): Test
+  (description: string, options: TestOptions, fn?: (assert: Test) => Promise<unknown>): Test
 }
 
 declare interface TestOptions {
