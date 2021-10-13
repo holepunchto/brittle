@@ -18,14 +18,18 @@ Every initializer accepts the same optional options object.
 
 #### Options
 
- * `timeout` (5000) - milliseconds to wait before ending a stalling test
+ * `timeout` (30000) - milliseconds to wait before ending a stalling test
  * `output` (process.stderr) - stream to write TAP output to
  * `skip` - skip this test, alternatively use the `skip()` function
  * `todo` - mark this test as todo and skip it, alternatively use the `todo()` function
+ * `bail` - exit the process on first test failure
+  * `concurrency` - sets the upper limit of child tests that can run concurrently. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
+ * `serial` - short hand for `concurrency: 1`. run child tests in serial. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
+
+See [Configuration](#configuration) for more information.
 
 
 #### `test(description[, opts], async (assert) => {})`
-
 
 Create a test trad-style. The async function will be passed an object,
 which provides the assertions and utilities interface.
@@ -196,6 +200,74 @@ test.skip('some test', async ({ is }) => {
   is(true, true)
 })
 ```
+
+### Configuration
+
+The `configure` function can be used to set options for all tests at a given level, but must
+be executed before any tests.
+
+```js
+import test, { configure } from 'brittle'
+
+configure({ serial: true }) // run all top level tests in serial
+
+test('some test', async (assert) => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  assert.is(true, true)
+})
+
+test('another test', async (assert) => {
+  assert.is(true, true)
+})
+```
+
+Configuration settings do not propagate to child tests. Child test options
+can be set by passing an object to the `test` function:
+
+```js
+import test from 'brittle'
+
+// run just nested tests serially 
+test('parent test', {serial: true}, async (assert) => {
+  test('some test', async (assert) => {
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    assert.is(true, true)
+  })
+
+  test('another test', async (assert) => {
+    assert.is(true, true)
+  })
+})
+```
+
+The `assert` object also has a `configure` function which can be used to change options dynamically,
+as with the top level `configure` function:
+
+```js
+import test from 'brittle'
+
+test('parent test',  async (assert) => {
+  assert.configure({serial: true}) // run just nested tests serially 
+  test('some test', async (assert) => {
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    assert.is(true, true)
+  })
+
+  test('another test', async (assert) => {
+    assert.is(true, true)
+  })
+})
+```
+
+#### Options
+
+ * `timeout` (30000) - milliseconds to wait before ending a stalling test
+ * `output` (process.stderr) - stream to write TAP output to
+ * `skip` - skip this test, alternatively use the `skip()` function
+ * `todo` - mark this test as todo and skip it, alternatively use the `todo()` function
+ * `bail` - exit the process on first test failure
+ * `concurrency` - sets the upper limit of tests that can run concurrently. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
+ * `serial` - short hand for `concurrency: 1`. run tests in serial. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
 
 
 ### Assertions

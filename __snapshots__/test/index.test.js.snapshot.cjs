@@ -20,15 +20,31 @@ ok 3 - classic, plan w/comment # time=1.3371337ms
 
 `
 
-exports['inverted pass 1'] = `
+exports['inverted fail 1'] = `
 TAP version 13
 # inverted
-    ok 1 - passed
+    not ok 1 - failed
+      ---
+      operator: fail
+      at:
+        line: 4
+        column: 8
+        file: file:///inverted-fail.js
+      source: |
+        const assert = test('inverted') 
+        assert.fail()
+        -------^
+        await assert.end()
+      stack: |-
+        test/fixtures/inverted-fail.js:13:37
+      ...
+
     1..1
-ok 1 - inverted # time=1.3371337ms
+not ok 1 - inverted # time=1.3371337ms
 
 1..1
 # time=1.3371337ms
+# failing=1
 
 `
 
@@ -65,6 +81,7 @@ not ok 1 - classic, no plan # time=1.3371337ms
         column: 3
         file: file:///classic-fail.js
       source: |2
+          plan(1)
           fail()
         --^
         })
@@ -81,642 +98,2265 @@ not ok 2 - classic, with plan # time=1.3371337ms
 
 `
 
-exports['sync functions allowed 1'] = `
+exports['inverted pass 1'] = `
 TAP version 13
-# sync function allowed
+# inverted
     ok 1 - passed
     1..1
-ok 1 - sync function allowed # time=1.3371337ms
+ok 1 - inverted # time=1.3371337ms
 
 1..1
 # time=1.3371337ms
 
 `
 
-exports['sync functions allowed 2'] = `
-
-`
-
-exports['inverted fail 1'] = `
+exports['inverted assertions 1'] = `
 TAP version 13
-# inverted
+# passing (default messages)
+    ok 1 - passed
+    ok 2 - expected truthy value
+    ok 3 - expected falsey value
+    ok 4 - should be equal
+    ok 5 - should be equal
+    ok 6 - should not be equal
+    ok 7 - should not be equal
+    ok 8 - should deep equal
+    ok 9 - should deep equal
+    ok 10 - should not deep equal
+    ok 11 - should not deep equal
+    ok 12 - should resolve
+    ok 13 - should resolve
+    ok 14 - should return
+    ok 15 - should reject
+    ok 16 - should reject
+    ok 17 - should throw
+    1..17
+ok 1 - passing (default messages) # time=1.3371337ms
+
+# passing (custom messages)
+    ok 1 - peanut
+    ok 2 - brittle
+    ok 3 - is
+    ok 4 - an
+    ok 5 - often
+    ok 6 - overlooked
+    ok 7 - tasty
+    ok 8 - treat
+    ok 9 - you should
+    ok 10 - try it
+    ok 11 - sometime
+    ok 12 - but
+    ok 13 - not really
+    ok 14 - personally
+    ok 15 - I have not had it
+    ok 16 - in a long
+    ok 17 - long time
+    1..17
+ok 2 - passing (custom messages) # time=1.3371337ms
+
+# failing (default messages)
     not ok 1 - failed
       ---
       operator: fail
       at:
-        line: 4
+        line: 49
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          const assert = test('failing (default messages)')
+          assert.fail()
+        ---------^
+          assert.ok(false)
+          assert.absent(true)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 2 - expected truthy value
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 50
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.fail()
+          assert.ok(false)
+        ---------^
+          assert.absent(true)
+          assert.is(1, 2)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 3 - expected falsey value
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 51
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.ok(false)
+          assert.absent(true)
+        ---------^
+          assert.is(1, 2)
+          assert.is.coercively('2', 1)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 4 - should be equal
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 52
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.absent(true)
+          assert.is(1, 2)
+        ---------^
+          assert.is.coercively('2', 1)
+          assert.not(1, 1)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 5 - should be equal
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 53
+        column: 13
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.is(1, 2)
+          assert.is.coercively('2', 1)
+        ------------^
+          assert.not(1, 1)
+          assert.not.coercively(1, '1')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 6 - should not be equal
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 54
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.is.coercively('2', 1)
+          assert.not(1, 1)
+        ---------^
+          assert.not.coercively(1, '1')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 7 - should not be equal
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 55
+        column: 14
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.not(1, 1)
+          assert.not.coercively(1, '1')
+        -------------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 8 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 56
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.not.coercively(1, '1')
+        ---------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 9 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 57
+        column: 16
+        file: file:///inverted-assertions.js
+      source: |-2
+        ---------------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 10 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 58
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+        ---------^
+          assert.execution(Promise.reject(Error('n')))
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 11 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 59
+        column: 17
+        file: file:///inverted-assertions.js
+      source: |-2
+        ----------------^
+          assert.execution(Promise.reject(Error('n')))
+          assert.execution(async () => { throw Error('n') })
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 12 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 60
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')))
+        ---------^
+          assert.execution(async () => { throw Error('n') })
+          assert.execution(() => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 13 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 61
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')))
+          assert.execution(async () => { throw Error('n') })
+        ---------^
+          assert.execution(() => { throw Error('n') })
+          assert.exception(Promise.resolve('y'))
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 14 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 62
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(async () => { throw Error('n') })
+          assert.execution(() => { throw Error('n') })
+        ---------^
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject('n'), /y/)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 15 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 63
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(() => { throw Error('n') })
+          assert.exception(Promise.resolve('y'))
+        ---------^
+          assert.exception(Promise.reject('n'), /y/)
+          assert.exception(async () => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 16 - should reject
+      ---
+      actual: false
+      expected: !re /y/
+      operator: exception
+      at:
+        line: 64
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject('n'), /y/)
+        ---------^
+          assert.exception(async () => 'y')
+          assert.exception(() => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 17 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 65
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.exception(Promise.reject('n'), /y/)
+          assert.exception(async () => 'y')
+        ---------^
+          assert.exception(() => 'y')
+          await assert.end()
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 18 - should throw
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 66
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.exception(async () => 'y')
+          assert.exception(() => 'y')
+        ---------^
+          await assert.end()
+        }
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    1..18
+not ok 3 - failing (default messages) # time=1.3371337ms
+
+# failing (custom messages)
+    not ok 1 - peanut
+      ---
+      operator: fail
+      at:
+        line: 72
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          const assert = test('failing (custom messages)')
+          assert.fail('peanut')
+        ---------^
+          assert.ok(false, 'brittle')
+          assert.absent(true, 'is')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 2 - brittle
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 73
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.fail('peanut')
+          assert.ok(false, 'brittle')
+        ---------^
+          assert.absent(true, 'is')
+          assert.is(1, 2, 'an')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 3 - is
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 74
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.ok(false, 'brittle')
+          assert.absent(true, 'is')
+        ---------^
+          assert.is(1, 2, 'an')
+          assert.is.coercively('2', 1, 'often')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 4 - an
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 75
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.absent(true, 'is')
+          assert.is(1, 2, 'an')
+        ---------^
+          assert.is.coercively('2', 1, 'often')
+          assert.not(1, 1, 'overlooked')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 5 - often
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 76
+        column: 13
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.is(1, 2, 'an')
+          assert.is.coercively('2', 1, 'often')
+        ------------^
+          assert.not(1, 1, 'overlooked')
+          assert.not.coercively(1, '1', 'tasty')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 6 - overlooked
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 77
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.is.coercively('2', 1, 'often')
+          assert.not(1, 1, 'overlooked')
+        ---------^
+          assert.not.coercively(1, '1', 'tasty')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 7 - tasty
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 78
+        column: 14
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.not(1, 1, 'overlooked')
+          assert.not.coercively(1, '1', 'tasty')
+        -------------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 8 - treat
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 79
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.not.coercively(1, '1', 'tasty')
+        ---------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 9 - you should
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 80
+        column: 16
+        file: file:///inverted-assertions.js
+      source: |-2
+        ---------------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 10 - try it
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 81
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+        ---------^
+          assert.execution(Promise.reject(Error('n')), 'but')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 11 - sometime
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 82
+        column: 17
+        file: file:///inverted-assertions.js
+      source: |-2
+        ----------------^
+          assert.execution(Promise.reject(Error('n')), 'but')
+          assert.execution(async () => { throw Error('n') }, 'not really')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 12 - but
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 83
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')), 'but')
+        ---------^
+          assert.execution(async () => { throw Error('n') }, 'not really')
+          assert.execution(() => { throw Error('n') }, 'personally')
+      stack: "AssertionError [ERR_ASSERTION]: but::"
+      ...
+
+    not ok 13 - not really
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 84
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')), 'but')
+          assert.execution(async () => { throw Error('n') }, 'not really')
+        ---------^
+          assert.execution(() => { throw Error('n') }, 'personally')
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+      stack: "AssertionError [ERR_ASSERTION]: not really::"
+      ...
+
+    not ok 14 - personally
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 85
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(async () => { throw Error('n') }, 'not really')
+          assert.execution(() => { throw Error('n') }, 'personally')
+        ---------^
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+          assert.exception(async () => 'y', 'in a long')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    not ok 15 - I have not had it
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 86
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.execution(() => { throw Error('n') }, 'personally')
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+        ---------^
+          assert.exception(async () => 'y', 'in a long')
+          assert.exception(() => 'y', 'long time')
+      stack: "AssertionError [ERR_ASSERTION]: I have not had it::"
+      ...
+
+    not ok 16 - in a long
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 87
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+          assert.exception(async () => 'y', 'in a long')
+        ---------^
+          assert.exception(() => 'y', 'long time')
+          await assert.end()
+      stack: "AssertionError [ERR_ASSERTION]: in a long::"
+      ...
+
+    not ok 17 - long time
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 88
+        column: 10
+        file: file:///inverted-assertions.js
+      source: |-2
+          assert.exception(async () => 'y', 'in a long')
+          assert.exception(() => 'y', 'long time')
+        ---------^
+          await assert.end()
+        }
+      stack: "AssertionError [ERR_ASSERTION]: long time::"
+      ...
+
+    1..17
+not ok 4 - failing (custom messages) # time=1.3371337ms
+
+# passing and failing mixed
+    not ok 1 - failed
+      ---
+      operator: fail
+      at:
+        line: 93
         column: 8
-        file: file:///inverted-fail.js
-      source: |
-        const assert = test('inverted') 
+        file: file:///inverted-assertions.js
+      source: |-
+        const assert = test('passing and failing mixed')
         assert.fail()
         -------^
-        await assert.end()
-      stack: |-
-        test/fixtures/inverted-fail.js:13:37
+        assert.pass()
+        assert.ok(false)
+      stack: test/fixtures/inverted-assertions.js:13:37
       ...
 
-    1..1
-not ok 1 - inverted # time=1.3371337ms
+    ok 2 - passed
+    not ok 3 - expected truthy value
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 95
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.pass()
+        assert.ok(false)
+        -------^
+        assert.ok(true)
+        assert.absent(true)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
 
-1..1
+    ok 4 - expected truthy value
+    not ok 5 - expected falsey value
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 97
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.ok(true)
+        assert.absent(true)
+        -------^
+        assert.absent(false)
+        assert.is(1, 2)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 6 - expected falsey value
+    not ok 7 - should be equal
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 99
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.absent(false)
+        assert.is(1, 2)
+        -------^
+        assert.is(1, 1)
+        assert.is.coercively('2', 1)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 8 - should be equal
+    not ok 9 - should be equal
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 101
+        column: 11
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.is(1, 1)
+        assert.is.coercively('2', 1)
+        ----------^
+        assert.is.coercively('1', 1)
+        assert.not(1, 1)
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 10 - should be equal
+    not ok 11 - should not be equal
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 103
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.is.coercively('1', 1)
+        assert.not(1, 1)
+        -------^
+        assert.not(1, 2)
+        assert.not.coercively(1, '1')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 12 - should not be equal
+    not ok 13 - should not be equal
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 105
+        column: 12
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.not(1, 2)
+        assert.not.coercively(1, '1')
+        -----------^
+        assert.not.coercively(1, '2')
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 14 - should not be equal
+    not ok 15 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 107
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.not.coercively(1, '2')
+        -------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 16 - should deep equal
+    not ok 17 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 109
+        column: 14
+        file: file:///inverted-assertions.js
+      source: |-
+        -------------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 18 - should deep equal
+    not ok 19 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 111
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        -------^
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 20 - should not deep equal
+    not ok 21 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 113
+        column: 15
+        file: file:///inverted-assertions.js
+      source: |-
+        --------------^
+        assert.execution(Promise.resolve('y'))
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 22 - should not deep equal
+    ok 23 - should resolve
+    not ok 24 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 116
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.execution(Promise.resolve('y'))
+        assert.execution(Promise.reject(Error('n')))
+        -------^
+        assert.execution(async () => 'y')
+        assert.execution(async () => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 28 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 120
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.execution(() => 'y')
+        assert.execution(() => { throw Error('n') })
+        -------^
+        assert.exception(Promise.resolve('y'))
+        assert.exception(Promise.reject(Error('n')))
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
+    ok 25 - should resolve
+    not ok 26 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 118
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.execution(async () => 'y')
+        assert.execution(async () => { throw Error('n') })
+        -------^
+        assert.execution(() => 'y')
+        assert.execution(() => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    ok 27 - should return
+    not ok 29 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 121
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.execution(() => { throw Error('n') })
+        assert.exception(Promise.resolve('y'))
+        -------^
+        assert.exception(Promise.reject(Error('n')))
+        assert.exception(async () => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    ok 30 - should reject
+    not ok 31 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 123
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.exception(Promise.reject(Error('n')))
+        assert.exception(async () => 'y')
+        -------^
+        assert.exception(async () => { throw Error('n') })
+        assert.exception(() => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    ok 32 - should reject
+    not ok 33 - should throw
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 125
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.exception(async () => { throw Error('n') })
+        assert.exception(() => 'y')
+        -------^
+        assert.exception(() => { throw Error('n') })
+        await assert.end()
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    ok 34 - should throw
+    1..34
+not ok 5 - passing and failing mixed # time=1.3371337ms
+
+1..5
+# time=1.3371337ms
+# failing=52
+
+`
+
+exports['classic assertions 1'] = `
+TAP version 13
+# passing (default messages)
+    ok 1 - passed
+    ok 2 - expected truthy value
+    ok 3 - expected falsey value
+    ok 4 - should be equal
+    ok 5 - should be equal
+    ok 6 - should not be equal
+    ok 7 - should not be equal
+    ok 8 - should deep equal
+    ok 9 - should deep equal
+    ok 10 - should not deep equal
+    ok 11 - should not deep equal
+    ok 12 - should resolve
+    ok 13 - should resolve
+    ok 14 - should return
+    ok 15 - should reject
+    ok 16 - should reject
+    ok 17 - should throw
+    1..17
+ok 1 - passing (default messages) # time=1.3371337ms
+
+# passing (custom messages)
+    ok 1 - peanut
+    ok 2 - brittle
+    ok 3 - is
+    ok 4 - an
+    ok 5 - often
+    ok 6 - overlooked
+    ok 7 - tasty
+    ok 8 - treat
+    ok 9 - you should
+    ok 10 - try it
+    ok 11 - sometime
+    ok 12 - but
+    ok 13 - not really
+    ok 14 - personally
+    ok 15 - I have not had it
+    ok 16 - in a long
+    ok 17 - long time
+    1..17
+ok 2 - passing (custom messages) # time=1.3371337ms
+
+# failing (default messages)
+    not ok 1 - failed
+      ---
+      operator: fail
+      at:
+        line: 44
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-
+        test('failing (default messages)', async (assert) => {
+          assert.fail()
+        ---------^
+          assert.ok(false)
+          assert.absent(true)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 2 - expected truthy value
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 45
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.fail()
+          assert.ok(false)
+        ---------^
+          assert.absent(true)
+          assert.is(1, 2)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 3 - expected falsey value
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 46
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.ok(false)
+          assert.absent(true)
+        ---------^
+          assert.is(1, 2)
+          assert.is.coercively('2', 1)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 4 - should be equal
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 47
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.absent(true)
+          assert.is(1, 2)
+        ---------^
+          assert.is.coercively('2', 1)
+          assert.not(1, 1)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 5 - should be equal
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 48
+        column: 13
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is(1, 2)
+          assert.is.coercively('2', 1)
+        ------------^
+          assert.not(1, 1)
+          assert.not.coercively(1, '1')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 6 - should not be equal
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 49
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is.coercively('2', 1)
+          assert.not(1, 1)
+        ---------^
+          assert.not.coercively(1, '1')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 7 - should not be equal
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 50
+        column: 14
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not(1, 1)
+          assert.not.coercively(1, '1')
+        -------------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 8 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 51
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not.coercively(1, '1')
+        ---------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 9 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 52
+        column: 16
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 10 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 53
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------^
+          assert.execution(Promise.reject(Error('n')))
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 11 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 54
+        column: 17
+        file: file:///classic-assertions.js
+      source: |-2
+        ----------------^
+          assert.execution(Promise.reject(Error('n')))
+          assert.execution(async () => { throw Error('n') })
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 12 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 55
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')))
+        ---------^
+          assert.execution(async () => { throw Error('n') })
+          assert.execution(() => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 13 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 56
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')))
+          assert.execution(async () => { throw Error('n') })
+        ---------^
+          assert.execution(() => { throw Error('n') })
+          assert.exception(Promise.resolve('y'))
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 14 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 57
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(async () => { throw Error('n') })
+          assert.execution(() => { throw Error('n') })
+        ---------^
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject('n'), /y/)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 15 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 58
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(() => { throw Error('n') })
+          assert.exception(Promise.resolve('y'))
+        ---------^
+          assert.exception(Promise.reject('n'), /y/)
+          assert.exception(async () => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 16 - should reject
+      ---
+      actual: false
+      expected: !re /y/
+      operator: exception
+      at:
+        line: 59
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject('n'), /y/)
+        ---------^
+          assert.exception(async () => 'y')
+          assert.exception(() => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 17 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 60
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.exception(Promise.reject('n'), /y/)
+          assert.exception(async () => 'y')
+        ---------^
+          assert.exception(() => 'y')
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 18 - should throw
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 61
+        column: 10
+        file: file:///classic-assertions.js
+      source: |2
+          assert.exception(async () => 'y')
+          assert.exception(() => 'y')
+        ---------^
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    1..18
+not ok 3 - failing (default messages) # time=1.3371337ms
+
+# failing (custom messages)
+    not ok 1 - peanut
+      ---
+      operator: fail
+      at:
+        line: 65
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-
+        test('failing (custom messages)', async (assert) => {
+          assert.fail('peanut')
+        ---------^
+          assert.ok(false, 'brittle')
+          assert.absent(true, 'is')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 2 - brittle
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 66
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.fail('peanut')
+          assert.ok(false, 'brittle')
+        ---------^
+          assert.absent(true, 'is')
+          assert.is(1, 2, 'an')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 3 - is
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 67
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.ok(false, 'brittle')
+          assert.absent(true, 'is')
+        ---------^
+          assert.is(1, 2, 'an')
+          assert.is.coercively('2', 1, 'often')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 4 - an
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 68
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.absent(true, 'is')
+          assert.is(1, 2, 'an')
+        ---------^
+          assert.is.coercively('2', 1, 'often')
+          assert.not(1, 1, 'overlooked')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 5 - often
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 69
+        column: 13
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is(1, 2, 'an')
+          assert.is.coercively('2', 1, 'often')
+        ------------^
+          assert.not(1, 1, 'overlooked')
+          assert.not.coercively(1, '1', 'tasty')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 6 - overlooked
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 70
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is.coercively('2', 1, 'often')
+          assert.not(1, 1, 'overlooked')
+        ---------^
+          assert.not.coercively(1, '1', 'tasty')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 7 - tasty
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 71
+        column: 14
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not(1, 1, 'overlooked')
+          assert.not.coercively(1, '1', 'tasty')
+        -------------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 8 - treat
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 72
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not.coercively(1, '1', 'tasty')
+        ---------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 9 - you should
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 73
+        column: 16
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 10 - try it
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 74
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------^
+          assert.execution(Promise.reject(Error('n')), 'but')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 11 - sometime
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 75
+        column: 17
+        file: file:///classic-assertions.js
+      source: |-2
+        ----------------^
+          assert.execution(Promise.reject(Error('n')), 'but')
+          assert.execution(async () => { throw Error('n') }, 'not really')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 12 - but
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 76
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')), 'but')
+        ---------^
+          assert.execution(async () => { throw Error('n') }, 'not really')
+          assert.execution(() => { throw Error('n') }, 'personally')
+      stack: "AssertionError [ERR_ASSERTION]: but::"
+      ...
+
+    not ok 13 - not really
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 77
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(Promise.reject(Error('n')), 'but')
+          assert.execution(async () => { throw Error('n') }, 'not really')
+        ---------^
+          assert.execution(() => { throw Error('n') }, 'personally')
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+      stack: "AssertionError [ERR_ASSERTION]: not really::"
+      ...
+
+    not ok 14 - personally
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 78
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(async () => { throw Error('n') }, 'not really')
+          assert.execution(() => { throw Error('n') }, 'personally')
+        ---------^
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+          assert.exception(async () => 'y', 'in a long')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    not ok 15 - I have not had it
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 79
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(() => { throw Error('n') }, 'personally')
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+        ---------^
+          assert.exception(async () => 'y', 'in a long')
+          assert.exception(() => 'y', 'long time')
+      stack: "AssertionError [ERR_ASSERTION]: I have not had it::"
+      ...
+
+    not ok 16 - in a long
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 80
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.exception(Promise.resolve('y'), 'I have not had it')
+          assert.exception(async () => 'y', 'in a long')
+        ---------^
+          assert.exception(() => 'y', 'long time')
+        })
+      stack: "AssertionError [ERR_ASSERTION]: in a long::"
+      ...
+
+    not ok 17 - long time
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 81
+        column: 10
+        file: file:///classic-assertions.js
+      source: |2
+          assert.exception(async () => 'y', 'in a long')
+          assert.exception(() => 'y', 'long time')
+        ---------^
+        })
+      stack: "AssertionError [ERR_ASSERTION]: long time::"
+      ...
+
+    1..17
+not ok 4 - failing (custom messages) # time=1.3371337ms
+
+# passing and failing mixed
+    not ok 1 - failed
+      ---
+      operator: fail
+      at:
+        line: 85
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-
+        test('passing and failing mixed', async (assert) => {
+          assert.fail()
+        ---------^
+          assert.pass()
+          assert.ok(false)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 2 - passed
+    not ok 3 - expected truthy value
+      ---
+      actual: false
+      expected: true
+      operator: ok
+      at:
+        line: 87
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.pass()
+          assert.ok(false)
+        ---------^
+          assert.ok(true)
+          assert.absent(true)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 4 - expected truthy value
+    not ok 5 - expected falsey value
+      ---
+      actual: true
+      expected: false
+      operator: absent
+      at:
+        line: 89
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.ok(true)
+          assert.absent(true)
+        ---------^
+          assert.absent(false)
+          assert.is(1, 2)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 6 - expected falsey value
+    not ok 7 - should be equal
+      ---
+      actual: 1
+      expected: 2
+      operator: is
+      at:
+        line: 91
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.absent(false)
+          assert.is(1, 2)
+        ---------^
+          assert.is(1, 1)
+          assert.is.coercively('2', 1)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 8 - should be equal
+    not ok 9 - should be equal
+      ---
+      actual: "2"
+      expected: 1
+      operator: is
+      at:
+        line: 93
+        column: 13
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is(1, 1)
+          assert.is.coercively('2', 1)
+        ------------^
+          assert.is.coercively('1', 1)
+          assert.not(1, 1)
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 10 - should be equal
+    not ok 11 - should not be equal
+      ---
+      actual: 1
+      expected: 1
+      operator: not
+      at:
+        line: 95
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.is.coercively('1', 1)
+          assert.not(1, 1)
+        ---------^
+          assert.not(1, 2)
+          assert.not.coercively(1, '1')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 12 - should not be equal
+    not ok 13 - should not be equal
+      ---
+      actual: 1
+      expected: "1"
+      operator: not
+      at:
+        line: 97
+        column: 14
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not(1, 2)
+          assert.not.coercively(1, '1')
+        -------------^
+          assert.not.coercively(1, '2')
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 14 - should not be equal
+    not ok 15 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: 2
+      operator: alike
+      at:
+        line: 99
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.not.coercively(1, '2')
+        ---------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 16 - should deep equal
+    not ok 17 - should deep equal
+      ---
+      actual:
+        a: 1
+      expected:
+        a: "2"
+      operator: alike
+      at:
+        line: 101
+        column: 16
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 18 - should deep equal
+    not ok 19 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: 2
+      operator: unlike
+      at:
+        line: 103
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+        ---------^
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 20 - should not deep equal
+    not ok 21 - should not deep equal
+      ---
+      actual:
+        a: 2
+      expected:
+        a: "2"
+      operator: unlike
+      at:
+        line: 105
+        column: 17
+        file: file:///classic-assertions.js
+      source: |-2
+        ----------------^
+          assert.execution(Promise.resolve('y'))
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 22 - should not deep equal
+    ok 23 - should resolve
+    not ok 24 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 108
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(Promise.resolve('y'))
+          assert.execution(Promise.reject(Error('n')))
+        ---------^
+          assert.execution(async () => 'y')
+          assert.execution(async () => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    not ok 28 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 112
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(() => 'y')
+          assert.execution(() => { throw Error('n') })
+        ---------^
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject(Error('n')))
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
+    ok 25 - should resolve
+    not ok 26 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 110
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(async () => 'y')
+          assert.execution(async () => { throw Error('n') })
+        ---------^
+          assert.execution(() => 'y')
+          assert.execution(() => { throw Error('n') })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    ok 27 - should return
+    not ok 29 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 113
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(() => { throw Error('n') })
+          assert.exception(Promise.resolve('y'))
+        ---------^
+          assert.exception(Promise.reject(Error('n')))
+          assert.exception(async () => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    ok 30 - should reject
+    not ok 31 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 115
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.exception(Promise.reject(Error('n')))
+          assert.exception(async () => 'y')
+        ---------^
+          assert.exception(async () => { throw Error('n') })
+          assert.exception(() => 'y')
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    ok 32 - should reject
+    not ok 33 - should throw
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 117
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.exception(async () => { throw Error('n') })
+          assert.exception(() => 'y')
+        ---------^
+          assert.exception(() => { throw Error('n') })
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    ok 34 - should throw
+    1..34
+not ok 5 - passing and failing mixed # time=1.3371337ms
+
+1..5
+# time=1.3371337ms
+# failing=52
+
+`
+
+exports['teardown 1'] = `
+TAP version 13
+# teardown classic
+    ok 1 - passed
+    1..1
+ok 1 - teardown classic # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (classic) 
+
+# teardown inverted
+    ok 1 - passed
+    1..1
+ok 2 - teardown inverted # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (inverted) 
+
+# teardown after error classic
+    not ok 0 - test
+      ---
+      actual:
+        !error
+        name: Error
+        message: test
+        stack: >-
+          Error: test
+              at file:///teardown.js:13:37
+              at file:///teardown.js:13:37
+        test: teardown after error classic
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test::"
+      ...
+
+not ok 3 - teardown after error classic # time=1.3371337ms
+
+# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
+
+1..3
 # time=1.3371337ms
 # failing=1
-
-`
-
-exports['default description 1'] = `
-TAP version 13
-# tbd
-    ok 1 - passed
-    # tbd - subtest
-        ok 1 - passed
-        1..1
-    ok 2 - tbd - subtest # time=1.3371337ms
-    1..2
-ok 1 - tbd # time=1.3371337ms
-
-# classic
-    ok 1 - passed
-    # classic - subtest
-        ok 1 - passed
-        1..1
-    ok 2 - classic - subtest # time=1.3371337ms
-    1..2
-ok 2 - classic # time=1.3371337ms
-
-1..2
-# time=1.3371337ms
-
-`
-
-exports['configure output stream 1'] = `
-TAP version 13
-# configure: output
-    ok 1 - passed
-    1..1
-ok 1 - configure: output # time=1.3371337ms
-
-1..1
-# time=1.3371337ms
-
-`
-
-exports['classic plan must be integer 1'] = `
-TAP version 13
-# plan must be integer
-ok 1 - plan must be integer # time=1.3371337ms
-
-
-`
-
-exports['classic plan must be integer 2'] = `
-Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///classic-plan-must-be-integer.js:13:37
-    at index.js:13:37
-    at file:///classic-plan-must-be-integer.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['classic configure first 1'] = `
-TAP version 13
-# a test
-ok 1 - a test # time=1.3371337ms
-
-
-`
-
-exports['classic configure first 2'] = `
-Brittle: Fatal Error
-TestError: configuration must happen prior to registering any tests
-    at file:///classic-configure-first.js:13:37
-  code: 'ERR_CONFIGURE_FIRST',
-  test: '',
-  plan: 0,
-  count: 1,
-  ended: false
-}
-
-`
-
-exports['todo 1'] = `
-TAP version 13
-# run this one
-    ok 1 - passed
-    1..1
-ok 1 - run this one # time=1.3371337ms
-
-ok 2 - todo this one # TODO
-
-# run this one
-    ok 1 - passed
-    1..1
-ok 3 - run this one # time=1.3371337ms
-
-ok 4 - tbd # TODO
-
-1..4
-# time=1.3371337ms
-
-`
-
-exports['configure output fd 1'] = `
-TAP version 13
-# configure: output
-    ok 1 - passed
-    1..1
-ok 1 - configure: output # time=1.3371337ms
-
-1..1
-# time=1.3371337ms
-
-`
-
-exports['skip 1'] = `
-TAP version 13
-# run this one
-    ok 1 - passed
-    1..1
-ok 1 - run this one # time=1.3371337ms
-
-ok 2 - skip this one # SKIP
-
-# run this one
-    ok 1 - passed
-    1..1
-ok 3 - run this one # time=1.3371337ms
-
-ok 4 - tbd # SKIP
-
-1..4
-# time=1.3371337ms
-
-`
-
-exports['comment 1'] = `
-TAP version 13
-# classic comment
-    ok 1 - passed
-    # here is a comment
-    1..1
-ok 1 - classic comment # time=1.3371337ms
-
-# classic comment after classic child
-    ok 1 - passed
-    # here is a comment, it will print before child asserts
-    # child
-        ok 1 - passed
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 2 - classic comment after classic child # time=1.3371337ms
-
-# classic comment after inverted child
-    ok 1 - passed
-    # here is a comment, it will print before child asserts
-    # child
-        ok 1 - passed
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 3 - classic comment after inverted child # time=1.3371337ms
-
-# classic comment inside classic child
-    ok 1 - passed
-    # child
-        ok 1 - passed
-        # here is a child comment
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 4 - classic comment inside classic child # time=1.3371337ms
-
-# classic comment on inverted child
-    ok 1 - passed
-    # child
-        ok 1 - passed
-        # here is a child comment
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 5 - classic comment on inverted child # time=1.3371337ms
-
-# inverted comment
-    ok 1 - passed
-    # here is a comment
-    1..1
-ok 6 - inverted comment # time=1.3371337ms
-
-# inverted comment after classic child
-    ok 1 - passed
-    # here is a comment, it will print before child asserts
-    # child
-        ok 1 - passed
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 7 - inverted comment after classic child # time=1.3371337ms
-
-# inverted comment after inverted child
-    ok 1 - passed
-    # here is a comment, it will print before child asserts
-    # child
-        ok 1 - passed
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 8 - inverted comment after inverted child # time=1.3371337ms
-
-# inverted comment inside classic child
-    ok 1 - passed
-    # child
-        ok 1 - passed
-        # here is a child comment
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 9 - inverted comment inside classic child # time=1.3371337ms
-
-# inverted comment on inverted child
-    ok 1 - passed
-    # child
-        ok 1 - passed
-        # here is a child comment
-        1..1
-    ok 2 - child # time=1.3371337ms
-    1..2
-ok 10 - inverted comment on inverted child # time=1.3371337ms
-
-1..10
-# time=1.3371337ms
-
-`
-
-exports['tappable errors 1'] = `
-TAP version 13
-# generic
-    ok 1 - passed
-    not ok 1 - check
-      ---
-      actual:
-        !error
-        name: Error
-        message: check
-        stack: >-
-          Error: check
-              at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
-        test: generic
-        plan: 0
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: check::"
-      ...
-
-    1..1
-not ok 1 - generic # time=1.3371337ms
-
-# premature end
-    1..2
-    ok 1 - passed
-    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]
-      ---
-      actual:
-        !error
-        name: Error
-        message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: |-
-          Error: test ended prematurely [test count (1) did not reach plan (2)]
-        code: ERR_PREMATURE_END
-        test: premature end
-        plan: 2
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      ...
-
-not ok 2 - premature end # time=1.3371337ms
-
-# count exceeds plan
-    1..1
-    ok 1 - passed
-    ok 2 - passed
-    not ok 2 - test count [2] exceeds plan [1]
-      ---
-      actual:
-        !error
-        name: Error
-        message: test count [2] exceeds plan [1]
-        stack: >-
-          Error: test count [2] exceeds plan [1]
-              at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
-        code: ERR_COUNT_EXCEEDS_PLAN
-        test: count exceeds plan
-        plan: 1
-        count: 2
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1]::"
-      ...
-
-not ok 3 - count exceeds plan # time=1.3371337ms
-
-# premature end
-      ---
-      actual:
-        !error
-        name: Error
-        message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: >-
-          Error: test ended prematurely [test count (1) did not reach plan (2)]
-        code: ERR_PREMATURE_END
-        test: premature end
-        plan: 0
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      ...
-
-    # inverted child of premature end
-        1..2
-        ok 1 - passed
-    ok 1 - inverted child of premature end # time=1.3371337ms
-    1..1
-not ok 4 - premature end # time=1.3371337ms
-
-# count exceeds plan
-      ---
-      actual:
-        !error
-        name: Error
-        stack: >-
-          Error: test count [2] exceeds plan [1] (inverted child of count exceeds
-          plan)
-              at file:///tappable-errors.js:13:37
-              at file:///tappable-errors.js:13:37
-        code: ERR_COUNT_EXCEEDS_PLAN
-        test: count exceeds plan
-        plan: 0
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1] inverted
-        child of count exceeds plan::"
-      ...
-
-    1..1
-not ok 5 - count exceeds plan # time=1.3371337ms
-
-# inverted adult
-    1..2
-    ok 1 - passed
-    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]. This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
-      ---
-      actual:
-        !error
-        name: Error
-        message: >-
-          test ended prematurely [test count (1) did not reach plan (2)].
-          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
-        stack: >-
-          Error: test ended prematurely [test count (1) did not reach plan (2)].
-          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
-        code: ERR_PREMATURE_END
-        test: inverted adult
-        plan: 2
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      ...
-
-not ok 6 - inverted adult # time=1.3371337ms
-
-1..6
-# time=1.3371337ms
-# failing=6
-
-`
-
-exports['classic plan must be positive 1'] = `
-TAP version 13
-# plan must be positive
-ok 1 - plan must be positive # time=1.3371337ms
-
-
-`
-
-exports['classic plan must be positive 2'] = `
-Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///classic-plan-must-be-positive.js:13:37
-    at index.js:13:37
-    at file:///classic-plan-must-be-positive.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['inverted plan must be integer 1'] = `
-TAP version 13
-# plan must be integer
-ok 1 - plan must be integer # time=1.3371337ms
-
-
-`
-
-exports['inverted plan must be integer 2'] = `
-Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///inverted-plan-must-be-integer.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['inverted configure first 1'] = `
-TAP version 13
-# a test
-ok 1 - a test # time=1.3371337ms
-
-
-`
-
-exports['inverted configure first 2'] = `
-Brittle: Fatal Error
-TestError: configuration must happen prior to registering any tests
-    at file:///inverted-configure-first.js:13:37 {
-  code: 'ERR_CONFIGURE_FIRST',
-  test: '',
-  plan: 0,
-  count: 1,
-  ended: false
-}
-
-`
-
-exports['inverted plan must be positive 1'] = `
-TAP version 13
-# plan must be integer
-ok 1 - plan must be integer # time=1.3371337ms
-
-
-`
-
-exports['inverted plan must be positive 2'] = `
-Brittle: Fatal Error
-TestTypeError: plan takes a positive whole number only
-    at file:///inverted-plan-must-be-positive.js:13:37
-  code: 'ERR_PLAN_POSITIVE'
-}
-
-`
-
-exports['classic after end teardown 1'] = `
-TAP version 13
-# teardown after end
-    ok 1 - passed
-    1..1
-ok 1 - teardown after end # time=1.3371337ms
-
-
-`
-
-exports['classic after end teardown 2'] = `
-Brittle: Fatal Error
-TestError: teardown must be called before test ends
-    at file:///classic-after-end-teardown.js:13:37 {
-  code: 'ERR_TEARDOWN_AFTER_END',
-  test: 'teardown after end',
-  plan: 0,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['inverted after end assert 1'] = `
-TAP version 13
-# assert after end
-    ok 1 - passed
-    1..1
-ok 1 - assert after end # time=1.3371337ms
-
-
-`
-
-exports['inverted after end assert 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "assert after end"
-    at file:///inverted-after-end-assert.js:13:37 {
-  code: 'ERR_ASSERT_AFTER_END',
-  test: 'assert after end',
-  plan: 0,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['inverted after end count exceeds plan 1'] = `
-TAP version 13
-# count exceeds plan after end
-    1..1
-    ok 1 - passed
-ok 1 - count exceeds plan after end # time=1.3371337ms
-
-
-`
-
-exports['inverted after end count exceeds plan 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
-    at file:///inverted-after-end-count-exceeds-plan.js:13:37 {
-  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
-  test: 'count exceeds plan after end',
-  plan: 1,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['inverted after end teardown 1'] = `
-TAP version 13
-# teardown after end
-    ok 1 - passed
-    1..1
-ok 1 - teardown after end # time=1.3371337ms
-
-
-`
-
-exports['inverted after end teardown 2'] = `
-Brittle: Fatal Error
-TestError: teardown must be called before test ends
-    at file:///inverted-after-end-teardown.js:13:37 {
-  code: 'ERR_TEARDOWN_AFTER_END',
-  test: 'teardown after end',
-  plan: 0,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['classic after end count exceeds plan 1'] = `
-TAP version 13
-# count exceeds plan after end
-    1..1
-    ok 1 - passed
-ok 1 - count exceeds plan after end # time=1.3371337ms
-
-
-`
-
-exports['classic after end count exceeds plan 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
-    at file:///classic-after-end-count-exceeds-plan.js:13:37 {
-  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
-  test: 'count exceeds plan after end',
-  plan: 1,
-  count: 1,
-  ended: true
-}
-
-`
-
-exports['classic after end assert 1'] = `
-TAP version 13
-# assert after end
-    ok 1 - passed
-    1..1
-ok 1 - assert after end # time=1.3371337ms
-
-
-`
-
-exports['classic after end assert 2'] = `
-Brittle: Fatal Error
-TestError: assert after end in "assert after end"
-    at file:///classic-after-end-assert.js:13:37 {
-  code: 'ERR_ASSERT_AFTER_END',
-  test: 'assert after end',
-  plan: 0,
-  count: 1,
-  ended: true
-}
 
 `
 
@@ -892,113 +2532,6 @@ not ok 8 - timeout method, inverted, plan # time=1.3371337ms
 
 `
 
-exports['teardown 1'] = `
-TAP version 13
-# teardown classic
-    ok 1 - passed
-    1..1
-ok 1 - teardown classic # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (classic) 
-
-# teardown inverted
-    ok 1 - passed
-    1..1
-ok 2 - teardown inverted # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (inverted) 
-
-# teardown after error classic
-    not ok 0 - test
-      ---
-      actual:
-        !error
-        name: Error
-        message: test
-        stack: >-
-          Error: test
-              at file:///teardown.js:13:37
-              at file:///teardown.js:13:37
-        test: teardown after error classic
-        plan: 0
-        count: 0
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test::"
-      ...
-
-not ok 3 - teardown after error classic # time=1.3371337ms
-
-# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
-
-1..3
-# time=1.3371337ms
-# failing=1
-
-`
-
-exports['snapshot 1'] = `
-TAP version 13
-# classic snapshot
-    ok 1 - should match snapshot
-    1..1
-ok 1 - classic snapshot # time=1.3371337ms
-
-# inverted snapshot
-    ok 1 - should match snapshot
-    1..1
-ok 2 - inverted snapshot # time=1.3371337ms
-
-# snapshot of a symbol
-    ok 1 - should match snapshot
-    1..1
-ok 3 - snapshot of a symbol # time=1.3371337ms
-
-# snapshot of an Error
-    ok 1 - should match snapshot
-    1..1
-ok 4 - snapshot of an Error # time=1.3371337ms
-
-# snapshot of undefined
-    ok 1 - should match snapshot
-    1..1
-ok 5 - snapshot of undefined # time=1.3371337ms
-
-# snapshot of null
-    ok 1 - should match snapshot
-    1..1
-ok 6 - snapshot of null # time=1.3371337ms
-
-# snapshot of number
-    ok 1 - should match snapshot
-    1..1
-ok 7 - snapshot of number # time=1.3371337ms
-
-# snapshot of an object
-    ok 1 - should match snapshot
-    1..1
-ok 8 - snapshot of an object # time=1.3371337ms
-
-# multiple snapshots
-    ok 1 - should match snapshot
-    ok 2 - should match snapshot
-    1..2
-ok 9 - multiple snapshots # time=1.3371337ms
-
-# child snapshot
-    # the child
-        ok 1 - should match snapshot
-        1..1
-    ok 1 - the child # time=1.3371337ms
-    1..1
-ok 10 - child snapshot # time=1.3371337ms
-
-1..10
-# time=1.3371337ms
-
-`
-
 exports['nesting 1'] = `
 TAP version 13
 # nesting - inverted parent, classic child, no plans
@@ -1021,6 +2554,7 @@ ok 1 - nesting - inverted parent, classic child, no plans # time=1.3371337ms
     1..3
 ok 2 - nesting - inverted parent, classic child, no plans, await child # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, no plans (no awaiting child)
     ok 1 - parent pass
     # child assert
         ok 1 - child pass
@@ -1030,6 +2564,7 @@ ok 2 - nesting - inverted parent, classic child, no plans, await child # time=1.
     1..3
 ok 3 - nesting - inverted parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, no plans (await child before parent assert)
     ok 1 - parent pass
     # child assert
         ok 1 - child pass
@@ -1059,6 +2594,7 @@ ok 5 - nesting - inverted parent, classic child, parent plan # time=1.3371337ms
     ok 3 - parent pass
 ok 6 - nesting - inverted parent, classic child, parent+child plan # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, parent plan (no awaiting child)
     1..3
     ok 1 - parent pass
     # child assert
@@ -1068,6 +2604,7 @@ ok 6 - nesting - inverted parent, classic child, parent+child plan # time=1.3371
     ok 3 - parent pass
 ok 7 - nesting - inverted parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, parent+child plan (no awaiting child)
     1..3
     ok 1 - parent pass
     # child assert
@@ -1077,6 +2614,7 @@ ok 7 - nesting - inverted parent, inverted child, parent plan (no awaiting child
     ok 3 - parent pass
 ok 8 - nesting - inverted parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, parent plan (await child before parent assert)
     1..2
     # before await child
     # child assert
@@ -1087,6 +2625,7 @@ ok 8 - nesting - inverted parent, inverted child, parent+child plan (no awaiting
     ok 2 - parent pass
 ok 9 - nesting - inverted parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
 
+# nesting - inverted parent, inverted child, parent+child plan (await child before parent assert)
     1..2
     # child assert
         1..1
@@ -1211,6 +2750,7 @@ ok 17 - nesting - classic parent, classic child, no plans # time=1.3371337ms
     1..3
 ok 18 - nesting - classic parent, classic child, no plans, await child # time=1.3371337ms
 
+# nesting - classic parent, inverted child, no plans (no awaiting child)
     ok 1 - parent pass
     # child assert
         ok 1 - child pass
@@ -1220,6 +2760,7 @@ ok 18 - nesting - classic parent, classic child, no plans, await child # time=1.
     1..3
 ok 19 - nesting - classic parent, inverted child, no plans (no awaiting child) # time=1.3371337ms
 
+# nesting - classic parent, inverted child, no plans (await child before parent assert)
     ok 1 - parent pass
     # child assert
         ok 1 - child pass
@@ -1249,6 +2790,7 @@ ok 21 - nesting - classic parent, classic child, parent plan # time=1.3371337ms
     ok 3 - parent pass
 ok 22 - nesting - classic parent, classic child, parent+child plan # time=1.3371337ms
 
+# nesting - classic parent, inverted child, parent plan (no awaiting child)
     1..3
     ok 1 - parent pass
     # child assert
@@ -1258,6 +2800,7 @@ ok 22 - nesting - classic parent, classic child, parent+child plan # time=1.3371
     ok 3 - parent pass
 ok 23 - nesting - classic parent, inverted child, parent plan (no awaiting child) # time=1.3371337ms
 
+# nesting - classic parent, inverted child, parent+child plan (no awaiting child)
     1..3
     ok 1 - parent pass
     # child assert
@@ -1267,6 +2810,7 @@ ok 23 - nesting - classic parent, inverted child, parent plan (no awaiting child
     ok 3 - parent pass
 ok 24 - nesting - classic parent, inverted child, parent+child plan (no awaiting child) # time=1.3371337ms
 
+# nesting - classic parent, inverted child, parent plan (await child before parent assert)
     1..2
     # before await child
     # child assert
@@ -1277,6 +2821,7 @@ ok 24 - nesting - classic parent, inverted child, parent+child plan (no awaiting
     ok 2 - parent pass
 ok 25 - nesting - classic parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
 
+# nesting - classic parent, inverted child, parent+child plan (await child before parent assert)
     1..2
     # child assert
         1..1
@@ -1386,1880 +2931,819 @@ ok 32 - nesting - classic parent, two inverted children, parent+child plan, asyn
 
 `
 
-exports['inverted assertions 1'] = `
+exports['comment 1'] = `
 TAP version 13
+# classic comment
     ok 1 - passed
-    ok 2 - expected truthy value
-    ok 3 - expected falsey value
-    ok 4 - should be equal
-    ok 5 - should be equal
-    ok 6 - should not be equal
-    ok 7 - should not be equal
-    ok 8 - should deep equal
-    ok 9 - should deep equal
-    ok 10 - should not deep equal
-    ok 11 - should not deep equal
-    ok 12 - should resolve
-    ok 13 - should resolve
-    ok 14 - should return
-    ok 15 - should reject
-    ok 16 - should reject
-    ok 17 - should throw
-    1..17
-ok 1 - passing (default messages) # time=1.3371337ms
+    # here is a comment
+    1..1
+ok 1 - classic comment # time=1.3371337ms
 
-    ok 1 - peanut
-    ok 2 - brittle
-    ok 3 - is
-    ok 4 - an
-    ok 5 - often
-    ok 6 - overlooked
-    ok 7 - tasty
-    ok 8 - treat
-    ok 9 - you should
-    ok 10 - try it
-    ok 11 - sometime
-    ok 12 - but
-    ok 13 - not really
-    ok 14 - personally
-    ok 15 - I have not had it
-    ok 16 - in a long
-    ok 17 - long time
-    1..17
-ok 2 - passing (custom messages) # time=1.3371337ms
+# classic comment after classic child
+    ok 1 - passed
+    # here is a comment, it will print before child asserts
+    # child
+        ok 1 - passed
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 2 - classic comment after classic child # time=1.3371337ms
 
-    not ok 1 - failed
-      ---
-      operator: fail
-      at:
-        line: 49
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-          assert.fail()
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# classic comment after inverted child
+    ok 1 - passed
+    # here is a comment, it will print before child asserts
+    # child
+        ok 1 - passed
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 3 - classic comment after inverted child # time=1.3371337ms
 
-    not ok 2 - expected truthy value
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 50
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-          assert.fail()
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# classic comment inside classic child
+    ok 1 - passed
+    # child
+        ok 1 - passed
+        # here is a child comment
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 4 - classic comment inside classic child # time=1.3371337ms
 
-    not ok 3 - expected falsey value
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 51
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# classic comment on inverted child
+    ok 1 - passed
+    # child
+        ok 1 - passed
+        # here is a child comment
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 5 - classic comment on inverted child # time=1.3371337ms
 
-    not ok 4 - should be equal
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 52
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# inverted comment
+    ok 1 - passed
+    # here is a comment
+    1..1
+ok 6 - inverted comment # time=1.3371337ms
 
-    not ok 5 - should be equal
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 53
-        column: 13
-        file: file:///inverted-assertions.js
-      source: |-2
-        ------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# inverted comment after classic child
+    ok 1 - passed
+    # here is a comment, it will print before child asserts
+    # child
+        ok 1 - passed
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 7 - inverted comment after classic child # time=1.3371337ms
 
-    not ok 6 - should not be equal
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 54
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# inverted comment after inverted child
+    ok 1 - passed
+    # here is a comment, it will print before child asserts
+    # child
+        ok 1 - passed
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 8 - inverted comment after inverted child # time=1.3371337ms
 
-    not ok 7 - should not be equal
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 55
-        column: 14
-        file: file:///inverted-assertions.js
-      source: |-2
-        -------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# inverted comment inside classic child
+    ok 1 - passed
+    # child
+        ok 1 - passed
+        # here is a child comment
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 9 - inverted comment inside classic child # time=1.3371337ms
 
-    not ok 8 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 56
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
+# inverted comment on inverted child
+    ok 1 - passed
+    # child
+        ok 1 - passed
+        # here is a child comment
+        1..1
+    ok 2 - child # time=1.3371337ms
+    1..2
+ok 10 - inverted comment on inverted child # time=1.3371337ms
 
-    not ok 9 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 57
-        column: 16
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 10 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 58
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 11 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 59
-        column: 17
-        file: file:///inverted-assertions.js
-      source: |-2
-        ----------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 12 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 60
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 13 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 61
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 14 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 62
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 15 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 63
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 16 - should reject
-      ---
-      actual: false
-      expected: !re /y/
-      operator: exception
-      at:
-        line: 64
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 17 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 65
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-          await assert.end()
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 18 - should throw
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 66
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-          await assert.end()
-        }
-      stack: "AssertionError [ERR_ASSERTION]: should throw::"
-      ...
-
-    1..18
-not ok 3 - failing (default messages) # time=1.3371337ms
-
-    not ok 1 - peanut
-      ---
-      operator: fail
-      at:
-        line: 72
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 2 - brittle
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 73
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 3 - is
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 74
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 4 - an
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 75
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 5 - often
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 76
-        column: 13
-        file: file:///inverted-assertions.js
-      source: |-2
-        ------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 6 - overlooked
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 77
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 7 - tasty
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 78
-        column: 14
-        file: file:///inverted-assertions.js
-      source: |-2
-        -------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 8 - treat
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 79
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 9 - you should
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 80
-        column: 16
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 10 - try it
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 81
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 11 - sometime
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 82
-        column: 17
-        file: file:///inverted-assertions.js
-      source: |-2
-        ----------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 12 - but
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 83
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: but::"
-      ...
-
-    not ok 13 - not really
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 84
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: not really::"
-      ...
-
-    not ok 14 - personally
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 85
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    not ok 15 - I have not had it
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 86
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: I have not had it::"
-      ...
-
-    not ok 16 - in a long
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 87
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-          await assert.end()
-      stack: "AssertionError [ERR_ASSERTION]: in a long::"
-      ...
-
-    not ok 17 - long time
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 88
-        column: 10
-        file: file:///inverted-assertions.js
-      source: |-2
-        ---------^
-          await assert.end()
-        }
-      stack: "AssertionError [ERR_ASSERTION]: long time::"
-      ...
-
-    1..17
-not ok 4 - failing (custom messages) # time=1.3371337ms
-
-# passing and failing mixed
-    not ok 1 - failed
-      ---
-      operator: fail
-      at:
-        line: 93
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        assert.fail()
-        -------^
-        assert.pass()
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 2 - passed
-    not ok 3 - expected truthy value
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 95
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        assert.pass()
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 4 - expected truthy value
-    not ok 5 - expected falsey value
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 97
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 6 - expected falsey value
-    not ok 7 - should be equal
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 99
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 8 - should be equal
-    not ok 9 - should be equal
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 101
-        column: 11
-        file: file:///inverted-assertions.js
-      source: |-
-        ----------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 10 - should be equal
-    not ok 11 - should not be equal
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 103
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 12 - should not be equal
-    not ok 13 - should not be equal
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 105
-        column: 12
-        file: file:///inverted-assertions.js
-      source: |-
-        -----------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 14 - should not be equal
-    not ok 15 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 107
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 16 - should deep equal
-    not ok 17 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 109
-        column: 14
-        file: file:///inverted-assertions.js
-      source: |-
-        -------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 18 - should deep equal
-    not ok 19 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 111
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 20 - should not deep equal
-    not ok 21 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 113
-        column: 15
-        file: file:///inverted-assertions.js
-      source: |-
-        --------------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 22 - should not deep equal
-    ok 23 - should resolve
-    not ok 24 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 116
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 28 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 120
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
-    ok 25 - should resolve
-    not ok 26 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 118
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    ok 27 - should return
-    not ok 29 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 121
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    ok 30 - should reject
-    not ok 31 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 123
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    ok 32 - should reject
-    not ok 33 - should throw
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 125
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        -------^
-        await assert.end()
-      stack: "AssertionError [ERR_ASSERTION]: should throw::"
-      ...
-
-    ok 34 - should throw
-    1..34
-not ok 5 - passing and failing mixed # time=1.3371337ms
-
-1..5
+1..10
 # time=1.3371337ms
-# failing=52
 
 `
 
-exports['classic assertions 1'] = `
+exports['skip 1'] = `
 TAP version 13
+# run this one
     ok 1 - passed
-    ok 2 - expected truthy value
-    ok 3 - expected falsey value
-    ok 4 - should be equal
-    ok 5 - should be equal
-    ok 6 - should not be equal
-    ok 7 - should not be equal
-    ok 8 - should deep equal
-    ok 9 - should deep equal
-    ok 10 - should not deep equal
-    ok 11 - should not deep equal
-    ok 12 - should resolve
-    ok 13 - should resolve
-    ok 14 - should return
-    ok 15 - should reject
-    ok 16 - should reject
-    ok 17 - should throw
-    1..17
-ok 1 - passing (default messages) # time=1.3371337ms
+    1..1
+ok 1 - run this one # time=1.3371337ms
 
-    ok 1 - peanut
-    ok 2 - brittle
-    ok 3 - is
-    ok 4 - an
-    ok 5 - often
-    ok 6 - overlooked
-    ok 7 - tasty
-    ok 8 - treat
-    ok 9 - you should
-    ok 10 - try it
-    ok 11 - sometime
-    ok 12 - but
-    ok 13 - not really
-    ok 14 - personally
-    ok 15 - I have not had it
-    ok 16 - in a long
-    ok 17 - long time
-    1..17
-ok 2 - passing (custom messages) # time=1.3371337ms
+ok 2 - skip this one # SKIP
 
-    not ok 1 - failed
-      ---
-      operator: fail
-      at:
-        line: 44
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-
-        test('failing (default messages)', async (assert) => {
-          assert.fail()
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
+# run this one
+    ok 1 - passed
+    1..1
+ok 3 - run this one # time=1.3371337ms
 
-    not ok 2 - expected truthy value
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 45
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-          assert.fail()
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
+ok 4 - tbd # SKIP
 
-    not ok 3 - expected falsey value
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 46
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 4 - should be equal
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 47
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 5 - should be equal
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 48
-        column: 13
-        file: file:///classic-assertions.js
-      source: |-2
-        ------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 6 - should not be equal
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 49
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 7 - should not be equal
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 50
-        column: 14
-        file: file:///classic-assertions.js
-      source: |-2
-        -------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 8 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 51
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 9 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 52
-        column: 16
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 10 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 53
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 11 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 54
-        column: 17
-        file: file:///classic-assertions.js
-      source: |-2
-        ----------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 12 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 55
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 13 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 56
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 14 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 57
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 15 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 58
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 16 - should reject
-      ---
-      actual: false
-      expected: !re /y/
-      operator: exception
-      at:
-        line: 59
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 17 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 60
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-        })
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    not ok 18 - should throw
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 61
-        column: 10
-        file: file:///classic-assertions.js
-      source: |2
-        ---------^
-        })
-      stack: "AssertionError [ERR_ASSERTION]: should throw::"
-      ...
-
-    1..18
-not ok 3 - failing (default messages) # time=1.3371337ms
-
-    not ok 1 - peanut
-      ---
-      operator: fail
-      at:
-        line: 65
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-
-        test('failing (custom messages)', async (assert) => {
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 2 - brittle
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 66
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 3 - is
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 67
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 4 - an
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 68
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 5 - often
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 69
-        column: 13
-        file: file:///classic-assertions.js
-      source: |-2
-        ------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 6 - overlooked
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 70
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 7 - tasty
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 71
-        column: 14
-        file: file:///classic-assertions.js
-      source: |-2
-        -------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 8 - treat
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 72
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 9 - you should
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 73
-        column: 16
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 10 - try it
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 74
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 11 - sometime
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 75
-        column: 17
-        file: file:///classic-assertions.js
-      source: |-2
-        ----------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 12 - but
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 76
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: but::"
-      ...
-
-    not ok 13 - not really
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 77
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: not really::"
-      ...
-
-    not ok 14 - personally
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 78
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    not ok 15 - I have not had it
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 79
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: I have not had it::"
-      ...
-
-    not ok 16 - in a long
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 80
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-        })
-      stack: "AssertionError [ERR_ASSERTION]: in a long::"
-      ...
-
-    not ok 17 - long time
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 81
-        column: 10
-        file: file:///classic-assertions.js
-      source: |2
-        ---------^
-        })
-      stack: "AssertionError [ERR_ASSERTION]: long time::"
-      ...
-
-    1..17
-not ok 4 - failing (custom messages) # time=1.3371337ms
-
-# passing and failing mixed
-    not ok 1 - failed
-      ---
-      operator: fail
-      at:
-        line: 85
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-
-        test('passing and failing mixed', async (assert) => {
-          assert.fail()
-        ---------^
-          assert.pass()
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 2 - passed
-    not ok 3 - expected truthy value
-      ---
-      actual: false
-      expected: true
-      operator: ok
-      at:
-        line: 87
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-          assert.pass()
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 4 - expected truthy value
-    not ok 5 - expected falsey value
-      ---
-      actual: true
-      expected: false
-      operator: absent
-      at:
-        line: 89
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 6 - expected falsey value
-    not ok 7 - should be equal
-      ---
-      actual: 1
-      expected: 2
-      operator: is
-      at:
-        line: 91
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 8 - should be equal
-    not ok 9 - should be equal
-      ---
-      actual: "2"
-      expected: 1
-      operator: is
-      at:
-        line: 93
-        column: 13
-        file: file:///classic-assertions.js
-      source: |-2
-        ------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 10 - should be equal
-    not ok 11 - should not be equal
-      ---
-      actual: 1
-      expected: 1
-      operator: not
-      at:
-        line: 95
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 12 - should not be equal
-    not ok 13 - should not be equal
-      ---
-      actual: 1
-      expected: "1"
-      operator: not
-      at:
-        line: 97
-        column: 14
-        file: file:///classic-assertions.js
-      source: |-2
-        -------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 14 - should not be equal
-    not ok 15 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: 2
-      operator: alike
-      at:
-        line: 99
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 16 - should deep equal
-    not ok 17 - should deep equal
-      ---
-      actual:
-        a: 1
-      expected:
-        a: "2"
-      operator: alike
-      at:
-        line: 101
-        column: 16
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 18 - should deep equal
-    not ok 19 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: 2
-      operator: unlike
-      at:
-        line: 103
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 20 - should not deep equal
-    not ok 21 - should not deep equal
-      ---
-      actual:
-        a: 2
-      expected:
-        a: "2"
-      operator: unlike
-      at:
-        line: 105
-        column: 17
-        file: file:///classic-assertions.js
-      source: |-2
-        ----------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 22 - should not deep equal
-    ok 23 - should resolve
-    not ok 24 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 108
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    not ok 28 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 112
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
-    ok 25 - should resolve
-    not ok 26 - should resolve
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at file:///classic-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 110
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
-      ...
-
-    ok 27 - should return
-    not ok 29 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 113
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    ok 30 - should reject
-    not ok 31 - should reject
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 115
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-      stack: "AssertionError [ERR_ASSERTION]: should reject::"
-      ...
-
-    ok 32 - should reject
-    not ok 33 - should throw
-      ---
-      actual: false
-      expected: null
-      operator: exception
-      at:
-        line: 117
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-        ---------^
-        })
-      stack: "AssertionError [ERR_ASSERTION]: should throw::"
-      ...
-
-    ok 34 - should throw
-    1..34
-not ok 5 - passing and failing mixed # time=1.3371337ms
-
-1..5
+1..4
 # time=1.3371337ms
-# failing=52
+
+`
+
+exports['tappable errors 1'] = `
+TAP version 13
+# generic
+    ok 1 - passed
+    not ok 1 - check
+      ---
+      actual:
+        !error
+        name: Error
+        message: check
+        stack: >-
+          Error: check
+              at file:///tappable-errors.js:13:37
+        test: generic
+        plan: 0
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: check::"
+      ...
+
+    1..1
+not ok 1 - generic # time=1.3371337ms
+
+# thrown primitive (string)
+    not ok 0 - string thrown ("not great but definitely done by some")
+      ---
+      actual:
+        !error
+        name: Error
+        message: string thrown ("not great but definitely done by some")
+        stack: null
+        type: string
+        value: not great but definitely done by some
+        test: thrown primitive (string)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: 'AssertionError [ERR_ASSERTION]: string thrown "not great but definitely
+        done by some"::'
+      ...
+
+not ok 2 - thrown primitive (string) # time=1.3371337ms
+
+# thrown primitive (number)
+    not ok 0 - number thrown (1337)
+      ---
+      actual:
+        !error
+        name: Error
+        message: number thrown (1337)
+        stack: null
+        type: number
+        value: 1337
+        test: thrown primitive (number)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: number thrown 1337::"
+      ...
+
+not ok 3 - thrown primitive (number) # time=1.3371337ms
+
+# thrown primitive (bigint)
+    not ok 0 - bigint thrown (1337n)
+      ---
+      actual:
+        !error
+        name: Error
+        message: bigint thrown (1337n)
+        stack: null
+        type: bigint
+        value: 1337
+        test: thrown primitive (bigint)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: bigint thrown 1337n::"
+      ...
+
+not ok 4 - thrown primitive (bigint) # time=1.3371337ms
+
+# thrown primitive (null)
+    not ok 0 - object thrown (null)
+      ---
+      actual:
+        !error
+        name: Error
+        message: object thrown (null)
+        stack: null
+        type: object
+        value: null
+        test: thrown primitive (null)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: object thrown null::"
+      ...
+
+not ok 5 - thrown primitive (null) # time=1.3371337ms
+
+# thrown primitive (undefined)
+    not ok 0 - undefined thrown (undefined)
+      ---
+      actual:
+        !error
+        name: Error
+        message: undefined thrown (undefined)
+        stack: null
+        type: undefined
+        value: null
+        test: thrown primitive (undefined)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: undefined thrown undefined::"
+      ...
+
+not ok 6 - thrown primitive (undefined) # time=1.3371337ms
+
+# thrown primitive (symbol)
+    not ok 0 - symbol thrown (Symbol(fuck me))
+      ---
+      actual:
+        !error
+        name: Error
+        message: symbol thrown (Symbol(fuck me))
+        stack: null
+        type: symbol
+        value: !sym Symbol(fuck me)
+        test: thrown primitive (symbol)
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: symbol thrown Symbolfuck me::"
+      ...
+
+not ok 7 - thrown primitive (symbol) # time=1.3371337ms
+
+# premature end
+    1..2
+    ok 1 - passed
+    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]
+      ---
+      actual:
+        !error
+        name: Error
+        message: test ended prematurely [test count (1) did not reach plan (2)]
+        stack: |-
+          Error: test ended prematurely [test count (1) did not reach plan (2)]
+        code: ERR_PREMATURE_END
+        test: premature end
+        plan: 2
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+not ok 8 - premature end # time=1.3371337ms
+
+# count exceeds plan
+    1..1
+    ok 1 - passed
+    ok 2 - passed
+    not ok 2 - test count [2] exceeds plan [1]
+      ---
+      actual:
+        !error
+        name: Error
+        message: test count [2] exceeds plan [1]
+        stack: >-
+          Error: test count [2] exceeds plan [1]
+              at file:///tappable-errors.js:13:37
+        code: ERR_COUNT_EXCEEDS_PLAN
+        test: count exceeds plan
+        plan: 1
+        count: 2
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1]::"
+      ...
+
+not ok 9 - count exceeds plan # time=1.3371337ms
+
+# premature end
+    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)] (inverted child of premature end)
+      ---
+      actual:
+        !error
+        name: Error
+        message: test ended prematurely [test count (1) did not reach plan (2)]
+          (inverted child of premature end)
+        stack: >-
+          Error: test ended prematurely [test count (1) did not reach plan (2)]
+        code: ERR_PREMATURE_END
+        test: premature end
+        plan: 0
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+    # inverted child of premature end
+        1..2
+        ok 1 - passed
+    ok 1 - inverted child of premature end # time=1.3371337ms
+    1..1
+not ok 10 - premature end # time=1.3371337ms
+
+# count exceeds plan
+    not ok 1 - test count [2] exceeds plan [1] (inverted child of count exceeds plan)
+      ---
+      actual:
+        !error
+        name: Error
+        message: test count [2] exceeds plan [1] (inverted child of count exceeds plan)
+        stack: >-
+          Error: test count [2] exceeds plan [1] (inverted child of count exceeds
+          plan)
+              at file:///tappable-errors.js:13:37
+        code: ERR_COUNT_EXCEEDS_PLAN
+        test: count exceeds plan
+        plan: 0
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1] inverted
+        child of count exceeds plan::"
+      ...
+
+    1..1
+not ok 11 - count exceeds plan # time=1.3371337ms
+
+# inverted adult
+    1..2
+    ok 1 - passed
+    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]. This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+      ---
+      actual:
+        !error
+        name: Error
+        message: >-
+          test ended prematurely [test count (1) did not reach plan (2)].
+          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+        stack: >-
+          Error: test ended prematurely [test count (1) did not reach plan (2)].
+          This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+        code: ERR_PREMATURE_END
+        test: inverted adult
+        plan: 2
+        count: 1
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+not ok 12 - inverted adult # time=1.3371337ms
+
+1..12
+# time=1.3371337ms
+# failing=12
+
+`
+
+exports['todo 1'] = `
+TAP version 13
+# run this one
+    ok 1 - passed
+    1..1
+ok 1 - run this one # time=1.3371337ms
+
+ok 2 - todo this one # TODO
+
+# run this one
+    ok 1 - passed
+    1..1
+ok 3 - run this one # time=1.3371337ms
+
+ok 4 - tbd # TODO
+
+1..4
+# time=1.3371337ms
+
+`
+
+exports['default description 1'] = `
+TAP version 13
+# tbd
+    ok 1 - passed
+    # tbd - subtest
+        ok 1 - passed
+        1..1
+    ok 2 - tbd - subtest # time=1.3371337ms
+    1..2
+ok 1 - tbd # time=1.3371337ms
+
+# classic
+    ok 1 - passed
+    # classic - subtest
+        ok 1 - passed
+        1..1
+    ok 2 - classic - subtest # time=1.3371337ms
+    1..2
+ok 2 - classic # time=1.3371337ms
+
+1..2
+# time=1.3371337ms
+
+`
+
+exports['sync functions allowed 1'] = `
+TAP version 13
+# sync function allowed
+    ok 1 - passed
+    1..1
+ok 1 - sync function allowed # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
+exports['sync functions allowed 2'] = `
+
+`
+
+exports['configure output stream 1'] = `
+TAP version 13
+# configure: output
+    ok 1 - passed
+    1..1
+ok 1 - configure: output # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
+exports['configure output fd 1'] = `
+TAP version 13
+# configure: output
+    ok 1 - passed
+    1..1
+ok 1 - configure: output # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+
+`
+
+exports['classic configure first 1'] = `
+TAP version 13
+# a test
+    ok 1 - passed
+    1..1
+ok 1 - a test # time=1.3371337ms
+
+
+`
+
+exports['classic configure first 2'] = `
+Brittle: Fatal Error
+TestError: configuration must happen prior to registering any tests
+    at file:///classic-configure-first.js:13:37
+  code: 'ERR_CONFIGURE_FIRST',
+  test: '',
+  plan: 0,
+  count: 1,
+  ended: false
+}
+
+`
+
+exports['classic plan must be integer 1'] = `
+TAP version 13
+# plan must be integer
+    ok 1 - passed
+    1..1
+ok 1 - plan must be integer # time=1.3371337ms
+
+
+`
+
+exports['classic plan must be integer 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///classic-plan-must-be-integer.js:13:37
+    at index.js:13:37
+    at index.js:13:37
+    at new Promise (<anonymous>)
+    at file:///classic-plan-must-be-integer.js:13:37 {
+  code: 'ERR_PLAN_POSITIVE'
+}
+
+`
+
+exports['classic plan must be positive 1'] = `
+TAP version 13
+# plan must be positive
+    ok 1 - passed
+    1..1
+ok 1 - plan must be positive # time=1.3371337ms
+
+
+`
+
+exports['classic plan must be positive 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///classic-plan-must-be-positive.js:13:37
+    at index.js:13:37
+    at index.js:13:37
+    at new Promise (<anonymous>)
+    at file:///classic-plan-must-be-positive.js:13:37 {
+  code: 'ERR_PLAN_POSITIVE'
+}
+
+`
+
+exports['classic after end assert 1'] = `
+TAP version 13
+# assert after end
+    ok 1 - passed
+    1..1
+ok 1 - assert after end # time=1.3371337ms
+
+
+`
+
+exports['classic after end assert 2'] = `
+Brittle: Fatal Error
+TestError: assert after end in "assert after end"
+    at file:///classic-after-end-assert.js:13:37 {
+  code: 'ERR_ASSERT_AFTER_END',
+  test: 'assert after end',
+  plan: 0,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['classic after end count exceeds plan 1'] = `
+TAP version 13
+# count exceeds plan after end
+    1..1
+    ok 1 - passed
+ok 1 - count exceeds plan after end # time=1.3371337ms
+
+
+`
+
+exports['classic after end count exceeds plan 2'] = `
+Brittle: Fatal Error
+TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
+    at file:///classic-after-end-count-exceeds-plan.js:13:37 {
+  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
+  test: 'count exceeds plan after end',
+  plan: 1,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['classic after end teardown 1'] = `
+TAP version 13
+# teardown after end
+    ok 1 - passed
+    1..1
+ok 1 - teardown after end # time=1.3371337ms
+
+
+`
+
+exports['classic after end teardown 2'] = `
+Brittle: Fatal Error
+TestError: teardown must be called before test ends
+    at file:///classic-after-end-teardown.js:13:37 {
+  code: 'ERR_TEARDOWN_AFTER_END',
+  test: 'teardown after end',
+  plan: 0,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['inverted configure first 1'] = `
+TAP version 13
+# a test
+    ok 1 - passed
+    1..1
+ok 1 - a test # time=1.3371337ms
+
+
+`
+
+exports['inverted configure first 2'] = `
+Brittle: Fatal Error
+TestError: configuration must happen prior to registering any tests
+    at file:///inverted-configure-first.js:13:37 {
+  code: 'ERR_CONFIGURE_FIRST',
+  test: '',
+  plan: 0,
+  count: 1,
+  ended: false
+}
+
+`
+
+exports['inverted plan must be integer 1'] = `
+TAP version 13
+# plan must be integer
+    ok 1 - passed
+    1..1
+ok 1 - plan must be integer # time=1.3371337ms
+
+
+`
+
+exports['inverted plan must be integer 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///inverted-plan-must-be-integer.js:13:37
+  code: 'ERR_PLAN_POSITIVE'
+}
+
+`
+
+exports['inverted plan must be positive 1'] = `
+TAP version 13
+# plan must be integer
+    ok 1 - passed
+    1..1
+ok 1 - plan must be integer # time=1.3371337ms
+
+
+`
+
+exports['inverted plan must be positive 2'] = `
+Brittle: Fatal Error
+TestTypeError: plan takes a positive whole number only
+    at file:///inverted-plan-must-be-positive.js:13:37
+  code: 'ERR_PLAN_POSITIVE'
+}
+
+`
+
+exports['inverted after end assert 1'] = `
+TAP version 13
+# assert after end
+    ok 1 - passed
+    1..1
+ok 1 - assert after end # time=1.3371337ms
+
+
+`
+
+exports['inverted after end assert 2'] = `
+Brittle: Fatal Error
+TestError: assert after end in "assert after end"
+    at file:///inverted-after-end-assert.js:13:37 {
+  code: 'ERR_ASSERT_AFTER_END',
+  test: 'assert after end',
+  plan: 0,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['inverted after end count exceeds plan 1'] = `
+TAP version 13
+# count exceeds plan after end
+    1..1
+    ok 1 - passed
+ok 1 - count exceeds plan after end # time=1.3371337ms
+
+
+`
+
+exports['inverted after end count exceeds plan 2'] = `
+Brittle: Fatal Error
+TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
+    at file:///inverted-after-end-count-exceeds-plan.js:13:37 {
+  code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
+  test: 'count exceeds plan after end',
+  plan: 1,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['inverted after end teardown 1'] = `
+TAP version 13
+# teardown after end
+    ok 1 - passed
+    1..1
+ok 1 - teardown after end # time=1.3371337ms
+
+
+`
+
+exports['inverted after end teardown 2'] = `
+Brittle: Fatal Error
+TestError: teardown must be called before test ends
+    at file:///inverted-after-end-teardown.js:13:37 {
+  code: 'ERR_TEARDOWN_AFTER_END',
+  test: 'teardown after end',
+  plan: 0,
+  count: 1,
+  ended: true
+}
+
+`
+
+exports['snapshot 1'] = `
+TAP version 13
+# classic snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 1 - classic snapshot # time=1.3371337ms
+
+# inverted snapshot
+    ok 1 - should match snapshot
+    1..1
+ok 2 - inverted snapshot # time=1.3371337ms
+
+# snapshot of a symbol
+    ok 1 - should match snapshot
+    1..1
+ok 3 - snapshot of a symbol # time=1.3371337ms
+
+# snapshot of an Error
+    ok 1 - should match snapshot
+    1..1
+ok 4 - snapshot of an Error # time=1.3371337ms
+
+# snapshot of undefined
+    ok 1 - should match snapshot
+    1..1
+ok 5 - snapshot of undefined # time=1.3371337ms
+
+# snapshot of null
+    ok 1 - should match snapshot
+    1..1
+ok 6 - snapshot of null # time=1.3371337ms
+
+# snapshot of number
+    ok 1 - should match snapshot
+    1..1
+ok 7 - snapshot of number # time=1.3371337ms
+
+# snapshot of an object
+    ok 1 - should match snapshot
+    1..1
+ok 8 - snapshot of an object # time=1.3371337ms
+
+# multiple snapshots
+    ok 1 - should match snapshot
+    ok 2 - should match snapshot
+    1..2
+ok 9 - multiple snapshots # time=1.3371337ms
+
+# child snapshot
+    # the child
+        ok 1 - should match snapshot
+        1..1
+    ok 1 - the child # time=1.3371337ms
+    1..1
+ok 10 - child snapshot # time=1.3371337ms
+
+1..10
+# time=1.3371337ms
 
 `
 
@@ -3338,6 +3822,7 @@ TAP version 13
         file: file:///snapshot.js
       source: |
         test('classic snapshot', async ({ snapshot }) => {
+          snapshot(TEST_VALUE)
         --^
         })
       stack: |-
@@ -3359,6 +3844,8 @@ not ok 1 - classic snapshot # time=1.3371337ms
         column: 8
         file: file:///snapshot.js
       source: |
+        const assert = test('inverted snapshot')
+        assert.snapshot(TEST_VALUE)
         -------^
         await assert.end()
       stack: |-
@@ -3380,6 +3867,7 @@ not ok 2 - inverted snapshot # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of a symbol', async ({ snapshot }) => {
+          snapshot(Symbol(TEST_VALUE))
         --^
         })
       stack: |-
@@ -3406,6 +3894,7 @@ not ok 3 - snapshot of a symbol # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of an Error', async ({ snapshot }) => {
+          snapshot(new Error(TEST_VALUE))
         --^
         })
       stack: |-
@@ -3438,6 +3927,7 @@ ok 6 - snapshot of null # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of number', async ({ snapshot }) => {
+          snapshot(+TEST_VALUE)
         --^
         })
       stack: |-
@@ -3468,9 +3958,7 @@ not ok 7 - snapshot of number # time=1.3371337ms
         test('snapshot of an object', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3488,11 +3976,11 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         file: file:///snapshot.js
       source: |-
         test('multiple snapshots', async ({ snapshot }) => {
+          snapshot(TEST_VALUE)
         --^
+          snapshot({value: TEST_VALUE})
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     not ok 2 - should match snapshot
@@ -3507,11 +3995,11 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         column: 3
         file: file:///snapshot.js
       source: |2
+          snapshot(TEST_VALUE)
+          snapshot({value: TEST_VALUE})
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..2
@@ -3529,12 +4017,12 @@ not ok 9 - multiple snapshots # time=1.3371337ms
             column: 10
             file: file:///snapshot.js
           source: |-2
+              const assert = test('the child')
+              assert.snapshot(TEST_VALUE)
             ---------^
               await assert.end()
             })
-          stack: |-
-            fixtures/snapshot.js:13:37
-            fixtures/snapshot.js:13:37
+          stack: fixtures/snapshot.js:13:37
           ...
 
         1..1
@@ -3702,6 +4190,7 @@ TAP version 13
         file: file:///snapshot.js
       source: |
         test('classic snapshot', async ({ snapshot }) => {
+          snapshot(TEST_VALUE)
         --^
         })
       stack: |-
@@ -3723,6 +4212,8 @@ not ok 1 - classic snapshot # time=1.3371337ms
         column: 8
         file: file:///snapshot.js
       source: |
+        const assert = test('inverted snapshot')
+        assert.snapshot(TEST_VALUE)
         -------^
         await assert.end()
       stack: |-
@@ -3744,6 +4235,7 @@ not ok 2 - inverted snapshot # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of a symbol', async ({ snapshot }) => {
+          snapshot(Symbol(TEST_VALUE))
         --^
         })
       stack: |-
@@ -3770,6 +4262,7 @@ not ok 3 - snapshot of a symbol # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of an Error', async ({ snapshot }) => {
+          snapshot(new Error(TEST_VALUE))
         --^
         })
       stack: |-
@@ -3802,6 +4295,7 @@ ok 6 - snapshot of null # time=1.3371337ms
         file: file:///snapshot.js
       source: |
         test('snapshot of number', async ({ snapshot }) => {
+          snapshot(+TEST_VALUE)
         --^
         })
       stack: |-
@@ -3832,9 +4326,7 @@ not ok 7 - snapshot of number # time=1.3371337ms
         test('snapshot of an object', async ({ snapshot }) => {
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3852,11 +4344,11 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         file: file:///snapshot.js
       source: |-
         test('multiple snapshots', async ({ snapshot }) => {
+          snapshot(TEST_VALUE)
         --^
+          snapshot({value: TEST_VALUE})
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     not ok 2 - should match snapshot
@@ -3871,11 +4363,11 @@ not ok 8 - snapshot of an object # time=1.3371337ms
         column: 3
         file: file:///snapshot.js
       source: |2
+          snapshot(TEST_VALUE)
+          snapshot({value: TEST_VALUE})
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..2
@@ -3893,12 +4385,12 @@ not ok 9 - multiple snapshots # time=1.3371337ms
             column: 10
             file: file:///snapshot.js
           source: |-2
+              const assert = test('the child')
+              assert.snapshot(TEST_VALUE)
             ---------^
               await assert.end()
             })
-          stack: |-
-            fixtures/snapshot.js:13:37
-            fixtures/snapshot.js:13:37
+          stack: fixtures/snapshot.js:13:37
           ...
 
         1..1
@@ -3930,6 +4422,10 @@ ok 10 - child snapshot # time=1.3371337ms
 
 `
 
+exports['extraneous error propagation 1'] = `
+
+`
+
 exports['self bail 1'] = `
 TAP version 13
 # success
@@ -3946,7 +4442,9 @@ ok 1 - success # time=1.3371337ms
         column: 34
         file: file:///self-bail.js
       source: |-
+        test('fail', async ({ fail }) => fail())
         ---------------------------------^
+        test('success again', async ({ pass }) => pass())
       stack: |-
         test/fixtures/self-bail.js:13:37
         test/fixtures/self-bail.js:13:37
@@ -3956,10 +4454,144 @@ ok 1 - success # time=1.3371337ms
 
 `
 
-exports['extraneous error propagation 1'] = `
+exports['extraneous error propagation 2'] = `
 
 `
 
-exports['extraneous error propagation 2'] = `
+exports['multitick execution/exception 1'] = `
+TAP version 13
+# multi-tick execution (promise resolve)
+    ok 1 - first
+    ok 2 - should resolve
+    ok 3 - second
+    1..3
+ok 1 - multi-tick execution (promise resolve) # time=1.3371337ms
+
+# multi-tick execution (promise reject)
+    ok 1 - first
+    not ok 2 - should resolve
+      ---
+      actual:
+        !error
+        name: Error
+        message: test
+        stack: >-
+          Error: test
+      expected: null
+      operator: execution
+      at:
+        line: 12
+        column: 3
+        file: file:///multitick-execution-exception.js
+      source: >-2
+          pass('first')
+          execution(new Promise((_, reject) => setTimeout(()=> reject(Error('test')), 100)))
+        --^
+          pass('second')
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should resolve::"
+      ...
+
+    ok 3 - second
+    1..3
+not ok 2 - multi-tick execution (promise reject) # time=1.3371337ms
+
+# multi-tick exception (promise resolve)
+    ok 1 - first
+    not ok 2 - should reject
+      ---
+      actual: false
+      expected: null
+      operator: exception
+      at:
+        line: 18
+        column: 3
+        file: file:///multitick-execution-exception.js
+      source: |-2
+          pass('first')
+          exception(new Promise((resolve) => setTimeout(()=> resolve(), 100)))
+        --^
+          pass('second')
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    ok 3 - second
+    1..3
+not ok 3 - multi-tick exception (promise resolve) # time=1.3371337ms
+
+# multi-tick exception (promise reject)
+    ok 1 - first
+    ok 2 - should reject
+    ok 3 - second
+    1..3
+ok 4 - multi-tick exception (promise reject) # time=1.3371337ms
+
+1..4
+# time=1.3371337ms
+# failing=2
+
+`
+
+exports['no active handles unplanned unending 1'] = `
+TAP version 13
+# never resolve
+    not ok 0 - test ended without making or planning any assertions
+      ---
+      actual:
+        !error
+        name: Error
+        message: test ended without making or planning any assertions
+        stack: >-
+          Error: test ended without making or planning any assertions
+        code: ERR_NO_ASSERTS
+        test: never resolve
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test ended without making or planning
+        any assertions::"
+      ...
+
+not ok 1 - never resolve # time=1.3371337ms
+
+1..1
+# time=1.3371337ms
+# failing=1
+
+`
+
+exports['timeout failure cascade avoidance 1'] = `
+TAP version 13
+# tbd
+    not ok 0 - test timed out after 10ms
+      ---
+      actual:
+        !error
+        name: Error
+        message: test timed out after 10ms
+        stack: |-
+          Error: test timed out after 10ms
+        code: ERR_TIMEOUT
+        test: tbd
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      ...
+
+not ok 1 - tbd # time=1.3371337ms
+
+# tbd2
+    ok 1 - passed
+    1..1
+ok 2 - tbd2 # time=1.3371337ms
+
+1..2
+# time=1.3371337ms
+# failing=1
 
 `

@@ -1,5 +1,7 @@
 import { test, configure } from '../../index.js'
 
-await test('a test').end()
+const assert = test('a test')
+assert.pass()
+await assert.end()
 
 configure({})

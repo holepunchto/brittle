@@ -12,9 +12,34 @@ test('generic', async ({ pass }) => {
   f()
 })
 
-test('premature end', async ({ plan, pass }) => {
+test('thrown primitive (string)', async ({ pass }) => {
+  throw 'not great but definitely done by some'
+})
+
+test('thrown primitive (number)', async ({ pass }) => {
+  throw 1337
+})
+
+test('thrown primitive (bigint)', async ({ pass }) => {
+  throw 1337n
+})
+
+test('thrown primitive (null)', async ({ pass }) => {
+  throw null
+})
+
+test('thrown primitive (undefined)', async ({ pass }) => {
+  throw undefined
+})
+
+test('thrown primitive (symbol)', async ({ pass }) => {
+  throw Symbol('fuck me')
+})
+
+test('premature end', async ({ assert, plan, pass }) => {
   plan(2)
   pass()
+  assert.end()
 })
 
 test('count exceeds plan', async ({ plan, pass }) => {

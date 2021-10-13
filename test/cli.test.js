@@ -15,13 +15,13 @@ const cmd = resolve(project, 'cmd.mjs')
 const fixture = (file) => join(fixtures, file)
 const clean = (str) => {
   return str
-    .replace(/(d*\.?\d).*(ms)/g, '1.3371337$2') // generalize timestamps
+    .replace(/(time=).*(ms)/g, '$11.3371337$2') // generalize timestamps
     .replace(fixturesRx, '') // remove fixture call frames
     .replace(dirRx, '') // remove project dir occurrences
     .replace(/.+\(internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\ at.+(node:)?internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\(((?!\/).+)\)\n/gm, '') // remove node call frames
-    .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
+    .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber
 }
 const run = promisify(async (args, cb) => {
   let opts = { env: { ...process.env, FORCE_COLOR: 1, FORCE_TTY: 1} }
@@ -55,7 +55,6 @@ const term = promisify(({ args, ctrlC = true, autoExit = false, ready }, cb) => 
   })
   let output = ''
   let timeout = null
-
   const finalize = () => {
     if (autoExit) {
       terminal.onExit(() => {
@@ -88,13 +87,13 @@ const term = promisify(({ args, ctrlC = true, autoExit = false, ready }, cb) => 
   terminal.write([process.execPath, cmd, ...args, '\r'].join(' '))
 })
 
-await test('no args', async ({ is, snapshot }) => {
+test('no args', async ({ is, snapshot }) => {
   const result = await run([])
   is(result.code, 0)
   snapshot(result.stdout)
 })
 
-await test('--help', async ({ is, snapshot }) => {
+test('--help', async ({ is, snapshot }) => {
   {
     const result = await run(['-h'])
     is(result.code, 0)
@@ -107,49 +106,49 @@ await test('--help', async ({ is, snapshot }) => {
   }
 })
 
-await test('--cov-help', async ({ is, snapshot }) => {
+test('--cov-help', async ({ is, snapshot }) => {
   const result = await run(['--cov-help'])
   is(result.code, 0)
   snapshot(result.stdout)
 })
 
-await test('single passing test', async ({ is, snapshot }) => {
+test('single passing test', async ({ is, snapshot }) => {
   const result = await run([fixture('classic-pass.js'), '--no-cov'])
   is(result.code, 0)
   snapshot(result.stdout)
 })
 
-await test('multiple specified passing tests', async ({ is, snapshot }) => {
+test('multiple specified passing tests', async ({ is, snapshot }) => {
   const result = await run([ '--no-cov', fixture('classic-pass.js'), fixture('inverted-pass.js')])
   is(result.code, 0)
   snapshot(result.stdout)
 })
 
-await test('multiple globbed passing tests', async ({ is, snapshot }) => {
+test('multiple globbed passing tests', async ({ is, snapshot }) => {
   const result = await run([ '--no-cov', fixture('*-pass.js')])
   is(result.code, 0)
   snapshot(result.stdout)
 })
 
-await test('single failing test', async ({ is, snapshot }) => {
+test('single failing test', async ({ is, snapshot }) => {
   const result = await run([fixture('classic-fail.js'), '--no-cov'])
   is(result.code, 1)
   snapshot(result.stdout)
 })
 
-await test('multiple failing tests', async ({ is, snapshot }) => {
+test('multiple failing tests', async ({ is, snapshot }) => {
   const result = await run([ '--no-cov', fixture('classic-fail.js'), fixture('inverted-fail.js')])
   is(result.code, 1)
   snapshot(result.stdout)
 })
 
-await test('passing and failing tests', async ({ is, snapshot }) => {
+test('passing and failing tests', async ({ is, snapshot }) => {
   const result = await run([ '--no-cov', fixture('classic-fail.js'), fixture('inverted-pass.js')])
   is(result.code, 1)
   snapshot(result.stdout)
 })
 
-await test('--reporter dot', async ({ is, snapshot }) => {
+test('--reporter dot', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'dot', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -167,7 +166,7 @@ await test('--reporter dot', async ({ is, snapshot }) => {
   }
 })
 
-await test('--reporter spec', async ({ is, snapshot }) => {
+test('--reporter spec', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'spec', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -186,7 +185,7 @@ await test('--reporter spec', async ({ is, snapshot }) => {
 })
 
 
-await test('--reporter tap', async ({ is, snapshot }) => {
+test('--reporter tap', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'tap', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -204,7 +203,7 @@ await test('--reporter tap', async ({ is, snapshot }) => {
   }
 })
 
-await test('--bail', async ({ is, snapshot }) => {
+test('--bail', async ({ is, snapshot }) => {
   {
     const result = await run([ '--bail', fixture('should-bail.js')])
     is(result.code, 1)
@@ -218,7 +217,7 @@ await test('--bail', async ({ is, snapshot }) => {
 
 })
 
-await test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
+test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
   const { output } = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -227,7 +226,7 @@ await test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
   snapshot(output)
 })
 
-await test('enter watch mode, x to exit', async ({ snapshot }) => {
+test('enter watch mode, x to exit', async ({ snapshot }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -266,7 +265,7 @@ await test('watch mode, reload from file change', async ({ snapshot }) => {
   terminal.kill()  
 })
 
-await test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
+test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -286,13 +285,13 @@ await test('watch mode, select dot reporter', async ({ plan, snapshot, teardown 
     const b = terminal.onData((data) => {
       if (/to exit/.test(data)) {
         b.dispose()
-        snapshot(clean(result.output))
+        snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
       }
     })
   })
 })
 
-await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
+test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -315,7 +314,7 @@ await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown
       const c = terminal.onData((data) => {
         if (/to exit/.test(data)) {
           c.dispose()
-          snapshot(clean(result.output))
+          snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
         }
       })
     })

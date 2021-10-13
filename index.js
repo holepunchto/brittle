@@ -3,6 +3,7 @@ const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { EventEmitter, once } = require('events')
+const { Console } = require('console')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
@@ -11,7 +12,7 @@ const StackParser = require('error-stack-parser')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
-const { Console } = require('console')
+
 const {
   kIncre,
   kCount,
@@ -30,6 +31,8 @@ const {
   kLevel,
   kInverted,
   kReset,
+  kQueue,
+  kAssertQ,
   kMain
 } = require('./lib/symbols')
 
@@ -40,12 +43,14 @@ const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
 
+Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
+
 process.setUncaughtExceptionCaptureCallback((err) => {
   Object.defineProperty(err, 'fatal', { value: true })
   Promise.reject(err)
 })
 
-process.on('unhandledRejection', (reason, promise, ...args) => {
+process.on('unhandledRejection', (reason, promise) => {
   if (reason.fatal || promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
     console.error('Brittle: Fatal Error')
     console.error(reason)
@@ -385,7 +390,8 @@ class Test extends Promise {
         [kCounted]: { value: 0, writable: true },
         [kEnding]: { value: false, writable: true },
         [kTeardowns]: { value: [] },
-        [kChildren]: { value: [] }
+        [kChildren]: { value: [] },
+        [kAssertQ]: { value: new PromiseQueue(), configurable: true }
       })
     }
 
@@ -457,7 +463,13 @@ class Test extends Promise {
       this[kError](new TestError('ERR_CONFIGURE_FIRST'))
       return
     }
-    const { timeout = 30000, output = 1, bail = false } = options
+    const {
+      timeout = 30000,
+      output = this.output || 1,
+      bail = this.bail || false,
+      serial = false,
+      concurrency = this.concurrency || 5
+    } = options
     if (typeof output === 'number' && booms.has(output) === false) {
       booms.set(output, new SonicBoom({ fd: output, sync: true }))
     }
@@ -465,18 +477,32 @@ class Test extends Promise {
       output: { value: typeof output === 'number' ? booms.get(output) : output, configurable: true },
       options: { value: options, configurable: true },
       bail: { value: bail, configurable: true },
+      concurrency: { value: serial ? 1 : concurrency, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
       [kTodo]: { value: options.todo === true, writable: true },
       [kLevel]: { value: options[kLevel] || 0, writable: true }
     })
 
+    if (this[kQueue] && (Object.hasOwn(options, 'concurrency') || serial)) {
+      this[kQueue].setConcurrency(this.concurrency)
+    } else {
+      Object.defineProperty(this, kQueue, {
+        value: new PromiseQueue({ concurrency: this.concurrency }),
+        configurable: true
+      })
+    }
+
     if (this[kMain] === false) this.timeout(timeout)
   }
 
   async end () {
-    const premature = (this.count < this.planned)
-    if (premature) {
+    await this[kAssertQ].empty()
+
+    if (this.count < this.planned) {
       this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
+    }
+    if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false && this.count === 0 && this.planned === 0) {
+      this[kError](new TestError('ERR_NO_ASSERTS', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
 
     const teardowns = this[kTeardowns].slice()
@@ -522,18 +548,11 @@ class Test extends Promise {
         fn = opts
         opts = undefined
       }
-      opts = opts || this.options
-      if (this && opts) {
-        opts = {
-          output: this.options.output,
-          bail: this.options.bail,
-          ...opts,
-          parent: this
-        }
-      }
+      opts = opts || { ...this.options }
+      opts[kInverted] = !fn
+      opts.parent = this
 
       if (opts.skip || opts.todo || !fn) {
-        if (!fn) opts[kInverted] = true
         return new Test(description, opts)
       }
 
@@ -543,18 +562,21 @@ class Test extends Promise {
       }
 
       const assert = new Test(description, opts)
-      const promise = (async () => {
+      clearTimeout(assert[kTimeout])
+      const promise = this[kQueue].add(async () => {
         try {
+          assert.start = process.hrtime.bigint()
+          assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
           return await fn(assert)
         } catch (err) {
           assert[kError](err)
         }
-      })()
+      })
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
         if (assert.planned === 0) queueMicrotask(() => assert.end())
         return await assert
-      }), assert[kInfo]())
+      }))
     }
     test.skip = this.skip.bind(this)
     test.todo = this.todo.bind(this)
@@ -694,62 +716,69 @@ class Test extends Promise {
   }
 
   async exception (functionOrPromise, expectedError, message) {
-    this[kIncre]()
-    if (typeof expectedError === 'string') {
-      [message, expectedError] = [expectedError, message]
-    }
-    const top = originFrame(Test.prototype.exception)
-    const pristineMessage = message === undefined
-    message = pristineMessage ? 'should throw' : message
-    const type = 'assert'
-    const assert = 'exception'
-    const count = this.count
-    let syncThrew = true
-    let ok = null
-    try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
-      syncThrew = false
-      if (functionOrPromise instanceof Promise && pristineMessage) message = 'should reject'
-      await functionOrPromise
-      ok = false
-    } catch (err) {
-      if (syncThrew) await null // tick
-      if (!expectedError) {
-        ok = true
-      } else {
-        ok = tmatch(err, expectedError)
+    async function exception (functionOrPromise, expectedError, message) {
+      this[kIncre]()
+      if (typeof expectedError === 'string') {
+        [message, expectedError] = [expectedError, message]
       }
+      const top = originFrame(Test.prototype.exception)
+      const pristineMessage = message === undefined
+      message = pristineMessage ? 'should throw' : message
+      const type = 'assert'
+      const assert = 'exception'
+      const count = this.count
+      let syncThrew = true
+      let ok = null
+      try {
+        if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+        syncThrew = false
+        if (functionOrPromise instanceof Promise && pristineMessage) message = 'should reject'
+        await functionOrPromise
+        ok = false
+      } catch (err) {
+        if (syncThrew) await null // tick
+        if (!expectedError) {
+          ok = true
+        } else {
+          ok = tmatch(err, expectedError)
+        }
+      }
+      if (ok) this.passing += 1
+      else this.failing += 1
+      const explanation = explain(ok, message, assert, Test.prototype.exception, false, expectedError, top)
+      await this.tap.step({ type, assert, ok, message, count, explanation })
+      return ok
     }
-    if (ok) this.passing += 1
-    else this.failing += 1
-    const explanation = explain(ok, message, assert, Test.prototype.exception, false, expectedError, top)
-    await this.tap.step({ type, assert, ok, message, count, explanation })
-    return ok
+    return this[kAssertQ].add(exception.bind(this, functionOrPromise, expectedError, message))
   }
 
   async execution (functionOrPromise, message) {
-    this[kIncre]()
-    const top = originFrame(Test.prototype.execution)
-    const pristineMessage = message === undefined
-    message = pristineMessage ? 'should return' : message
-    const type = 'assert'
-    const assert = 'execution'
-    const count = this.count
-    let ok = false
-    let error = null
-    try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
-      if (functionOrPromise instanceof Promise && pristineMessage) message = 'should resolve'
-      await functionOrPromise
-      ok = true
-    } catch (err) {
-      error = err
+    async function execution (functionOrPromise, message) {
+      this[kIncre]()
+      const top = originFrame(Test.prototype.execution)
+      const pristineMessage = message === undefined
+      message = pristineMessage ? 'should return' : message
+      const type = 'assert'
+      const assert = 'execution'
+      const count = this.count
+      let ok = false
+      let error = null
+      try {
+        if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+        if (functionOrPromise instanceof Promise && pristineMessage) message = 'should resolve'
+        await functionOrPromise
+        ok = true
+      } catch (err) {
+        error = err
+      }
+      if (ok) this.passing += 1
+      else this.failing += 1
+      const explanation = explain(ok, message, assert, Test.prototype.execution, error, null, top)
+      await this.tap.step({ type, assert, ok, message, count, explanation })
+      return ok
     }
-    if (ok) this.passing += 1
-    else this.failing += 1
-    const explanation = explain(ok, message, assert, Test.prototype.execution, error, null, top)
-    await this.tap.step({ type, assert, ok, message, count, explanation })
-    return ok
+
+    return this[kAssertQ].add(execution.bind(this, functionOrPromise, message))
   }
 
   async snapshot (actual, message = 'should match snapshot') {
@@ -892,6 +921,55 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
     delete info.expected
   }
   return info
+}
+
+class PromiseQueue extends Array {
+  constructor ({ concurrency } = {}) {
+    super()
+    this.concurrency = concurrency
+    this.pending = 0
+    this.jobs = []
+    this.drain()
+  }
+
+  setConcurrency (concurrency) {
+    this.concurrency = concurrency
+    this.drain()
+  }
+
+  async empty () {
+    if (this.pending === 0) return
+    if (this.length === 0) return
+    do {
+      await Promise.allSettled(this)
+    } while (this.pending > 0)
+  }
+
+  add (fn) {
+    return new Promise((resolve, reject) => {
+      const run = async () => {
+        this.pending++
+        try { resolve(await fn()) } catch (err) { reject(err) }
+        this.pending--
+        this.next()
+      }
+      this.jobs.push(run)
+      this.next()
+    })
+  }
+
+  next () {
+    if (this.jobs.length === 0) return false
+    if (this.pending >= this.concurrency) return false
+    const run = this.jobs.shift()
+    if (!run) return false
+    this.push(run())
+    return true
+  }
+
+  drain () {
+    while (this.next()) {} // eslint-disable-line
+  }
 }
 
 const main = new Test(kMain)
