@@ -1,10 +1,15 @@
 import { WriteStream } from "fs"
 
-declare interface Assertions {
-  is<T>(actual: T, expected: T, message?: string): Promise<boolean>
-  not<T>(actual: T, expected: T, message?: string): Promise<boolean>
-  alike<T>(actual: T, expected: T, message?: string): Promise<boolean>
-  unlike<T>(actual: T, expected: T, message?: string): Promise<boolean>
+interface Coercable {
+  <T>(actual: T, expected: T, message?: string): Promise<boolean>
+  coercively: (actual: unknown, expected: unknown, message?: string) => Promise<boolean>
+}
+
+interface Assertions {
+  is: Coercable
+  not: Coercable
+  alike: Coercable
+  unlike: Coercable
   ok(value: unknown, message?: string): Promise<boolean>
   absent(value: unknown, message?: string): Promise<boolean>
   pass(message?: string): Promise<boolean>
@@ -18,7 +23,7 @@ declare interface Assertions {
   snapshot(actual: unknown, message?: string): Promise<boolean>
 }
 
-declare interface Utilities {
+interface Utilities {
   plan(n: number, comment?: string): void
   teardown(fn: () => unknown | Promise<unknown>): void
   timeout(ms: number): void
@@ -26,38 +31,48 @@ declare interface Utilities {
   end(): Promise<Test>
 }
 
-declare interface Metadata {
+export interface Metadata {
+  index: number
   start: bigint
   description: string
   planned: number
   count: number
+  passing: number
+  failing: number
   error: Error | null
+  time: boolean
   ended: boolean
 }
 
-declare interface Test extends Promise<Metadata>, Assertions, Utilities, Metadata {
+export interface Test extends Promise<Metadata>, Assertions, Utilities, Metadata {
   test: TestFn
   skip: TestFn
   todo: TestFn
-  configure(options: TestOptions): void
   assert: Test
+  configure(options: TestOptions): void
 }
 
-declare interface TestFn {
-  (description: string, fn?: (assert: Test) => Promise<unknown>): Test
-  (description: string, options: TestOptions, fn?: (assert: Test) => Promise<unknown>): Test
+export interface TestFn extends Pick<Test, "test" | "skip" | "todo" | "configure">{
+  (description: string): Test
+  (description: string, options: TestOptions): Test
+  (description: string, fn: AssertFn): Promise<Metadata>
+  (description: string, options: TestOptions, fn: AssertFn): Promise<Metadata>
 }
 
-declare interface TestOptions {
+export interface AssertFn {
+  (assert: Test): unknown | Promise<unknown>
+}
+
+export interface TestOptions {
   /**
    * @default 30000
    */
   timeout?: number
 
   /**
-   * @default process.stderr
+   * @default 1
    */
-  output?: WriteStream
+  output?: WriteStream | number
 
   /**
    * @default false
@@ -75,7 +90,7 @@ declare interface TestOptions {
   bail?: boolean
 
   /**
-   * @default undefined
+   * @default 5
    */
   concurrency?: number
 
@@ -85,9 +100,9 @@ declare interface TestOptions {
   serial?: boolean
 }
 
-declare const main: Test
+declare const main: TestFn
 
-export default main.test
+export default main
 export const skip: typeof main.skip
 export const todo: typeof main.todo
 export const configure: typeof main.configure

@@ -55,5 +55,10 @@
   "homepage": "https://github.com/davidmarkclements/brittle#readme",
   "tsd": {
     "directory": "test"
+  },
+  "standard": {
+    "ignore": [
+      "**/*.ts"
+    ]
   }
 }
