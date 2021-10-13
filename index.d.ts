@@ -53,10 +53,10 @@ export interface Test extends Promise<Metadata>, Assertions, Utilities, Metadata
 }
 
 export interface TestFn extends Pick<Test, "test" | "skip" | "todo" | "configure">{
-  (description: string): Test
-  (description: string, options: TestOptions): Test
   (description: string, fn: AssertFn): Promise<Metadata>
   (description: string, options: TestOptions, fn: AssertFn): Promise<Metadata>
+  (description: string): Test
+  (description: string, options: TestOptions): Test
 }
 
 export interface AssertFn {
