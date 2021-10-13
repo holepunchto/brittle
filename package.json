@@ -3,10 +3,12 @@
   "version": "1.4.3",
   "description": "tap à la mode",
   "main": "index.js",
+  "types": "index.d.ts",
   "bin": "./cmd.mjs",
   "scripts": {
     "lint": "standard index.js lib/*.js",
-    "test": "node cmd.mjs test/index.test.js test/cli.test.js"
+    "test": "node cmd.mjs test/index.test.js test/cli.test.js && npm run test-types",
+    "test-types": "tsc && tsd"
   },
   "keywords": [],
   "author": "David Mark Clements (@davidmarkclem)",
@@ -37,8 +39,11 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^16.10.3",
     "node-pty-prebuilt-multiarch": "^0.10.1-pre.4",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "tsd": "^0.18.0",
+    "typescript": "^4.4.3"
   },
   "repository": {
     "type": "git",
@@ -47,5 +52,13 @@
   "bugs": {
     "url": "https://github.com/davidmarkclements/brittle/issues"
   },
-  "homepage": "https://github.com/davidmarkclements/brittle#readme"
+  "homepage": "https://github.com/davidmarkclements/brittle#readme",
+  "tsd": {
+    "directory": "test"
+  },
+  "standard": {
+    "ignore": [
+      "**/*.ts"
+    ]
+  }
 }
