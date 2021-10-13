@@ -40,7 +40,7 @@ export interface Metadata {
   passing: number
   failing: number
   error: Error | null
-  time: boolean
+  time: number
   ended: boolean
 }
 
