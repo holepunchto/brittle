@@ -1,15 +1,15 @@
 import { WriteStream } from "fs"
 
-interface Coercable {
+interface Comparator {
   <T>(actual: T, expected: T, message?: string): Promise<boolean>
   coercively: (actual: unknown, expected: unknown, message?: string) => Promise<boolean>
 }
 
 interface Assertions {
-  is: Coercable
-  not: Coercable
-  alike: Coercable
-  unlike: Coercable
+  is: Comparator
+  not: Comparator
+  alike: Comparator
+  unlike: Comparator
   ok(value: unknown, message?: string): Promise<boolean>
   absent(value: unknown, message?: string): Promise<boolean>
   pass(message?: string): Promise<boolean>
