@@ -40,6 +40,7 @@ declare interface Test extends Promise<Metadata>, Assertions, Utilities, Metadat
   skip: TestFn
   todo: TestFn
   configure(options: TestOptions): void
+  assert: Test
 }
 
 declare interface TestFn {
