@@ -3,6 +3,6 @@ import test, { configure } from '../index.js'
 
 configure({ serial: true })
 
-test('some test', async (assert) => {
+test('types', async (assert) => {
   expectType<boolean>(await assert.is(true, true))
 })
