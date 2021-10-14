@@ -413,9 +413,6 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
 // leave this test at the end:
 test('type declarations', async function ({ alike }) {
   const { default: { default: tsd }} = await import('tsd')
-
-	const diagnostics = await tsd()
-
+  const diagnostics = await tsd()
   alike(diagnostics, [])
-  
 })
