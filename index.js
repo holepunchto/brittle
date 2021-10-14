@@ -801,6 +801,8 @@ class Test extends Promise {
     do {
       if (parent[kMain] === false) specName = `${parent.description} > ${specName}`
     } while (parent = parent.parent) // eslint-disable-line
+    const { toJSON } = BigInt.prototype
+    BigInt.prototype.toJSON = function () { return this.toString() }
     try {
       ss.core({
         what: actual,
@@ -808,17 +810,19 @@ class Test extends Promise {
         specName: specName,
         raiser (o) {
           expected = o.expected
-          if (deepEqual(o.value, expected) === false) throw Error('snapshot match failed')
+          if (deepEqual(o.value, expected) === false) throw new TestError('ERR_SNAPSHOT_MATCH_FAILED')
         },
         ext: '.snapshot.cjs',
         opts: {
           update: main[kSnap] instanceof RegExp ? main[kSnap].test(specName) : main[kSnap],
           useRelativePath: true
-
         }
       })
-    } catch {
+    } catch (err) {
       ok = false
+      if (err.code !== 'ERR_SNAPSHOT_MATCH_FAILED') this[kError](err)
+    } finally {
+      BigInt.prototype.toJSON = toJSON
     }
     if (ok) {
       this.passing += 1
