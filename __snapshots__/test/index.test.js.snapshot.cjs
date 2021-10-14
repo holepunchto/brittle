@@ -4607,7 +4607,12 @@ ok 2 - run this one # time=1.3371337ms
 
 ok 3 - skip this one # SKIP
 
-1..3
+# run this one
+    ok 1 - passed
+    1..1
+ok 4 - run this one # time=1.3371337ms
+
+1..4
 # time=1.3371337ms
 
 `
@@ -4623,7 +4628,12 @@ ok 2 - run this one # time=1.3371337ms
 
 ok 3 - skip this one # SKIP
 
-1..3
+# run this one
+    ok 1 - passed
+    1..1
+ok 4 - run this one # time=1.3371337ms
+
+1..4
 # time=1.3371337ms
 
 `

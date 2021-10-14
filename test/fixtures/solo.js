@@ -11,3 +11,7 @@ solo('run this one', async ({ pass }) => {
 test('skip this one', async ({ pass }) => {
   pass()
 })
+
+solo('run this one', async ({ pass }) => {
+  pass()
+})

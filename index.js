@@ -600,11 +600,6 @@ class Test extends Promise {
     this[kSolo] = true
     opts[kSolo] = true
 
-    for (const child of this[kChildren]) {
-      if (child[kSkip]) continue
-      child[kSkip] = true
-    }
-
     if (arguments.length > 0) return this.test(description, opts, fn)
   }
 
