@@ -103,7 +103,7 @@ process.once('exit', async () => {
 })
 
 class Tap extends EventEmitter {
-  constructor (test, output) {
+  constructor (test) {
     super()
     this.test = test
     this.chunks = []
@@ -802,7 +802,7 @@ class Test extends Promise {
       if (parent[kMain] === false) specName = `${parent.description} > ${specName}`
     } while (parent = parent.parent) // eslint-disable-line
     const { toJSON } = BigInt.prototype
-    BigInt.prototype.toJSON = function () { return this.toString() }
+    BigInt.prototype.toJSON = function () { return this.toString() } // eslint-disable-line
     try {
       ss.core({
         what: actual,
@@ -822,7 +822,7 @@ class Test extends Promise {
       ok = false
       if (err.code !== 'ERR_SNAPSHOT_MATCH_FAILED') this[kError](err)
     } finally {
-      BigInt.prototype.toJSON = toJSON
+      BigInt.prototype.toJSON = toJSON // eslint-disable-line
     }
     if (ok) {
       this.passing += 1

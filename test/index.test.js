@@ -409,3 +409,13 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
 })
+
+// leave this test at the end:
+test('type declarations', async function ({ alike }) {
+  const { default: { default: tsd }} = await import('tsd')
+
+	const diagnostics = await tsd()
+
+  alike(diagnostics, [])
+  
+})
