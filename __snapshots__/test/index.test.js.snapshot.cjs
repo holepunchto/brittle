@@ -4595,3 +4595,35 @@ ok 2 - tbd2 # time=1.3371337ms
 # failing=1
 
 `
+
+exports['solo 1'] = `
+TAP version 13
+ok 1 - skip this one # SKIP
+
+# run this one
+    ok 1 - passed
+    1..1
+ok 2 - run this one # time=1.3371337ms
+
+ok 3 - skip this one # SKIP
+
+1..3
+# time=1.3371337ms
+
+`
+
+exports['solo (manual opt-in) 1'] = `
+TAP version 13
+ok 1 - skip this one # SKIP
+
+# run this one
+    ok 1 - passed
+    1..1
+ok 2 - run this one # time=1.3371337ms
+
+ok 3 - skip this one # SKIP
+
+1..3
+# time=1.3371337ms
+
+`

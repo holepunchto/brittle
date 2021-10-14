@@ -135,6 +135,7 @@ Filter out other tests by using the `solo` method:
 
 ```js
 import { test, solo } from 'brittle'
+solo() // opt-in to solo mode first
 test('some test', async ({ is }) => {
   is(true, true)
 })
@@ -146,10 +147,17 @@ solo('yet another test', async ({ is }) => {
 })
 ```
 
-Note how there can be more than one `solo` tests.
-
 If a `solo` function is called, `test` functions will not execute,
 only `solo` functions.
+
+Note how there can be more than one `solo` tests.
+
+If `solo` is not used for the first test, calling it without
+arguments (`solo()`) will trigger solo mode.
+
+Alternatively solo mode can be enabled by setting the `SOLO`
+environment variable to `1` or using the `--solo` flag with the
+`brittle` test runner.
 
 The `solo` method is also available on the `test` method,
 and can be used without a function like `test`:
@@ -159,22 +167,6 @@ import test from 'brittle'
 const { is } = test.solo('another test')
 is(true, false)
 ```
-
-The detection of a `solo` function is based on execution flow,
-there may be cases where `brittle` needs to be explicitly informed
-to enter solo mode. Use `solo.enable()` to explicitly enable solo mode:
-
-```js
-import { test, solo } from 'brittle'
-solo.enable()
-await test('some test', async ({ is }) => {
-  is(true, true)
-})
-solo('another test', async ({ is }) => {
-  is(true, false)
-})
-```
-
 
 #### `skip(description, async function)`
 
@@ -483,6 +475,7 @@ For usage information run `brittle -h`
       --watch | -w          Rerun tests when a file changes
       --reporter | -R | -r  Set test reporter: tap, spec, dot
       --bail | -b           Bail out on first assert failure
+      --solo                Engage solo mode
       --snap-all            Update all snapshots
       --snap <name>         Update specific snapshot by name
       --no-cov              Turn off coverage

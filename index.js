@@ -28,6 +28,7 @@ const {
   kEnding,
   kSkip,
   kTodo,
+  kSolo,
   kLevel,
   kInverted,
   kReset,
@@ -42,6 +43,7 @@ const noop = () => {}
 const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
 const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
+const SOLO = Number.isInteger(+process.env.SOLO) ? !!process.env.SOLO : process.env.SOLO && new RegExp(process.env.SOLO)
 
 Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
 
@@ -317,6 +319,7 @@ class Test extends Promise {
     Object.defineProperties(this, { [kResolve]: { value: resolver.resolve } })
     Object.defineProperties(this, { [kReject]: { value: resolver.reject } })
     this[kInverted] = options[kInverted] || false
+    this[kSolo] = options[kSolo] || false
     this[kReset](description, options)
 
     if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
@@ -552,6 +555,8 @@ class Test extends Promise {
       opts[kInverted] = !fn
       opts.parent = this
 
+      if (this[kSolo] && !opts[kSolo]) opts.skip = true
+
       if (opts.skip || opts.todo || !fn) {
         return new Test(description, opts)
       }
@@ -585,6 +590,22 @@ class Test extends Promise {
     test.test = this.test
 
     return this.test
+  }
+
+  solo (description, opts = {}, fn) {
+    if (typeof opts === 'function') {
+      fn = opts
+      opts = {}
+    }
+    this[kSolo] = true
+    opts[kSolo] = true
+
+    for (const child of this[kChildren]) {
+      if (child[kSkip]) continue
+      child[kSkip] = true
+    }
+
+    if (arguments.length > 0) return this.test(description, opts, fn)
   }
 
   skip (description, opts = {}, fn) {
@@ -977,8 +998,10 @@ class PromiseQueue extends Array {
 }
 
 const main = new Test(kMain)
+if (SOLO) main.solo()
 module.exports = main.test.bind(main)
 module.exports.skip = main.skip.bind(main)
+module.exports.solo = main.solo.bind(main)
 module.exports.todo = main.todo.bind(main)
 module.exports.configure = main.configure.bind(main)
 module.exports.test = module.exports

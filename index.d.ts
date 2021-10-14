@@ -48,11 +48,12 @@ export interface Test extends Promise<Metadata>, Assertions, Utilities, Metadata
   test: TestFn
   skip: TestFn
   todo: TestFn
+  solo: TestFn
   assert: Test
   configure(options: TestOptions): void
 }
 
-export interface TestFn extends Pick<Test, "test" | "skip" | "todo" | "configure">{
+export interface TestFn extends Pick<Test, "test" | "skip" | "todo" | "solo" | "configure">{
   (description: string, fn: AssertFn): Promise<Metadata>
   (description: string, options: TestOptions, fn: AssertFn): Promise<Metadata>
   (description: string): Test
@@ -105,5 +106,6 @@ declare const main: TestFn
 export default main
 export const skip: typeof main.skip
 export const todo: typeof main.todo
+export const solo: typeof main.solo
 export const configure: typeof main.configure
 export const test: typeof main.test

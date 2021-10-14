@@ -26,7 +26,7 @@ const CI = ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
   strings: ['reporter', 'cov-exclude', 'cov-include', 'cov-all', 'cov-dir', 'cov-reporter', 'cov-clean', 'lines', 'functions', 'statements', 'branches', 'snap'],
-  boolean: ['watch', 'bail', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all', 'ec'],
+  boolean: ['watch', 'bail', '100', '90', '85', 'cov', 'cov-skip-full', 'cov-per-file', 'show-cov-report', 'help', '--cov-help', 'snap-all', 'ec', 'solo'],
   default: {
     cov: true,
     bail: false,
@@ -80,6 +80,8 @@ if (args['snap-all']) {
 } else if (args.snap) {
   process.env.SNAP = args.snap
 }
+
+if (args.solo) process.env.SOLO = 1
 
 let { reporter, watch } = args
 if (CI) {

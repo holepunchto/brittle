@@ -10,6 +10,7 @@ ${bgYellow('    ')}  --help | -h           Show this help
 ${bgYellow('    ')}  --watch | -w          Rerun tests when a file changes
 ${bgYellow('    ')}  --reporter | -R | -r  Set test reporter: ${italic('tap, spec, dot')}
 ${bgYellow('    ')}  --bail | -b           Bail out on first assert failure
+${bgYellow('    ')}  --solo                Engage solo mode
 ${bgYellow('    ')}  --snap-all            Update all snapshots
 ${bgYellow('    ')}  --snap <name>         Update specific snapshot by name
 ${bgYellow('    ')}  --no-cov              Turn off coverage

@@ -149,6 +149,23 @@ test('todo', async ({ snapshot, ok, is }) => {
   snapshot(result.stdout)
 })
 
+test('solo', async ({ snapshot, ok, is }) => {
+  const result = await run({
+    test: 'solo.js',
+    env: { SOLO: 1 }
+  })
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
+test('solo (manual opt-in)', async ({ snapshot, ok, is }) => {
+  const result = await run('solo-manual-opt-in.js')
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
 test('default description', async function ({ snapshot, ok, is }) {
   const result = await run('default-description.js')
   is(result.code, 0)

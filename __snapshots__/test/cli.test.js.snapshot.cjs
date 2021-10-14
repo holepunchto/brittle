@@ -9,6 +9,7 @@ exports['no args 1'] = `
 [43m    [49m  --watch | -w          Rerun tests when a file changes
 [43m    [49m  --reporter | -R | -r  Set test reporter: [3mtap, spec, dot[23m
 [43m    [49m  --bail | -b           Bail out on first assert failure
+[43m    [49m  --solo                Engage solo mode
 [43m    [49m  --snap-all            Update all snapshots
 [43m    [49m  --snap <name>         Update specific snapshot by name
 [43m    [49m  --no-cov              Turn off coverage
@@ -73,6 +74,7 @@ exports['--help 1'] = `
 [43m    [49m  --watch | -w          Rerun tests when a file changes
 [43m    [49m  --reporter | -R | -r  Set test reporter: [3mtap, spec, dot[23m
 [43m    [49m  --bail | -b           Bail out on first assert failure
+[43m    [49m  --solo                Engage solo mode
 [43m    [49m  --snap-all            Update all snapshots
 [43m    [49m  --snap <name>         Update specific snapshot by name
 [43m    [49m  --no-cov              Turn off coverage
@@ -157,6 +159,7 @@ exports['--help 2'] = `
 [43m    [49m  --watch | -w          Rerun tests when a file changes
 [43m    [49m  --reporter | -R | -r  Set test reporter: [3mtap, spec, dot[23m
 [43m    [49m  --bail | -b           Bail out on first assert failure
+[43m    [49m  --solo                Engage solo mode
 [43m    [49m  --snap-all            Update all snapshots
 [43m    [49m  --snap <name>         Update specific snapshot by name
 [43m    [49m  --no-cov              Turn off coverage

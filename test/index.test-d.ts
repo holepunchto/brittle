@@ -6,6 +6,7 @@ import brittle, {
   test,
   skip,
   todo,
+  solo,
   configure
 } from '../index.js'
 
@@ -15,6 +16,7 @@ expectType<TestFn>(brittle)
 expectType<typeof brittle.test>(test)
 expectType<typeof brittle.skip>(skip)
 expectType<typeof brittle.todo>(todo)
+expectType<typeof brittle.solo>(solo)
 expectType<typeof brittle.configure>(configure)
 
 // CommonJS compatibility
