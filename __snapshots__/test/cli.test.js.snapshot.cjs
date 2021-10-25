@@ -1,5 +1,5 @@
 exports['no args 1'] = `
-[?25l
+
 [43m    [49m
 [103m 🥜 [49m [4mBrittle[24m
 [43m    [49m
@@ -24,11 +24,11 @@ exports['no args 1'] = `
 [43m    [49m
 [43m    [49m
 
-[?25h
+
 `
 
 exports['--cov-help 1'] = `
-[?25l
+
 [43m    [49m
 [103m 🥜 [49m [4mBrittle[24m
 [43m    [49m
@@ -60,11 +60,11 @@ exports['--cov-help 1'] = `
 [43m    [49m  ]8;;https://github.com/bcoe/c8https://github.com/bcoe/c8]8;;
 [43m    [49m
 
-[?25h
+
 `
 
 exports['--help 1'] = `
-[?25l
+
 [43m    [49m
 [103m 🥜 [49m [4mBrittle[24m
 [43m    [49m
@@ -89,11 +89,11 @@ exports['--help 1'] = `
 [43m    [49m
 [43m    [49m
 
-[?25h
+
 `
 
 exports['single passing test 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-pass.js
     # classic, no plan
         ok 1 - passed
@@ -113,11 +113,11 @@ ok 1 - test/fixtures/classic-pass.js # time=1.3371337ms
 1..1
 # time=1.3371337ms
 
-[?25h
+
 `
 
 exports['multiple specified passing tests 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-pass.js
     # classic, no plan
         ok 1 - passed
@@ -145,11 +145,11 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 1..2
 # time=1.3371337ms
 
-[?25h
+
 `
 
 exports['--help 2'] = `
-[?25l
+
 [43m    [49m
 [103m 🥜 [49m [4mBrittle[24m
 [43m    [49m
@@ -174,11 +174,11 @@ exports['--help 2'] = `
 [43m    [49m
 [43m    [49m
 
-[?25h
+
 `
 
 exports['multiple globbed passing tests 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-pass.js
     # classic, no plan
         ok 1 - passed
@@ -206,11 +206,11 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 1..2
 # time=1.3371337ms
 
-[?25h
+
 `
 
 exports['single failing test 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -258,11 +258,11 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=2
 
-[?25h
+
 `
 
 exports['multiple failing tests 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -333,11 +333,11 @@ not ok 2 - test/fixtures/inverted-fail.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=3
 
-[?25h
+
 `
 
 exports['passing and failing tests 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -393,11 +393,11 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=2
 
-[?25h
+
 `
 
 exports['--bail 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/should-bail.js
     # success
         ok 1 - passed
@@ -419,11 +419,11 @@ exports['--bail 1'] = `
           ...
 
         Bail out! Failed test - fail
-[?25h
+
 `
 
 exports['--reporter tap 1'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -479,11 +479,11 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=2
 
-[?25h
+
 `
 
 exports['--reporter dot 1'] = `
-[?25l
+
 
   ․․․
 
@@ -500,11 +500,11 @@ exports['--reporter dot 1'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['--reporter spec 1'] = `
-[?25l
+
 \r  1) failed
 \r  2) failed
 \r  ✓ passed
@@ -522,11 +522,11 @@ exports['--reporter spec 1'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['--bail 2'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/should-bail.js
     # success
         ok 1 - passed
@@ -548,11 +548,11 @@ exports['--bail 2'] = `
           ...
 
         Bail out! Failed test - fail
-[?25h
+
 `
 
 exports['--reporter tap 2'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -608,11 +608,11 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=2
 
-[?25h
+
 `
 
 exports['--reporter dot 2'] = `
-[?25l
+
 
   ․․․
 
@@ -629,11 +629,11 @@ exports['--reporter dot 2'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['--reporter spec 2'] = `
-[?25l
+
 \r  1) failed
 \r  2) failed
 \r  ✓ passed
@@ -651,11 +651,11 @@ exports['--reporter spec 2'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['--reporter tap 3'] = `
-[?25lTAP version 13
+TAP version 13
 # test/fixtures/classic-fail.js
     # classic, no plan
         not ok 1 - failed
@@ -711,7 +711,7 @@ ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 # time=1.3371337ms
 # failing=2
 
-[?25h
+
 `
 
 exports['enter watch mode, ctrl + c exit 1'] = `
@@ -753,7 +753,7 @@ zsh: warning: 1 jobs SIGHUPed\r
 `
 
 exports['--reporter dot 3'] = `
-[?25l
+
 
   ․․․
 
@@ -770,11 +770,11 @@ exports['--reporter dot 3'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['--reporter spec 3'] = `
-[?25l
+
 \r  1) failed
 \r  2) failed
 \r  ✓ passed
@@ -792,7 +792,7 @@ exports['--reporter spec 3'] = `
       at test/fixtures/classic-fail.js:13:37
 
 
-[?25h
+
 `
 
 exports['enter watch mode, x to exit 1'] = `

@@ -3212,7 +3212,7 @@ not ok 7 - thrown primitive (symbol) # time=1.3371337ms
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: |-
+        stack: >-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
         code: ERR_PREMATURE_END
         test: premature end
