@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { realpath } from 'fs/promises'
 import { createRequire } from 'module'
 import { on, once } from 'events'
 import { pathToFileURL } from 'url'
@@ -16,10 +15,13 @@ import Menu from 'menu-string'
 import open from 'open'
 import pkgDir from 'pkg-dir'
 import ciInfo from 'ci-info'
+import ss from 'snap-shot-core'
+import deepkill from 'deepkill'
 import test, { configure } from './index.js'
 import usage, { covUsage } from './usage.mjs'
-import ss from 'snap-shot-core'
 import { kMain, kChildren, kLevel, kReset, kSnap } from './lib/symbols.js'
+
+process.title = 'brittle'
 
 const { NODE_V8_COVERAGE, FORCE_TTY } = process.env
 const CI = ciInfo.isCI
@@ -131,9 +133,36 @@ if (cov === true && (!NODE_V8_COVERAGE || scr)) {
     const argv = [c8, ...covStringArgs, ...covBooleanArgs]
     process.argv.splice(1, 0, ...argv)
   }
+
+  // acknowledging this next section of code is gnarly
+  // c8 is a work in progress, primarily a cli 
+  // this is the lowest-effort way to integrate while
+  // also avoiding zombie processes. As c8 APIs mature, 
+  // this will be altered to (hopefully) be a lot nicer
+  const c8ctrl = {}
+  const c8Promise = new Promise((resolve, reject) => { 
+    c8ctrl.resolve = resolve
+    c8ctrl.reject = reject
+  })
+  const c8Req = createRequire(c8)
+  const fc = c8Req('foreground-child')
+  require.cache[c8Req.resolve('foreground-child')].exports = (path, fn) => {
+    require.cache[c8Req.resolve('foreground-child')].exports = fc
+    fc(path, async (done) => {
+      const ready = (err) => {
+        if (err) c8ctrl.reject(err)
+        else c8ctrl.resolve()
+        c8ctrl.done = done
+      }
+      await fn(ready)
+    })
+  }
   require(c8) // this actually starts cmd.mjs again in a subprocess
 
-  await new Promise(() => {}) // block proceeding past this point
+  await c8Promise
+  c8ctrl.done()
+  await deepkill(process.pid)
+
 }
 
 async function report (reporter) {
