@@ -148,7 +148,7 @@ test('passing and failing tests', async ({ is, snapshot }) => {
   snapshot(result.stdout)
 })
 
-test('--reporter dot', async ({ is, snapshot }) => {
+await test('--reporter dot', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'dot', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -166,7 +166,7 @@ test('--reporter dot', async ({ is, snapshot }) => {
   }
 })
 
-test('--reporter spec', async ({ is, snapshot }) => {
+await test('--reporter spec', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'spec', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -185,7 +185,7 @@ test('--reporter spec', async ({ is, snapshot }) => {
 })
 
 
-test('--reporter tap', async ({ is, snapshot }) => {
+await test('--reporter tap', async ({ is, snapshot }) => {
   {
     const result = await run([ '--no-cov', '--reporter', 'tap', fixture('classic-fail.js'), fixture('inverted-pass.js')])
     is(result.code, 1)
@@ -203,7 +203,7 @@ test('--reporter tap', async ({ is, snapshot }) => {
   }
 })
 
-test('--bail', async ({ is, snapshot }) => {
+await test('--bail', async ({ is, snapshot }) => {
   {
     const result = await run([ '--bail', fixture('should-bail.js')])
     is(result.code, 1)
@@ -217,7 +217,7 @@ test('--bail', async ({ is, snapshot }) => {
 
 })
 
-test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
+await test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
   const { output } = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -226,7 +226,7 @@ test('enter watch mode, ctrl + c exit', async ({ snapshot }) => {
   snapshot(output)
 })
 
-test('enter watch mode, x to exit', async ({ snapshot }) => {
+await test('enter watch mode, x to exit', async ({ snapshot }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -265,7 +265,7 @@ await test('watch mode, reload from file change', async ({ snapshot }) => {
   terminal.kill()  
 })
 
-test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
+await test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
@@ -291,7 +291,7 @@ test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => 
   })
 })
 
-test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
+await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
   const result = await term({
     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
     ready: { match: /to exit/ },
