@@ -23,8 +23,8 @@ import { kMain, kChildren, kLevel, kReset, kSnap } from './lib/symbols.js'
 
 process.title = 'brittle'
 
-const { NODE_V8_COVERAGE, FORCE_TTY } = process.env
-const CI = ciInfo.isCI
+const { NODE_V8_COVERAGE, FORCE_TTY, FORCE_NO_CI } = process.env
+const CI = FORCE_NO_CI ? false : ciInfo.isCI
 const argv = process.argv.slice(2)
 const args = minimist(argv, {
   strings: ['reporter', 'cov-exclude', 'cov-include', 'cov-all', 'cov-dir', 'cov-reporter', 'cov-clean', 'lines', 'functions', 'statements', 'branches', 'snap'],

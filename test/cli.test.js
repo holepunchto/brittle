@@ -23,6 +23,9 @@ const clean = (str) => {
     .replace(/.+\(((?!\/).+)\)\n/gm, '') // remove node call frames
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber
 }
+
+process.env.FORCE_NO_CI = 1
+
 const run = promisify(async (args, cb) => {
   let opts = { env: { ...process.env, FORCE_COLOR: 1, FORCE_TTY: 1} }
   if (Array.isArray(args) === false) {

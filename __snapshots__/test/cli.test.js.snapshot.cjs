@@ -1022,9 +1022,9 @@ ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
 \r
 c[u[S[S\r
 \r
-  [90m․[0m[90m․[0m[90m․[0m[90m․[0m\r
+  ․․․․\r
 \r
-[92m [0m[32m 4 passing[0m[90m 13.37ms[0m\r
+  4 passing 13.37ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -1083,12 +1083,12 @@ ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
 📋 Selected reporter: [1mspec[22m\r
 \r
 c[u[S[S\r
-[2K[0G[32m  ✓[0m[90m passed[0m\r
-[2K[0G[32m  ✓[0m[90m passed[0m\r
-[2K[0G[32m  ✓[0m[90m passed[0m\r
-[2K[0G[32m  ✓[0m[90m passed[0m\r
+[2K[0G  ✓ passed\r
+[2K[0G  ✓ passed\r
+[2K[0G  ✓ passed\r
+[2K[0G  ✓ passed\r
 \r
-[92m [0m[32m 4 passing[0m[90m 13.37ms[0m\r
+  4 passing 13.37ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
