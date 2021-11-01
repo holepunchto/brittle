@@ -4637,3 +4637,453 @@ ok 4 - run this one # time=1.3371337ms
 # time=1.3371337ms
 
 `
+
+exports['exception.all 1'] = `
+TAP version 13
+# exception fails when an error is native
+    not ok 1 - should throw
+      ---
+      actual:
+        !error
+        name: ReferenceError
+        message: test
+        stack: >-
+          ReferenceError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 4
+        column: 3
+        file: file:///exception-all.js
+      source: |-
+        test('exception fails when an error is native', async ({ exception }) => {
+          exception(() => { throw ReferenceError('test') })
+        --^
+          exception(() => { throw SyntaxError('test') })
+          exception(() => { throw RangeError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    not ok 2 - should throw
+      ---
+      actual:
+        !error
+        name: SyntaxError
+        message: test
+        stack: >-
+          SyntaxError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 5
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(() => { throw ReferenceError('test') })
+          exception(() => { throw SyntaxError('test') })
+        --^
+          exception(() => { throw RangeError('test') })
+          exception(() => { throw EvalError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    not ok 3 - should throw
+      ---
+      actual:
+        !error
+        name: RangeError
+        message: test
+        stack: >-
+          RangeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 6
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(() => { throw SyntaxError('test') })
+          exception(() => { throw RangeError('test') })
+        --^
+          exception(() => { throw EvalError('test') })
+          exception(() => { throw TypeError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    not ok 4 - should throw
+      ---
+      actual:
+        !error
+        name: EvalError
+        message: test
+        stack: >-
+          EvalError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 7
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(() => { throw RangeError('test') })
+          exception(() => { throw EvalError('test') })
+        --^
+          exception(() => { throw TypeError('test') })
+          exception(async () => { throw ReferenceError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    not ok 5 - should throw
+      ---
+      actual:
+        !error
+        name: TypeError
+        message: test
+        stack: >-
+          TypeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 8
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(() => { throw EvalError('test') })
+          exception(() => { throw TypeError('test') })
+        --^
+          exception(async () => { throw ReferenceError('test') })
+          exception(async () => { throw SyntaxError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should throw::"
+      ...
+
+    not ok 6 - should reject
+      ---
+      actual:
+        !error
+        name: ReferenceError
+        message: test
+        stack: >-
+          ReferenceError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 9
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(() => { throw TypeError('test') })
+          exception(async () => { throw ReferenceError('test') })
+        --^
+          exception(async () => { throw SyntaxError('test') })
+          exception(async () => { throw RangeError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 7 - should reject
+      ---
+      actual:
+        !error
+        name: SyntaxError
+        message: test
+        stack: >-
+          SyntaxError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 10
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(async () => { throw ReferenceError('test') })
+          exception(async () => { throw SyntaxError('test') })
+        --^
+          exception(async () => { throw RangeError('test') })
+          exception(async () => { throw EvalError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 8 - should reject
+      ---
+      actual:
+        !error
+        name: RangeError
+        message: test
+        stack: >-
+          RangeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 11
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(async () => { throw SyntaxError('test') })
+          exception(async () => { throw RangeError('test') })
+        --^
+          exception(async () => { throw EvalError('test') })
+          exception(async () => { throw TypeError('test') })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 9 - should reject
+      ---
+      actual:
+        !error
+        name: EvalError
+        message: test
+        stack: >-
+          EvalError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 12
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(async () => { throw RangeError('test') })
+          exception(async () => { throw EvalError('test') })
+        --^
+          exception(async () => { throw TypeError('test') })
+          exception(Promise.reject(ReferenceError('test')))
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 10 - should reject
+      ---
+      actual:
+        !error
+        name: TypeError
+        message: test
+        stack: >-
+          TypeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 13
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(async () => { throw EvalError('test') })
+          exception(async () => { throw TypeError('test') })
+        --^
+          exception(Promise.reject(ReferenceError('test')))
+          exception(Promise.reject(SyntaxError('test')))
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 11 - should reject
+      ---
+      actual:
+        !error
+        name: ReferenceError
+        message: test
+        stack: >-
+          ReferenceError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 14
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(async () => { throw TypeError('test') })
+          exception(Promise.reject(ReferenceError('test')))
+        --^
+          exception(Promise.reject(SyntaxError('test')))
+          exception(Promise.reject(RangeError('test')))
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 12 - should reject
+      ---
+      actual:
+        !error
+        name: SyntaxError
+        message: test
+        stack: >-
+          SyntaxError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 15
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(Promise.reject(ReferenceError('test')))
+          exception(Promise.reject(SyntaxError('test')))
+        --^
+          exception(Promise.reject(RangeError('test')))
+          exception(Promise.reject(EvalError('test')))
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 13 - should reject
+      ---
+      actual:
+        !error
+        name: RangeError
+        message: test
+        stack: >-
+          RangeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 16
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(Promise.reject(SyntaxError('test')))
+          exception(Promise.reject(RangeError('test')))
+        --^
+          exception(Promise.reject(EvalError('test')))
+          exception(Promise.reject(TypeError('test')))
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 14 - should reject
+      ---
+      actual:
+        !error
+        name: EvalError
+        message: test
+        stack: >-
+          EvalError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 17
+        column: 3
+        file: file:///exception-all.js
+      source: |-2
+          exception(Promise.reject(RangeError('test')))
+          exception(Promise.reject(EvalError('test')))
+        --^
+          exception(Promise.reject(TypeError('test')))
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    not ok 15 - should reject
+      ---
+      actual:
+        !error
+        name: TypeError
+        message: test
+        stack: >-
+          TypeError: test
+              at file:///exception-all.js:13:37
+              at index.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///exception-all.js:13:37
+      expected: null
+      operator: exception
+      at:
+        line: 18
+        column: 3
+        file: file:///exception-all.js
+      source: |2
+          exception(Promise.reject(EvalError('test')))
+          exception(Promise.reject(TypeError('test')))
+        --^
+        })
+      stack: "AssertionError [ERR_ASSERTION]: should reject::"
+      ...
+
+    1..15
+not ok 1 - exception fails when an error is native # time=1.3371337ms
+
+# exception.all does not fails when an error is native
+    ok 1 - should throw
+    ok 2 - should throw
+    ok 3 - should throw
+    ok 4 - should throw
+    ok 5 - should throw
+    ok 6 - should reject
+    ok 7 - should reject
+    ok 8 - should reject
+    ok 9 - should reject
+    ok 10 - should reject
+    ok 11 - should reject
+    ok 12 - should reject
+    ok 13 - should reject
+    ok 14 - should reject
+    ok 15 - should reject
+    1..15
+ok 2 - exception.all does not fails when an error is native # time=1.3371337ms
+
+1..2
+# time=1.3371337ms
+# failing=15
+
+`

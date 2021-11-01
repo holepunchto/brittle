@@ -293,6 +293,13 @@ test('inverted after end teardown', async function ({ snapshot, ok, is }) {
   snapshot(result.stderr)
 })
 
+test('exception.all', async function ({ snapshot, ok, is }) {
+  const result = await run('exception-all.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
 await test('snapshot', async function ({ snapshot, ok, is, teardown }) {
   const cwd = process.cwd()
   process.chdir(testDir)
@@ -426,6 +433,7 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
 })
+
 
 // leave this test at the end:
 test('type declarations', async function ({ alike }) {

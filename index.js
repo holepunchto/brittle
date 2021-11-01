@@ -299,6 +299,7 @@ class Tap extends EventEmitter {
 
 const methods = ['plan', 'end', 'pass', 'fail', 'ok', 'absent', 'is', 'not', 'alike', 'unlike', 'exception', 'execution', 'snapshot', 'comment', 'timeout', 'teardown', 'configure']
 const coercables = ['is', 'not', 'alike', 'unlike']
+
 const booms = new Map()
 const stackScrub = (err) => {
   if (err && err.stack) {
@@ -334,9 +335,17 @@ class Test extends Promise {
       const end = this.end.bind(this)
       for (const method of methods) this[method] = noop
       for (const method of coercables) this[method].coercively = noop
+      this.exception.all = noop
       end()
     } else {
-      for (const method of methods) this[method] = this[method].bind(this)
+      for (const method of methods) {
+        this[method] = this[method].bind(this)
+        if (method === 'exception') {
+          this[method].all = (functionOrPromise, expectedError, message) => {
+            return this[method](functionOrPromise, expectedError, message, true)
+          }
+        }
+      }
       for (const method of coercables) {
         this[method].coercively = (actual, expected, message) => this[method](actual, expected, message, false)
       }
@@ -731,8 +740,9 @@ class Test extends Promise {
     return ok
   }
 
-  async exception (functionOrPromise, expectedError, message) {
-    async function exception (functionOrPromise, expectedError, message) {
+
+  async exception (functionOrPromise, expectedError, message, natives = false) {
+    async function exception (functionOrPromise, expectedError, message, natives = false) {
       this[kIncre]()
       if (typeof expectedError === 'string') {
         [message, expectedError] = [expectedError, message]
@@ -745,6 +755,7 @@ class Test extends Promise {
       const count = this.count
       let syncThrew = true
       let ok = null
+      let actual = false
       try {
         if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
         syncThrew = false
@@ -753,20 +764,33 @@ class Test extends Promise {
         ok = false
       } catch (err) {
         if (syncThrew) await null // tick
-        if (!expectedError) {
-          ok = true
+        const native = natives === false && (err instanceof SyntaxError || 
+        err instanceof ReferenceError ||
+        err instanceof TypeError || 
+        err instanceof EvalError || 
+        err instanceof RangeError)
+        if (native) {
+          ok = false
+          actual = err
         } else {
-          ok = tmatch(err, expectedError)
+          if (!expectedError) {
+            ok = true
+          } else {
+            ok = tmatch(err, expectedError)
+          }
         }
       }
       if (ok) this.passing += 1
       else this.failing += 1
-      const explanation = explain(ok, message, assert, Test.prototype.exception, false, expectedError, top)
+      const explanation = explain(ok, message, assert, Test.prototype.exception, actual, expectedError, top)
       await this.tap.step({ type, assert, ok, message, count, explanation })
       return ok
     }
-    return this[kAssertQ].add(exception.bind(this, functionOrPromise, expectedError, message))
+
+    return this[kAssertQ].add(Object.assign(exception.bind(this, functionOrPromise, expectedError, message, natives)))
   }
+
+
 
   async execution (functionOrPromise, message) {
     async function execution (functionOrPromise, message) {

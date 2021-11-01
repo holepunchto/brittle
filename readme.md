@@ -313,6 +313,30 @@ exception(async () => { throw Error('an err') }, /an err/)
 exception(Promise.reject(Error('an err')), /an err/)
 ```
 
+If the error is an instance of any of the following native error constructors,
+then this will still result in failure since native errors often tend to be unintentational.
+
+* `ReferenceError`
+* `SyntaxError`
+* `RangeError`
+* `EvalError`
+* `TypeError`
+
+
+#### `exception.all(Promise|function|async function, [ error, message ])`
+
+Verify that a function throws, or a promise rejects, including native errors.
+
+```js
+exception.all(() => { throw Error('an err') }, /an err/)
+exception.all(async () => { throw Error('an err') }, /an err/)
+exception.all(Promise.reject(new SyntaxError('native error')), /an err/)
+```
+
+The `exception.all` method is an escape-hatch so it can be used with the
+normally filtered native errors.
+
+
 #### `execution(Promise|function|async function, [ message ])`
 
 Assert that a function executes instead of throwing or that a promise resolves instead of rejecting.
