@@ -49,7 +49,9 @@ Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
 
 process.setUncaughtExceptionCaptureCallback((err) => {
   Object.defineProperty(err, 'fatal', { value: true })
-  Promise.reject(err)
+  if (!process.emit('uncaughtException', err)) {
+    Promise.reject(err)
+  }
 })
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -740,7 +742,6 @@ class Test extends Promise {
     return ok
   }
 
-
   async exception (functionOrPromise, expectedError, message, natives = false) {
     async function exception (functionOrPromise, expectedError, message, natives = false) {
       this[kIncre]()
@@ -764,10 +765,10 @@ class Test extends Promise {
         ok = false
       } catch (err) {
         if (syncThrew) await null // tick
-        const native = natives === false && (err instanceof SyntaxError || 
+        const native = natives === false && (err instanceof SyntaxError ||
         err instanceof ReferenceError ||
-        err instanceof TypeError || 
-        err instanceof EvalError || 
+        err instanceof TypeError ||
+        err instanceof EvalError ||
         err instanceof RangeError)
         if (native) {
           ok = false
@@ -789,8 +790,6 @@ class Test extends Promise {
 
     return this[kAssertQ].add(Object.assign(exception.bind(this, functionOrPromise, expectedError, message, natives)))
   }
-
-
 
   async execution (functionOrPromise, message) {
     async function execution (functionOrPromise, message) {
