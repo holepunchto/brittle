@@ -176,13 +176,13 @@ class Writer {
       }
       this.index += 1
       if (this.ending && this.index >= this.length) this.ended = true
-      if (item === undefined && this.ended === false) {
-        yield '# ITEM MISSING ' + this.index - 1 // TODO, replace with error
-      }
+      // debugging:
+      // if (item === undefined && this.ended === false) {
+      //   yield '# ITEM MISSING ' + this.index - 1 
+      // }
     }
 
     this.done()
-    // this.iterated = new Promise((resolve) => this.done = resolve)
   }
 }
 // TODO: use static keyword on class when standard linter can handle it
