@@ -11,7 +11,6 @@ const StackParser = require('error-stack-parser')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
-
 const {
   kIncre,
   kCount,
@@ -178,7 +177,7 @@ class Writer {
       if (this.ending && this.index >= this.length) this.ended = true
       // debugging:
       // if (item === undefined && this.ended === false) {
-      //   yield '# ITEM MISSING ' + this.index - 1 
+      //   yield '# ITEM MISSING ' + this.index - 1
       // }
     }
 
@@ -254,9 +253,6 @@ class Tap {
       if (test.failing) out = `not ${out}`
       out = `${outdent}${out}`
 
-      // if (this.test[kMain] && this.level === -1 && this.test[kLevel] === 1) {
-      //   indent = '    '
-      // }
       const plan = cmd.planned ? `${indent}1..${test.count}\n` : ''
       return `${plan}${out}`
     }

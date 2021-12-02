@@ -5,7 +5,7 @@ const sleep = promisify(setTimeout)
 
 test('teardown classic', async ({ pass, teardown }) => {
   teardown(async () => {
-    await sleep(10)
+    await sleep(200)
     console.log('# TEARDOWN SUCCESSFUL (classic) \n')
   })
   pass()
@@ -15,7 +15,7 @@ test('teardown classic', async ({ pass, teardown }) => {
 {
   const assert = test('teardown inverted')
   assert.teardown(async () => {
-    await sleep(10)
+    await sleep(300)
     console.log('# TEARDOWN SUCCESSFUL (inverted) \n')
   })
   assert.pass()
@@ -25,7 +25,7 @@ test('teardown classic', async ({ pass, teardown }) => {
 
 test('teardown after error classic', async ({ teardown, plan }) => {
   teardown(async () => {
-    await sleep(10)
+    await sleep(400)
     console.log('# TEARDOWN AFTER ERROR SUCCESSFUL (classic) \n')
   })
   throw Error('test')

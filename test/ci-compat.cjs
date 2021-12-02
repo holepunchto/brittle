@@ -1,0 +1,1 @@
+require('yaml').scalarOptions.str.fold.lineWidth = Infinity // CI tap-yaml output compatibility

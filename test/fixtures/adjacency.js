@@ -19,7 +19,7 @@ test('trailing adjacent awaits', async (assert) => {
 
 })
 
-test('interuptive adjacent awaits', async (assert) => {
+test('interruptive adjacent awaits', async (assert) => {
 
   const big = assert.test('big test B')
   const little = assert.test('little test B')

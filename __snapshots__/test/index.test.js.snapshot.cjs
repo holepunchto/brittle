@@ -350,7 +350,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
       expected: null
@@ -373,7 +373,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -400,7 +400,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -692,7 +692,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
       expected: null
@@ -715,7 +715,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -742,7 +742,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -1028,7 +1028,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
       expected: null
@@ -1053,7 +1053,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -1081,7 +1081,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///inverted-assertions.js:13:37
               at index.js:13:37
@@ -1430,7 +1430,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -1457,7 +1457,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -1485,7 +1485,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -1801,7 +1801,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -1828,7 +1828,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -1856,7 +1856,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -2166,7 +2166,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -2195,7 +2195,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -2224,7 +2224,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         !error
         name: Error
         message: n
-        stack: >-
+        stack: |-
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
@@ -2323,12 +2323,12 @@ ok 1 - teardown classic # time=1.3371337ms
 
 # TEARDOWN SUCCESSFUL (classic) 
 
-# TEARDOWN SUCCESSFUL (inverted) 
-
 # teardown inverted
     ok 1 - passed
     1..1
 ok 2 - teardown inverted # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (inverted) 
 
 # teardown after error classic
     not ok 0 - test
@@ -2337,7 +2337,7 @@ ok 2 - teardown inverted # time=1.3371337ms
         !error
         name: Error
         message: test
-        stack: >-
+        stack: |-
           Error: test
               at file:///teardown.js:13:37
               at file:///teardown.js:13:37
@@ -3087,7 +3087,7 @@ TAP version 13
         !error
         name: Error
         message: check
-        stack: >-
+        stack: |-
           Error: check
               at file:///tappable-errors.js:13:37
         test: generic
@@ -3118,8 +3118,7 @@ not ok 1 - generic # time=1.3371337ms
         ended: false
       expected: null
       operator: execution
-      stack: 'AssertionError [ERR_ASSERTION]: string thrown "not great but definitely
-        done by some"::'
+      stack: 'AssertionError [ERR_ASSERTION]: string thrown "not great but definitely done by some"::'
       ...
 
 not ok 2 - thrown primitive (string) # time=1.3371337ms
@@ -3209,22 +3208,22 @@ not ok 5 - thrown primitive (null) # time=1.3371337ms
 not ok 6 - thrown primitive (undefined) # time=1.3371337ms
 
 # thrown primitive (symbol)
-    not ok 0 - symbol thrown (Symbol(fuck me))
+    not ok 0 - symbol thrown (Symbol(sym))
       ---
       actual:
         !error
         name: Error
-        message: symbol thrown (Symbol(fuck me))
+        message: symbol thrown (Symbol(sym))
         stack: null
         type: symbol
-        value: !sym Symbol(fuck me)
+        value: !sym Symbol(sym)
         test: thrown primitive (symbol)
         plan: 0
         count: 0
         ended: false
       expected: null
       operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: symbol thrown Symbolfuck me::"
+      stack: "AssertionError [ERR_ASSERTION]: symbol thrown Symbolsym::"
       ...
 
 not ok 7 - thrown primitive (symbol) # time=1.3371337ms
@@ -3238,7 +3237,7 @@ not ok 7 - thrown primitive (symbol) # time=1.3371337ms
         !error
         name: Error
         message: test ended prematurely [test count (1) did not reach plan (2)]
-        stack: >-
+        stack: |-
           Error: test ended prematurely [test count (1) did not reach plan (2)]
         code: ERR_PREMATURE_END
         test: premature end
@@ -3260,7 +3259,7 @@ not ok 8 - premature end # time=1.3371337ms
         !error
         name: Error
         message: test count [2] exceeds plan [1]
-        stack: >-
+        stack: |-
           Error: test count [2] exceeds plan [1]
               at file:///tappable-errors.js:13:37
         code: ERR_COUNT_EXCEEDS_PLAN
@@ -3286,7 +3285,7 @@ not ok 9 - count exceeds plan # time=1.3371337ms
             !error
             name: Error
             message: test ended prematurely [test count (1) did not reach plan (2)]
-            stack: >-
+            stack: |-
               Error: test ended prematurely [test count (1) did not reach plan (2)]
             code: ERR_PREMATURE_END
             test: inverted child of premature end
@@ -3317,7 +3316,7 @@ ok 10 - premature end # time=1.3371337ms
             !error
             name: Error
             message: test count [2] exceeds plan [1]
-            stack: >-
+            stack: |-
               Error: test count [2] exceeds plan [1]
                   at file:///tappable-errors.js:13:37
             code: ERR_COUNT_EXCEEDS_PLAN
@@ -3349,10 +3348,10 @@ ok 11 - count exceeds plan # time=1.3371337ms
       actual:
         !error
         name: Error
-        message: >-
+        message: |-
           test ended prematurely [test count (1) did not reach plan (2)].
           This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
-        stack: >-
+        stack: |-
           Error: test ended prematurely [test count (1) did not reach plan (2)].
           This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
         code: ERR_PREMATURE_END
@@ -4496,7 +4495,7 @@ ok 1 - multi-tick execution (promise resolve) # time=1.3371337ms
         !error
         name: Error
         message: test
-        stack: >-
+        stack: |-
           Error: test
       expected: null
       operator: execution
@@ -4504,7 +4503,7 @@ ok 1 - multi-tick execution (promise resolve) # time=1.3371337ms
         line: 12
         column: 3
         file: file:///multitick-execution-exception.js
-      source: >-2
+      source: |-2
           pass('first')
           execution(new Promise((_, reject) => setTimeout(()=> reject(Error('test')), 100)))
         --^
@@ -4563,7 +4562,7 @@ TAP version 13
         !error
         name: Error
         message: test ended without making or planning any assertions
-        stack: >-
+        stack: |-
           Error: test ended without making or planning any assertions
         code: ERR_NO_ASSERTS
         test: never resolve
@@ -4572,8 +4571,7 @@ TAP version 13
         ended: false
       expected: null
       operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test ended without making or planning
-        any assertions::"
+      stack: "AssertionError [ERR_ASSERTION]: test ended without making or planning any assertions::"
       ...
 
 not ok 1 - never resolve # time=1.3371337ms
@@ -4668,7 +4666,7 @@ TAP version 13
         !error
         name: ReferenceError
         message: test
-        stack: >-
+        stack: |-
           ReferenceError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4696,7 +4694,7 @@ TAP version 13
         !error
         name: SyntaxError
         message: test
-        stack: >-
+        stack: |-
           SyntaxError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4724,7 +4722,7 @@ TAP version 13
         !error
         name: RangeError
         message: test
-        stack: >-
+        stack: |-
           RangeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4752,7 +4750,7 @@ TAP version 13
         !error
         name: EvalError
         message: test
-        stack: >-
+        stack: |-
           EvalError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4780,7 +4778,7 @@ TAP version 13
         !error
         name: TypeError
         message: test
-        stack: >-
+        stack: |-
           TypeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4808,7 +4806,7 @@ TAP version 13
         !error
         name: ReferenceError
         message: test
-        stack: >-
+        stack: |-
           ReferenceError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4836,7 +4834,7 @@ TAP version 13
         !error
         name: SyntaxError
         message: test
-        stack: >-
+        stack: |-
           SyntaxError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4864,7 +4862,7 @@ TAP version 13
         !error
         name: RangeError
         message: test
-        stack: >-
+        stack: |-
           RangeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4892,7 +4890,7 @@ TAP version 13
         !error
         name: EvalError
         message: test
-        stack: >-
+        stack: |-
           EvalError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4920,7 +4918,7 @@ TAP version 13
         !error
         name: TypeError
         message: test
-        stack: >-
+        stack: |-
           TypeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4948,7 +4946,7 @@ TAP version 13
         !error
         name: ReferenceError
         message: test
-        stack: >-
+        stack: |-
           ReferenceError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -4976,7 +4974,7 @@ TAP version 13
         !error
         name: SyntaxError
         message: test
-        stack: >-
+        stack: |-
           SyntaxError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -5004,7 +5002,7 @@ TAP version 13
         !error
         name: RangeError
         message: test
-        stack: >-
+        stack: |-
           RangeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -5032,7 +5030,7 @@ TAP version 13
         !error
         name: EvalError
         message: test
-        stack: >-
+        stack: |-
           EvalError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -5060,7 +5058,7 @@ TAP version 13
         !error
         name: TypeError
         message: test
-        stack: >-
+        stack: |-
           TypeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
@@ -5124,7 +5122,7 @@ TAP version 13
     1..2
 ok 1 - trailing adjacent awaits # time=1.3371337ms
 
-# interuptive adjacent awaits
+# interruptive adjacent awaits
     # big test B
         1..2
         ok 1 - big passed
@@ -5135,7 +5133,7 @@ ok 1 - trailing adjacent awaits # time=1.3371337ms
         ok 1 - little passed
     ok 2 - little test B # time=1.3371337ms
     1..2
-ok 2 - interuptive adjacent awaits # time=1.3371337ms
+ok 2 - interruptive adjacent awaits # time=1.3371337ms
 
 # deadlocking adjacent awaits
     # big test C
@@ -5147,7 +5145,7 @@ ok 2 - interuptive adjacent awaits # time=1.3371337ms
             !error
             name: Error
             message: test ended prematurely [test count (1) did not reach plan (2)]
-            stack: >-
+            stack: |-
               Error: test ended prematurely [test count (1) did not reach plan (2)]
             code: ERR_PREMATURE_END
             test: big test C

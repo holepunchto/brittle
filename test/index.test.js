@@ -5,7 +5,9 @@ import { promisify } from 'util'
 import { spawn } from 'child_process'
 import { test } from '../index.js'
 import Parser from 'tap-parser'
+
 const testDir = fileURLToPath(dirname(import.meta.url))
+const ciCompat = join(testDir, 'ci-compat.cjs')
 const fixtures = join(testDir, 'fixtures')
 const fixturesRx = new RegExp(fixtures, 'g')
 const dirRx = new RegExp(resolve(testDir, '..') + sep, 'g')
@@ -19,6 +21,7 @@ const clean = (str, opts = {}) => {
     .replace(/.+\ at.+(node:)?internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\(((?!\/).+:.+:.+)\)\n/gm, '') // remove node call frames
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
+    .replace(/.+\ at async .+\n/gm, '') // remove async frames
 }
 const run = promisify(async (testPath, cb) => {
   let opts = {}
@@ -26,7 +29,7 @@ const run = promisify(async (testPath, cb) => {
     opts = testPath
     testPath = opts.test
   }
-  const sp = spawn(process.execPath, [join(fixtures, testPath)], { stdio: ['pipe', 'pipe', 'pipe'], ...opts })
+  const sp = spawn(process.execPath, ['-r', ciCompat, join(fixtures, testPath)], { stdio: ['pipe', 'pipe', 'pipe'], ...opts })
   const stdout = []
   const stderr = []
   sp.stdout.setEncoding('utf-8')
@@ -129,11 +132,21 @@ test('comment', async ({ snapshot, ok, is }) => {
   snapshot(result.stdout)
 })
 
-test('tappable errors', async ({ snapshot, ok, is }) => {
+await test('spacer', async ({ pass }) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  pass('spacing')
+})
+
+await test('tappable errors', async ({ snapshot, ok, is }) => {
   const result = await run('tappable-errors.js')
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
+})
+
+await test('spacer', async ({ pass }) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  pass('spacing')
 })
 
 test('skip', async ({ snapshot, ok, is }) => {
@@ -394,9 +407,9 @@ test('serial', async function ({ ok, is }) {
     parsed
       .filter(([type]) => type === 'assert')
       .map(([, { time }]) => time)
-      .reduce((sum, n) => sum + n) / 50
-  ) * 50
-  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+      .reduce((sum, n) => sum + n) / 100
+  ) * 100
+  const time = Math.round(parsed[parsed.length -1][1].time / 100) * 100
   is(sum, time)
 })
 
@@ -406,8 +419,8 @@ test('concurrency: 2', async function ({ ok, is }) {
   const { isValid, parsed } = valid(result, true)
   ok(isValid, 'valid tap output')
   const times = parsed.filter(([type]) => type === 'assert').map(([, { time }]) => time)
-  const sum =  Math.round((Math.max(...times.slice(0, 1)) + times[2]) / 50) * 50
-  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+  const sum =  Math.round((Math.max(...times.slice(0, 1)) + times[2]) / 100) * 100
+  const time = Math.round(parsed[parsed.length -1][1].time / 100) * 100
   is(sum, time)
 })
 
@@ -417,8 +430,8 @@ test('concurrency default (concurrency: 5)', async function ({ ok, is }) {
   const { isValid, parsed } = valid(result, true)
   ok(isValid, 'valid tap output')
   const times = parsed.filter(([type]) => type === 'assert').map(([, { time }]) => time)
-  const sum =  Math.round((Math.max(...times)) / 50) * 50
-  const time = Math.round(parsed[parsed.length -1][1].time / 50) * 50
+  const sum =  Math.round((Math.max(...times)) / 100) * 100
+  const time = Math.round(parsed[parsed.length -1][1].time / 100) * 100
   is(sum, time)
 })
 
@@ -443,7 +456,7 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   snapshot(result.stdout)
 })
 
-// // leave this test at the end:
+// leave this test at the end:
 test('type declarations', async function ({ alike }) {
   const { default: { default: tsd }} = await import('tsd')
   const diagnostics = await tsd()
