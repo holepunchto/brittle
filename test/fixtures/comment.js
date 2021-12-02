@@ -8,14 +8,14 @@ test('classic comment', async ({ pass, comment }) => {
 test('classic comment after classic child', async ({ pass, comment, test }) => {
   pass()
   test('child', async ({ pass }) => { pass() })
-  comment('here is a comment, it will print before child asserts')
+  comment('here is a comment')
 })
 
 test('classic comment after inverted child', async ({ pass, comment, test }) => {
   pass()
   const assert = test('child')
   assert.pass()
-  comment('here is a comment, it will print before child asserts')
+  comment('here is a comment')
   assert.end()
 })
 
@@ -46,7 +46,7 @@ test('classic comment on inverted child', async ({ pass, test }) => {
   const { end, pass, comment, assert } = test('inverted comment after classic child')
   pass()
   assert.test('child', async ({ pass }) => { pass() })
-  comment('here is a comment, it will print before child asserts')
+  comment('here is a comment')
   await end()
 }
 
@@ -55,7 +55,7 @@ test('classic comment on inverted child', async ({ pass, test }) => {
   pass()
   const child = assert.test('child')
   child.pass()
-  comment('here is a comment, it will print before child asserts')
+  comment('here is a comment')
   await child.end()
   await end()
 }

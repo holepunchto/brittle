@@ -49,8 +49,9 @@ const valid = (tap, returnParsed = false) => {
       strict: true,
       flat: false
     })
+
     for (const [type] of result) {
-      if (type === 'extra') return returnParsed ? { isValid: false, parsed: result } : false
+      if (type === 'extra') return console.log(result) || returnParsed ? { isValid: false, parsed: result } : false
     }
     return returnParsed ? { isValid: true, parsed: result } : true
   } catch (err) {
@@ -293,6 +294,14 @@ test('inverted after end teardown', async function ({ snapshot, ok, is }) {
   snapshot(result.stderr)
 })
 
+test('adjacency', async function ({ snapshot, ok, is }) {
+  const result = await run('adjacency.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+  snapshot(result.stderr)
+})
+
 test('exception.all', async function ({ snapshot, ok, is }) {
   const result = await run('exception-all.js')
   is(result.code, 1)
@@ -376,7 +385,7 @@ test('extraneous error propagation', async function ({ snapshot, ok, is }) {
   }
 })
 
-test('serial', async function ({ snapshot, ok, is }) {
+test('serial', async function ({ ok, is }) {
   const result = await run({ test: 'serial.js', dirtyTime: true })
   is(result.code, 0)
   const { isValid, parsed } = valid(result, true)
@@ -391,7 +400,7 @@ test('serial', async function ({ snapshot, ok, is }) {
   is(sum, time)
 })
 
-test('concurrency: 2', async function ({ snapshot, ok, is }) {
+test('concurrency: 2', async function ({ ok, is }) {
   const result = await run({ test: 'concurrency.js', dirtyTime: true })
   is(result.code, 0)
   const { isValid, parsed } = valid(result, true)
@@ -402,7 +411,7 @@ test('concurrency: 2', async function ({ snapshot, ok, is }) {
   is(sum, time)
 })
 
-test('concurrency default (concurrency: 5)', async function ({ snapshot, ok, is }) {
+test('concurrency default (concurrency: 5)', async function ({ ok, is }) {
   const result = await run({ test: 'concurrency-default.js', dirtyTime: true })
   is(result.code, 0)
   const { isValid, parsed } = valid(result, true)
@@ -434,8 +443,7 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   snapshot(result.stdout)
 })
 
-
-// leave this test at the end:
+// // leave this test at the end:
 test('type declarations', async function ({ alike }) {
   const { default: { default: tsd }} = await import('tsd')
   const diagnostics = await tsd()

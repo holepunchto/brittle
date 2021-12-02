@@ -22,6 +22,7 @@ const clean = (str) => {
     .replace(/.+\ at.+(node:)?internal\/.+\n/gm, '') // remove node call frames
     .replace(/.+\(((?!\/).+)\)\n/gm, '') // remove node call frames
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber
+    .replace(/\([0-9]+ms\)/g, '')
 }
 
 process.env.FORCE_NO_CI = 1
@@ -308,9 +309,9 @@ await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown
   terminal.write('r')
   for await (const [ out ] of result.out()) if (/spec/.test(out)) break
   terminal.write('\x1B[B')
-  const a = terminal.onData(() => {    
+  const a = terminal.onData((data) => {  
+    terminal.write('r')  
     a.dispose()
-    terminal.write('\x1B[B')
     const b = terminal.onData(() => {    
       terminal.write('\r')
       b.dispose()

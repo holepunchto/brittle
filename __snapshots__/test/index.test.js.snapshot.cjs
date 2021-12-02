@@ -1046,33 +1046,6 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       stack: "AssertionError [ERR_ASSERTION]: should resolve::"
       ...
 
-    not ok 28 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///inverted-assertions.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///inverted-assertions.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 120
-        column: 8
-        file: file:///inverted-assertions.js
-      source: |-
-        assert.execution(() => 'y')
-        assert.execution(() => { throw Error('n') })
-        -------^
-        assert.exception(Promise.resolve('y'))
-        assert.exception(Promise.reject(Error('n')))
-      stack: test/fixtures/inverted-assertions.js:13:37
-      ...
-
     ok 25 - should resolve
     not ok 26 - should resolve
       ---
@@ -1102,6 +1075,33 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       ...
 
     ok 27 - should return
+    not ok 28 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///inverted-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///inverted-assertions.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 120
+        column: 8
+        file: file:///inverted-assertions.js
+      source: |-
+        assert.execution(() => 'y')
+        assert.execution(() => { throw Error('n') })
+        -------^
+        assert.exception(Promise.resolve('y'))
+        assert.exception(Promise.reject(Error('n')))
+      stack: test/fixtures/inverted-assertions.js:13:37
+      ...
+
     not ok 29 - should reject
       ---
       actual: false
@@ -2188,36 +2188,6 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       stack: "AssertionError [ERR_ASSERTION]: should resolve::"
       ...
 
-    not ok 28 - should return
-      ---
-      actual:
-        !error
-        name: Error
-        message: n
-        stack: >-
-          Error: n
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///classic-assertions.js:13:37
-              at index.js:13:37
-      expected: null
-      operator: execution
-      at:
-        line: 112
-        column: 10
-        file: file:///classic-assertions.js
-      source: |-2
-          assert.execution(() => 'y')
-          assert.execution(() => { throw Error('n') })
-        ---------^
-          assert.exception(Promise.resolve('y'))
-          assert.exception(Promise.reject(Error('n')))
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
-      ...
-
     ok 25 - should resolve
     not ok 26 - should resolve
       ---
@@ -2248,6 +2218,36 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       ...
 
     ok 27 - should return
+    not ok 28 - should return
+      ---
+      actual:
+        !error
+        name: Error
+        message: n
+        stack: >-
+          Error: n
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+              at new Promise (<anonymous>)
+              at file:///classic-assertions.js:13:37
+              at index.js:13:37
+      expected: null
+      operator: execution
+      at:
+        line: 112
+        column: 10
+        file: file:///classic-assertions.js
+      source: |-2
+          assert.execution(() => 'y')
+          assert.execution(() => { throw Error('n') })
+        ---------^
+          assert.exception(Promise.resolve('y'))
+          assert.exception(Promise.reject(Error('n')))
+      stack: |-
+        test/fixtures/classic-assertions.js:13:37
+        test/fixtures/classic-assertions.js:13:37
+      ...
+
     not ok 29 - should reject
       ---
       actual: false
@@ -2323,12 +2323,12 @@ ok 1 - teardown classic # time=1.3371337ms
 
 # TEARDOWN SUCCESSFUL (classic) 
 
+# TEARDOWN SUCCESSFUL (inverted) 
+
 # teardown inverted
     ok 1 - passed
     1..1
 ok 2 - teardown inverted # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (inverted) 
 
 # teardown after error classic
     not ok 0 - test
@@ -2383,7 +2383,7 @@ TAP version 13
 not ok 1 - timeout option, classic, no plan # time=1.3371337ms
 
 # timeout option, inverted, no plan
-    not ok 0 - test timed out after 10ms
+    not ok 1 - test timed out after 10ms
       ---
       actual:
         !error
@@ -2396,10 +2396,17 @@ not ok 1 - timeout option, classic, no plan # time=1.3371337ms
         plan: 0
         count: 0
         ended: false
+        trace:
+          code: ERR_TIMEOUT
+          test: timeout option, inverted, no plan
+          plan: 0
+          count: 0
+          ended: false
       expected: null
       operator: execution
       ...
 
+    1..1
 not ok 2 - timeout option, inverted, no plan # time=1.3371337ms
 
 # timeout option, classic, plan
@@ -2425,7 +2432,7 @@ not ok 3 - timeout option, classic, plan # time=1.3371337ms
 
 # timeout option, inverted, plan
     1..1
-    not ok 0 - test timed out after 10ms
+    not ok 1 - test timed out after 10ms
       ---
       actual:
         !error
@@ -2438,6 +2445,12 @@ not ok 3 - timeout option, classic, plan # time=1.3371337ms
         plan: 1
         count: 0
         ended: false
+        trace:
+          code: ERR_TIMEOUT
+          test: timeout option, inverted, plan
+          plan: 1
+          count: 0
+          ended: false
       expected: null
       operator: execution
       ...
@@ -2465,7 +2478,7 @@ not ok 4 - timeout option, inverted, plan # time=1.3371337ms
 not ok 5 - timeout method, classic, no plan # time=1.3371337ms
 
 # timeout method, inverted, no plan
-    not ok 0 - test timed out after 10ms
+    not ok 1 - test timed out after 10ms
       ---
       actual:
         !error
@@ -2478,10 +2491,17 @@ not ok 5 - timeout method, classic, no plan # time=1.3371337ms
         plan: 0
         count: 0
         ended: false
+        trace:
+          code: ERR_TIMEOUT
+          test: timeout method, inverted, no plan
+          plan: 0
+          count: 0
+          ended: false
       expected: null
       operator: execution
       ...
 
+    1..1
 not ok 6 - timeout method, inverted, no plan # time=1.3371337ms
 
 # timeout method, classic, plan
@@ -2507,7 +2527,7 @@ not ok 7 - timeout method, classic, plan # time=1.3371337ms
 
 # timeout method, inverted, plan
     1..1
-    not ok 0 - test timed out after 10ms
+    not ok 1 - test timed out after 10ms
       ---
       actual:
         !error
@@ -2520,6 +2540,12 @@ not ok 7 - timeout method, classic, plan # time=1.3371337ms
         plan: 1
         count: 0
         ended: false
+        trace:
+          code: ERR_TIMEOUT
+          test: timeout method, inverted, plan
+          plan: 1
+          count: 0
+          ended: false
       expected: null
       operator: execution
       ...
@@ -2616,11 +2642,11 @@ ok 8 - nesting - inverted parent, inverted child, parent+child plan (no awaiting
 
 # nesting - inverted parent, inverted child, parent plan (await child before parent assert)
     1..2
-    # before await child
     # child assert
         ok 1 - child pass
         1..1
     ok 1 - child assert # time=1.3371337ms
+    # before await child
     # after await child
     ok 2 - parent pass
 ok 9 - nesting - inverted parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
@@ -2696,25 +2722,24 @@ ok 14 - nesting - inverted parent, two inverted children, parent+children plan, 
 
 # nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
     1..3
-    # before await child1
     # child one
         1..2
         ok 1 - passed
         ok 2 - expected truthy value
     ok 1 - child one # time=1.3371337ms
-    # after await child1, before await child2
     # child two
         1..2
         ok 1 - expected truthy value
         ok 2 - passed
     ok 2 - child two # time=1.3371337ms
+    # before await child1
+    # after await child1, before await child2
     # after await child1
     ok 3 - parent pass
 ok 15 - nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
 
 # nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
     1..3
-    # before await child2
     # child one
         1..2
         ok 1 - passed
@@ -2725,6 +2750,7 @@ ok 15 - nesting - inverted parent, two inverted children, parent+child plan, asy
         ok 1 - expected truthy value
         ok 2 - passed
     ok 2 - child two # time=1.3371337ms
+    # before await child2
     # after await child2, before await child1
     # after await child1
     ok 3 - parent pass
@@ -2812,11 +2838,11 @@ ok 24 - nesting - classic parent, inverted child, parent+child plan (no awaiting
 
 # nesting - classic parent, inverted child, parent plan (await child before parent assert)
     1..2
-    # before await child
     # child assert
         ok 1 - child pass
         1..1
     ok 1 - child assert # time=1.3371337ms
+    # before await child
     # after await child
     ok 2 - parent pass
 ok 25 - nesting - classic parent, inverted child, parent plan (await child before parent assert) # time=1.3371337ms
@@ -2892,25 +2918,24 @@ ok 30 - nesting - classic parent, two inverted children, parent+children plan, a
 
 # nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children
     1..3
-    # before await child1
     # child one
         1..2
         ok 1 - passed
         ok 2 - expected truthy value
     ok 1 - child one # time=1.3371337ms
-    # after await child1, before await child2
     # child two
         1..2
         ok 1 - expected truthy value
         ok 2 - passed
     ok 2 - child two # time=1.3371337ms
+    # before await child1
+    # after await child1, before await child2
     # after await child1
     ok 3 - parent pass
 ok 31 - nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children # time=1.3371337ms
 
 # nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order
     1..3
-    # before await child2
     # child one
         1..2
         ok 1 - passed
@@ -2921,6 +2946,7 @@ ok 31 - nesting - classic parent, two inverted children, parent+child plan, asyn
         ok 1 - expected truthy value
         ok 2 - passed
     ok 2 - child two # time=1.3371337ms
+    # before await child2
     # after await child2, before await child1
     # after await child1
     ok 3 - parent pass
@@ -2941,21 +2967,21 @@ ok 1 - classic comment # time=1.3371337ms
 
 # classic comment after classic child
     ok 1 - passed
-    # here is a comment, it will print before child asserts
     # child
         ok 1 - passed
         1..1
     ok 2 - child # time=1.3371337ms
+    # here is a comment
     1..2
 ok 2 - classic comment after classic child # time=1.3371337ms
 
 # classic comment after inverted child
     ok 1 - passed
-    # here is a comment, it will print before child asserts
     # child
         ok 1 - passed
         1..1
     ok 2 - child # time=1.3371337ms
+    # here is a comment
     1..2
 ok 3 - classic comment after inverted child # time=1.3371337ms
 
@@ -2987,21 +3013,21 @@ ok 6 - inverted comment # time=1.3371337ms
 
 # inverted comment after classic child
     ok 1 - passed
-    # here is a comment, it will print before child asserts
     # child
         ok 1 - passed
         1..1
     ok 2 - child # time=1.3371337ms
+    # here is a comment
     1..2
 ok 7 - inverted comment after classic child # time=1.3371337ms
 
 # inverted comment after inverted child
     ok 1 - passed
-    # here is a comment, it will print before child asserts
     # child
         ok 1 - passed
         1..1
     ok 2 - child # time=1.3371337ms
+    # here is a comment
     1..2
 ok 8 - inverted comment after inverted child # time=1.3371337ms
 
@@ -3228,7 +3254,6 @@ not ok 8 - premature end # time=1.3371337ms
 # count exceeds plan
     1..1
     ok 1 - passed
-    ok 2 - passed
     not ok 2 - test count [2] exceeds plan [1]
       ---
       actual:
@@ -3248,63 +3273,78 @@ not ok 8 - premature end # time=1.3371337ms
       stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1]::"
       ...
 
+    ok 2 - passed
 not ok 9 - count exceeds plan # time=1.3371337ms
 
 # premature end
-    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)] (inverted child of premature end)
-      ---
-      actual:
-        !error
-        name: Error
-        message: test ended prematurely [test count (1) did not reach plan (2)]
-          (inverted child of premature end)
-        stack: >-
-          Error: test ended prematurely [test count (1) did not reach plan (2)]
-        code: ERR_PREMATURE_END
-        test: premature end
-        plan: 0
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      ...
-
     # inverted child of premature end
         1..2
         ok 1 - passed
-    ok 1 - inverted child of premature end # time=1.3371337ms
+        not ok 2 - test ended prematurely [test count (1) did not reach plan (2)]
+          ---
+          actual:
+            !error
+            name: Error
+            message: test ended prematurely [test count (1) did not reach plan (2)]
+            stack: >-
+              Error: test ended prematurely [test count (1) did not reach plan (2)]
+            code: ERR_PREMATURE_END
+            test: inverted child of premature end
+            plan: 2
+            count: 1
+            ended: false
+            trace:
+              code: ERR_PREMATURE_END
+              test: inverted child of premature end
+              plan: 2
+              count: 1
+              ended: false
+          expected: null
+          operator: execution
+          ...
+
+    not ok 1 - inverted child of premature end # time=1.3371337ms
     1..1
-not ok 10 - premature end # time=1.3371337ms
+ok 10 - premature end # time=1.3371337ms
 
 # count exceeds plan
-    not ok 1 - test count [2] exceeds plan [1] (inverted child of count exceeds plan)
-      ---
-      actual:
-        !error
-        name: Error
-        message: test count [2] exceeds plan [1] (inverted child of count exceeds plan)
-        stack: >-
-          Error: test count [2] exceeds plan [1] (inverted child of count exceeds
-          plan)
-              at file:///tappable-errors.js:13:37
-        code: ERR_COUNT_EXCEEDS_PLAN
-        test: count exceeds plan
-        plan: 0
-        count: 1
-        ended: false
-      expected: null
-      operator: execution
-      stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1] inverted
-        child of count exceeds plan::"
-      ...
+    # inverted child of count exceeds plan
+        1..1
+        ok 1 - passed
+        not ok 3 - test count [2] exceeds plan [1]
+          ---
+          actual:
+            !error
+            name: Error
+            message: test count [2] exceeds plan [1]
+            stack: >-
+              Error: test count [2] exceeds plan [1]
+                  at file:///tappable-errors.js:13:37
+            code: ERR_COUNT_EXCEEDS_PLAN
+            test: inverted child of count exceeds plan
+            plan: 1
+            count: 2
+            ended: false
+            trace:
+              code: ERR_COUNT_EXCEEDS_PLAN
+              test: inverted child of count exceeds plan
+              plan: 1
+              count: 2
+              ended: false
+          expected: null
+          operator: execution
+          stack: "AssertionError [ERR_ASSERTION]: test count [2] exceeds plan [1]::"
+          ...
 
+        ok 3 - passed
+    not ok 1 - inverted child of count exceeds plan # time=1.3371337ms
     1..1
-not ok 11 - count exceeds plan # time=1.3371337ms
+ok 11 - count exceeds plan # time=1.3371337ms
 
 # inverted adult
     1..2
     ok 1 - passed
-    not ok 1 - test ended prematurely [test count (1) did not reach plan (2)]. This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
+    not ok 2 - test ended prematurely [test count (1) did not reach plan (2)]. This is a top level inverted test, if it is not wrapped in a try/catch the process will exit now
       ---
       actual:
         !error
@@ -3320,6 +3360,12 @@ not ok 11 - count exceeds plan # time=1.3371337ms
         plan: 2
         count: 1
         ended: false
+        trace:
+          code: ERR_PREMATURE_END
+          test: inverted adult
+          plan: 2
+          count: 1
+          ended: false
       expected: null
       operator: execution
       ...
@@ -3328,7 +3374,7 @@ not ok 12 - inverted adult # time=1.3371337ms
 
 1..12
 # time=1.3371337ms
-# failing=12
+# failing=10
 
 `
 
@@ -3420,11 +3466,6 @@ ok 1 - configure: output # time=1.3371337ms
 
 exports['classic configure first 1'] = `
 TAP version 13
-# a test
-    ok 1 - passed
-    1..1
-ok 1 - a test # time=1.3371337ms
-
 
 `
 
@@ -3443,11 +3484,6 @@ TestError: configuration must happen prior to registering any tests
 
 exports['classic plan must be integer 1'] = `
 TAP version 13
-# plan must be integer
-    ok 1 - passed
-    1..1
-ok 1 - plan must be integer # time=1.3371337ms
-
 
 `
 
@@ -3466,11 +3502,6 @@ TestTypeError: plan takes a positive whole number only
 
 exports['classic plan must be positive 1'] = `
 TAP version 13
-# plan must be positive
-    ok 1 - passed
-    1..1
-ok 1 - plan must be positive # time=1.3371337ms
-
 
 `
 
@@ -3581,11 +3612,6 @@ TestError: configuration must happen prior to registering any tests
 
 exports['inverted plan must be integer 1'] = `
 TAP version 13
-# plan must be integer
-    ok 1 - passed
-    1..1
-ok 1 - plan must be integer # time=1.3371337ms
-
 
 `
 
@@ -3600,11 +3626,6 @@ TestTypeError: plan takes a positive whole number only
 
 exports['inverted plan must be positive 1'] = `
 TAP version 13
-# plan must be integer
-    ok 1 - passed
-    1..1
-ok 1 - plan must be integer # time=1.3371337ms
-
 
 `
 
@@ -5085,5 +5106,77 @@ ok 2 - exception.all does not fails when an error is native # time=1.3371337ms
 1..2
 # time=1.3371337ms
 # failing=15
+
+`
+
+exports['adjacency 1'] = `
+TAP version 13
+# trailing adjacent awaits
+    # big test A
+        1..2
+        ok 1 - big passed
+        ok 2 - big pass again
+    ok 1 - big test A # time=1.3371337ms
+    # little test A
+        1..1
+        ok 1 - little passed
+    ok 2 - little test A # time=1.3371337ms
+    1..2
+ok 1 - trailing adjacent awaits # time=1.3371337ms
+
+# interuptive adjacent awaits
+    # big test B
+        1..2
+        ok 1 - big passed
+        ok 2 - big pass again
+    ok 1 - big test B # time=1.3371337ms
+    # little test B
+        1..1
+        ok 1 - little passed
+    ok 2 - little test B # time=1.3371337ms
+    1..2
+ok 2 - interuptive adjacent awaits # time=1.3371337ms
+
+# deadlocking adjacent awaits
+    # big test C
+        1..2
+        ok 1 - big passed
+        not ok 2 - test ended prematurely [test count (1) did not reach plan (2)]
+          ---
+          actual:
+            !error
+            name: Error
+            message: test ended prematurely [test count (1) did not reach plan (2)]
+            stack: >-
+              Error: test ended prematurely [test count (1) did not reach plan (2)]
+            code: ERR_PREMATURE_END
+            test: big test C
+            plan: 2
+            count: 1
+            ended: false
+            trace:
+              code: ERR_PREMATURE_END
+              test: big test C
+              plan: 2
+              count: 1
+              ended: false
+          expected: null
+          operator: execution
+          ...
+
+    not ok 1 - big test C # time=1.3371337ms
+    # little test C
+        1..1
+        ok 1 - little passed
+    ok 2 - little test C # time=1.3371337ms
+    1..2
+ok 3 - deadlocking adjacent awaits # time=1.3371337ms
+
+1..3
+# time=1.3371337ms
+
+`
+
+exports['adjacency 2'] = `
 
 `

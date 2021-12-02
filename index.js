@@ -2,7 +2,6 @@
 const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
-const { EventEmitter, once } = require('events')
 const { Console } = require('console')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
@@ -16,6 +15,7 @@ const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
 const {
   kIncre,
   kCount,
+  kIndex,
   kCounted,
   kError,
   kResolve,
@@ -31,9 +31,12 @@ const {
   kSolo,
   kLevel,
   kInverted,
+  kInject,
   kReset,
   kQueue,
   kAssertQ,
+  kComplete,
+  kDone,
   kMain
 } = require('./lib/symbols')
 
@@ -86,7 +89,7 @@ async function ender (tests = main[kChildren]) {
   for (const test of tests) {
     const children = test[kChildren]
     const endedTest = (children.length > 0) && await ender(children)
-    if (endedTest) return true
+    if (endedTest) return
     if (test.ended === false) {
       try { await test.end() } catch {}
       return true
@@ -106,196 +109,212 @@ process.once('exit', async () => {
   if (main.ended === false) main.end()
 })
 
-class Tap extends EventEmitter {
+class Writer {
+  constructor () {
+    this.index = 0
+    this.ending = false
+    this.ended = false
+    this.length = 0
+    this.pos = 0
+    this.cache = {}
+    this.done = null
+    this.iterated = new Promise((resolve) => { this.done = resolve })
+  }
+
+  write (str, idx) {
+    if (this.ended) throw Error('writer ended')
+    if (typeof idx !== 'number') throw Error('idx required')
+    if (idx < this.pos) throw Error(`processed position already surpasses idx ${idx}`)
+    if (idx in this.cache) throw Error(`idx ${idx} already set ${str} -> ${this.cache[idx]}`)
+    this.cache[idx] = str
+    if (idx >= this.length) this.length = idx + 1
+  }
+
+  end () {
+    if (this.ending) return
+    this.ending = true
+    for (let i = 0; i <= this.length; i++) {
+      const item = this.cache[i]
+      if (item instanceof this.constructor) item.end()
+    }
+    // set an active handle to allow for final output
+    this.constructor.tick.ref()
+  }
+
+  * release (stopper) {
+    for (let i = 0; i <= this.length; i++) {
+      const item = this.cache[i]
+      if (item === undefined) continue
+      this.cache[i] = undefined
+      if (item instanceof this.constructor) {
+        yield * item.release()
+        if (stopper && item === stopper) break
+      } else {
+        yield item
+      }
+    }
+  }
+
+  async * [Symbol.asyncIterator] () {
+    const idle = (resolve) => this.constructor.idles.push(resolve)
+
+    while (true) {
+      if (this.ended) break
+      if (this.ending === false && (this.index in this.cache) === false) {
+        await new Promise(idle)
+        if (this.ending === false) continue
+      }
+      const item = this.cache[this.index]
+      this.cache[this.index] = undefined
+      if (this.ending === false || item !== undefined) {
+        this.pos = this.index
+        if (item instanceof this.constructor) {
+          yield * item
+        } else {
+          yield item
+        }
+      }
+      this.index += 1
+      if (this.ending && this.index >= this.length) this.ended = true
+      if (item === undefined && this.ended === false) {
+        yield '# ITEM MISSING ' + this.index - 1 // TODO, replace with error
+      }
+    }
+
+    this.done()
+    // this.iterated = new Promise((resolve) => this.done = resolve)
+  }
+}
+// TODO: use static keyword on class when standard linter can handle it
+Writer.idles = []
+Writer.pending = []
+Writer.tick = setInterval(() => {
+  for (const idle of Writer.idles) idle()
+  Writer.idles.length = 0
+  Writer.pending = Writer.pending.filter(({ ended }) => ended === false)
+  if (Writer.pending.length === 0) Writer.tick.unref()
+}, 3).unref()
+
+class Tap {
   constructor (test) {
-    super()
     this.test = test
-    this.chunks = []
-    this.flowing = false
-    this.tapper = null
-    if (!this.test[kMain]) this.begin()
+    this.writer = new Writer()
+    if (this.test[kMain]) {
+      this.level = 0
+      this.indent = this.test.runner ? '    ' : ''
+    } else {
+      let parent = this.test.parent
+      let level = +!!parent - 1
+      while (parent = parent?.parent) { // eslint-disable-line
+        level += 1
+      }
+      this.level = level
+      this.indent = Array.from({ length: this.level + 1 + this.test[kLevel] }).map(() => '    ').join('')
+    }
+
+    this.outdent = this.indent.slice(4)
+    this.protocolled = false
+    if (this.test[kMain]) this._init().catch((err) => this.test[kError](err))
   }
 
   get output () {
     return this.test.output
   }
 
-  begin () {
-    this.tapper = this.tapper || this.flow(this.tap(this.test))
-    this.tapper.next().then(({ value = '' }) => {
-      this.output.write(value)
-      this.emit('begun')
-    })
+  async _init () {
+    for await (const out of this.writer) this.output.write(out)
   }
 
-  buildQueue () {
-    let cur = this.test
-    let parent = cur.parent
-    const queue = parent ? parent[kChildren].slice(0, parent[kChildren].indexOf(cur)) : []
-    cur = parent
-    while (parent = parent?.parent) { // eslint-disable-line
-      queue.push(...parent[kChildren].slice(0, parent[kChildren].indexOf(cur)))
-      cur = parent
-    }
-
-    return queue
+  release (stopper) {
+    for (const out of this.writer.release(stopper)) this.output.write(out)
   }
 
-  async * flow (tap) {
-    const { value = '', done } = await tap.next()
-    if (done) return
-    const queue = this.buildQueue()
-    this.queue = queue
-    this.flowing = queue.length === 0
-    let next = this.flowing ? yield value : yield
-    const backlog = []
-    if (value && !this.flowing) backlog.push(value)
-    const ready = queue.length && Promise.allSettled(queue)
-    if (queue.length) ready.then(() => { this.flowing = true })
-    while (true) {
-      const { value = '', done } = await tap.next(next)
-      if (this.flowing) {
-        const out = backlog.length ? backlog.join('') + value : value
-        next = yield out
-        if (backlog.length) backlog.length = 0
-      } else {
-        backlog.push(value)
-        next = yield
-      }
-
-      if (done) {
-        await ready
-        yield backlog.join('')
-        backlog.length = 0
-        queue.length = 0
-        break
-      }
-    }
+  protocol () {
+    if (this.protocolled) return
+    if (this.test[kLevel] === 0) this.output.write('TAP version 13\n')
+    this.protocolled = true
   }
 
-  async * tap (test) {
-    let parent = test.parent
-    let level = +!!parent - 1
-    while (parent = parent?.parent) { // eslint-disable-line
-      level += 1
+  async tapify (cmd) {
+    const { test, indent, outdent } = this
+    const { type } = cmd
+
+    if (type === 'end') {
+      const failSummary = test[kMain] ? (await test[kChildren]).map(({ failing }) => failing).reduce((sum, n) => sum + n, 0) : ''
+      const comment = test[kSkip]
+        ? '# SKIP\n'
+        : (test[kTodo]
+            ? '# TODO\n'
+            : (main.runner && test[kMain] ? '' : `# time=${test.time}ms\n${failSummary ? `# failing=${failSummary}\n` : ''}`)
+          )
+      let out = test[kMain]
+        ? comment ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}` : ''
+        : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
+      if (test.parent !== null && test.parent[kMain] && !main.runner) out += '\n'
+      if (test.failing) out = `not ${out}`
+      out = `${outdent}${out}`
+
+      // if (this.test[kMain] && this.level === -1 && this.test[kLevel] === 1) {
+      //   indent = '    '
+      // }
+      const plan = cmd.planned ? `${indent}1..${test.count}\n` : ''
+      return `${plan}${out}`
     }
-    parent = test.parent
-    const indent = Array.from({ length: level + 1 + test[kLevel] }).map(() => '    ').join('')
-    const outdent = indent.slice(4)
-    let next = test[kMain] && test[kLevel] === 0 ? yield 'TAP version 13\n' : yield
-    do {
-      const { type } = next
-      if (type === 'drain') {
-        next = yield this.chunks.filter(Boolean).join('')
-        this.chunks.length = 0
-        continue
-      }
 
-      if (type === 'end') {
-        await Promise.allSettled(this.queue)
-        yield * this.chunks.filter(Boolean)
-        this.chunks.length = 0
+    if (type === 'title') {
+      if (test[kSkip] || test[kTodo]) return ''
+      const { title } = cmd
+      return `${outdent}# ${title.trim()}\n`
+    }
 
-        if (parent !== null) {
-          parent[kCount]()
-        } else {
-          await Promise.allSettled(test[kChildren])
+    if (type === 'comment') {
+      const { comment, raw = false } = cmd
+      return raw ? comment : `${indent}# ${comment.trim()}\n`
+    }
+    if (type === 'plan') {
+      const { planned, comment } = cmd
+      return `${indent}1..${planned}${comment ? ` # ${comment.trim()}` : ''}\n`
+    }
+    if (type === 'assert') {
+      const { message, ok, explanation, count } = cmd
+
+      let out = `${indent}${ok ? 'ok' : 'not ok'} ${count}`
+      out += ` - ${message.trim().replace(/[\n\r]/g, ' ').replace(/\t/g, `${indent}  `)}\n`
+      if (!ok) {
+        const split = yaml.stringify(explanation).split('\n')
+        const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
+        out += `${indent}  ---\n${lines}\n${indent}  ...\n\n`
+
+        if (test.bail) {
+          out += `${indent}Bail out! Failed test - ${this.test.description}\n`
         }
-        const failSummary = test[kMain] ? (await main[kChildren]).map(({ failing }) => failing).reduce((sum, n) => sum + n, 0) : ''
-        const comment = test[kSkip]
-          ? '# SKIP\n'
-          : (test[kTodo]
-              ? '# TODO\n'
-              : (main.runner && test[kMain] ? '' : `# time=${test.time}ms\n${failSummary ? `# failing=${failSummary}\n` : ''}`)
-            )
-        let out = test[kMain]
-          ? comment ? `${indent}${comment}${test.runner ? '' : test.advice.join('')}` : ''
-          : `${(test[kSkip] || test[kTodo]) && main[kLevel] > 0 ? indent : ''}ok ${test.index} - ${test.description} ${comment}`
-        if (test.parent !== null && test.parent[kMain] && !main.runner) out += '\n'
-        if (test.failing) out = `not ${out}`
-        out = `${outdent}${out}`
-        const plan = next.planned ? `${indent}1..${test.count}\n` : ''
-
-        yield `${plan}${out}`
-        break
       }
+      test[kCount]()
 
-      if (type === 'title') {
-        const { title } = next
-        next = yield `${outdent}# ${title.trim()}\n`
-        continue
-      }
-      if (type === 'comment') {
-        const { comment } = next
-        next = yield `${indent}# ${comment.trim()}\n`
-        continue
-      }
-      if (type === 'plan') {
-        const { planned, comment } = next
-        next = yield `${indent}1..${planned}${comment ? ` # ${comment.trim()}` : ''}\n`
-        continue
-      }
-      if (type === 'assert') {
-        const { message, ok, explanation, count } = next
-
-        let out = `${indent}${ok ? 'ok' : 'not ok'} ${count}`
-        out += ` - ${message.trim().replace(/[\n\r]/g, ' ').replace(/\t/g, `${indent}  `)}\n`
-        if (!ok) {
-          const split = yaml.stringify(explanation).split('\n')
-          const lines = split.filter((line) => line.trim()).map((line) => `${indent}  ${line}`).join('\n')
-          out += `${indent}  ---\n${lines}\n${indent}  ...\n\n`
-
-          if (test.bail) {
-            out += `${indent}Bail out! Failed test - ${this.test.description}\n`
-            main.bailing = true
-          }
-        }
-        test[kCount]()
-
-        if (count > test[kCounted]) {
-          this.chunks[count] = out
-          next = yield
-        } else {
-          out += this.chunks.slice(0, test[kCounted] + 1).filter(Boolean).join('')
-          this.chunks = this.chunks.slice(test[kCounted] + 1)
-          next = yield out
-        }
-
-        continue
-      }
-      if (type === 'subsert') {
-        const { from } = next
-        const { value = '' } = await from
-        next = yield value
-        continue
-      }
-    } while (true)
+      return out
+    }
   }
 
   async step (cmd) {
-    if (this.tapper === null) await once(this, 'begun')
-    if (this.test.parent && this.test.parent[kMain] === false) {
-      const from = await this.tapper.next(cmd)
-      await this.test.parent.tap.step({ type: 'subsert', from })
-      return
-    }
-    const { value = '', done } = await this.tapper.next(cmd)
-    if ('bailing' in main && / {4}Bail out! Failed test -/.test(value)) {
-      const match = value.match(/Bail out!.+/)
-      this.output.write(value.slice(0, match.index + match[0].length) + '\n')
-      if (this.output.flushSync) this.output.flushSync()
-      process.exit(1)
-    }
-    if (done) {
-      const closer = this.output === process.stderr || this.output === process.stdout || this.output instanceof SonicBoom ? 'write' : 'end'
-      if (value) this.output[closer](value)
-      this.emit(cmd.type, cmd)
-      return
-    }
-    if (value) this.output.write(value)
-    this.emit(cmd.type, cmd)
+    const value = await this.tapify(cmd)
+    const bail = (this.test.bail && cmd.type === 'assert' && cmd.ok === false)
 
-    if (!done && cmd.type === 'end') return this.step(cmd)
+    try {
+      if (cmd.type === 'title') {
+        this.test.parent.tap.writer.write(this.writer, cmd.pidx)
+        this.writer.write(value, 0)
+      } else if (typeof cmd.idx === 'number') {
+        this.writer.write(value, cmd.idx)
+      }
+      if (bail) {
+        const prior = this.test.parent[kChildren].slice(0, this.test.parent[kChildren].indexOf(this.test))
+        await Promise.allSettled(prior)
+        main.tap.release(this.writer)
+        process.exit(1)
+      }
+    } catch (err) {
+      this.test[kError](err)
+    }
   }
 }
 
@@ -325,8 +344,9 @@ class Test extends Promise {
     this[kSolo] = options[kSolo] || false
     this[kReset](description, options)
 
-    if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false) {
-      this.tap.step({ type: 'title', title: this.description })
+    if (this[kMain] === false) {
+      const pidx = (options.parent) ? options.parent[kIndex]++ : 0
+      this.tap.step({ type: 'title', title: this.description, pidx, idx: this[kIndex]++ })
     } else {
       this[kSnap] = SNAP
       this.runner = false
@@ -375,6 +395,12 @@ class Test extends Promise {
     this.error = null
     this.time = null
     this.ended = false
+    this.done = false
+
+    this[kIndex] = 0
+
+    this[kComplete] = null
+    this[kDone] = new Promise((resolve) => { this[kComplete] = resolve })
 
     Object.defineProperty(this, 'failing', {
       configurable: true,
@@ -411,12 +437,13 @@ class Test extends Promise {
 
     this.configure(options)
 
-    Object.defineProperty(this, 'tap', { value: new Tap(this, this.output), configurable: true })
+    Object.defineProperty(this, 'tap', { value: new Tap(this), configurable: true })
   }
 
   [kError] (err) {
     if (this.error) return
     if (typeof err !== 'object' || err === null) err = new PrimitiveError(err)
+    if ('trace' in err) return
     err.test = this.description
     err.plan = this.planned
     err.count = this.count
@@ -426,14 +453,18 @@ class Test extends Promise {
     this[kTimeout] = null
     this.error = err
 
-    if (this.ended) throw Promise.reject(err) // cause unhandled rejection
-    if (err.code === 'ERR_CONFIGURE_FIRST') throw Promise.reject(err)
+    if (this.ended || err.code === 'ERR_CONFIGURE_FIRST') {
+      this.tap.release()
+      throw Promise.reject(err) // cause unhandled rejection
+    }
 
-    if (this[kInverted] && this.parent[kMain] === false) {
-      err.message += ' (' + this.description + ')'
+    if (this[kInverted]) {
+      err.trace = { ...err }
+      this.count += 1
+      this.execution(Promise.reject(err), err.message)
       this[kReject](err)
+      if (this[kEnding] === false) this.end().catch(noop)
     } else {
-      if (this[kInverted]) this[kReject](err)
       this.execution(Promise.reject(err), err.message).then(() => {
         if (this[kEnding] === false) this.end().catch(noop)
       })
@@ -496,7 +527,6 @@ class Test extends Promise {
       [kTodo]: { value: options.todo === true, writable: true },
       [kLevel]: { value: options[kLevel] || 0, writable: true }
     })
-
     if (this[kQueue] && (Object.hasOwn(options, 'concurrency') || serial)) {
       this[kQueue].setConcurrency(this.concurrency)
     } else {
@@ -511,7 +541,6 @@ class Test extends Promise {
 
   async end () {
     await this[kAssertQ].empty()
-
     if (this.count < this.planned) {
       this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
@@ -526,21 +555,31 @@ class Test extends Promise {
     this.time = (Number(process.hrtime.bigint() - this.start)) / 1e6
 
     await Promise.allSettled(this[kChildren])
+
     if (this[kCounted] < this.count) {
       await null // tick
-      await this.tap.step({ type: 'drain' })
     }
 
     clearTimeout(this[kTimeout])
     this[kTimeout] = null
 
-    await this.tap.step({ type: 'end', planned: this.planned ? 0 : this.count, description: this.description })
-
-    this.ended = true
-
-    for (const fn of teardowns) await fn()
+    if (this.ended === false) {
+      const idx = this[kIndex]++
+      this.ended = true
+      await this.tap.step({ type: 'end', planned: this.planned ? 0 : this.count, description: this.description, idx })
+      for (const fn of teardowns) {
+        try { await fn() } catch (err) { this[kError](err) }
+      }
+    }
 
     this[kResolve](this[kInfo]())
+
+    if (this.done) return this
+
+    await this.tap.writer.end()
+
+    this[kComplete]()
+    this.done = true
     return this
   }
 
@@ -557,7 +596,7 @@ class Test extends Promise {
 
   get test () {
     function test (description = !this[kMain] ? `${this.description} - subtest` : 'tbd', opts, fn) {
-      if (this[kMain] && this.tap.tapper === null) this.tap.begin()
+      if (this[kMain]) this.tap.protocol()
       if (typeof opts === 'function') {
         fn = opts
         opts = undefined
@@ -583,7 +622,9 @@ class Test extends Promise {
         try {
           assert.start = process.hrtime.bigint()
           assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
-          return await fn(assert)
+          const result = await fn(assert)
+          await Promise.allSettled(assert[kChildren].map((child) => child[kDone]))
+          return result
         } catch (err) {
           assert[kError](err)
         }
@@ -598,6 +639,7 @@ class Test extends Promise {
     test.todo = this.todo.bind(this)
     test.configure = this.configure.bind(this)
     Object.defineProperty(this, 'test', { value: test.bind(this) })
+
     test.test = this.test
 
     return this.test
@@ -636,36 +678,40 @@ class Test extends Promise {
 
   async plan (planned, comment) {
     if (typeof planned !== 'number' || planned < 0) throw new TestTypeError('ERR_PLAN_POSITIVE')
+    const idx = this[kIndex]++
     this.planned = planned
-    await this.tap.step({ type: 'plan', planned, comment })
+    await this.tap.step({ type: 'plan', planned, comment, idx })
   }
 
   async pass (message = 'passed') {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'pass'
     const ok = true
     const count = this.count
     const explanation = null
     this.passing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async fail (message = 'failed') {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'fail'
     const ok = false
     const count = this.count
     const explanation = explain(ok, message, assert, Test.prototype.fail)
     this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async ok (assertion, message = 'expected truthy value') {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'ok'
     const ok = assertion
@@ -673,12 +719,13 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.ok, assertion, true)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async absent (assertion, message = 'expected falsey value') {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'absent'
     const ok = !assertion
@@ -686,12 +733,13 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.absent, assertion, false)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async is (actual, expected, message = 'should be equal', strict = true) {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'is'
     const ok = strict ? actual === expected : actual == expected // eslint-disable-line
@@ -699,12 +747,13 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.is, actual, expected)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async not (actual, expected, message = 'should not be equal', strict = true) {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'not'
     const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
@@ -712,12 +761,13 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.not, actual, expected)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async alike (actual, expected, message = 'should deep equal', strict = true) {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'alike'
     const ok = deepEqual(actual, expected, { strict })
@@ -725,12 +775,13 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.alike, actual, expected)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async unlike (actual, expected, message = 'should not deep equal', strict = true) {
     this[kIncre]()
+    const idx = this[kIndex]++
     const type = 'assert'
     const assert = 'unlike'
     const ok = deepEqual(actual, expected, { strict }) === false
@@ -738,13 +789,14 @@ class Test extends Promise {
     const explanation = explain(ok, message, assert, Test.prototype.unlike, actual, expected)
     if (ok) this.passing += 1
     else this.failing += 1
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async exception (functionOrPromise, expectedError, message, natives = false) {
     async function exception (functionOrPromise, expectedError, message, natives = false) {
       this[kIncre]()
+      const idx = this[kIndex]++
       if (typeof expectedError === 'string') {
         [message, expectedError] = [expectedError, message]
       }
@@ -784,7 +836,7 @@ class Test extends Promise {
       if (ok) this.passing += 1
       else this.failing += 1
       const explanation = explain(ok, message, assert, Test.prototype.exception, actual, expectedError, top)
-      await this.tap.step({ type, assert, ok, message, count, explanation })
+      await this.tap.step({ type, assert, ok, message, count, explanation, idx })
       return ok
     }
 
@@ -794,6 +846,7 @@ class Test extends Promise {
   async execution (functionOrPromise, message) {
     async function execution (functionOrPromise, message) {
       this[kIncre]()
+      const idx = this[kIndex]++
       const top = originFrame(Test.prototype.execution)
       const pristineMessage = message === undefined
       message = pristineMessage ? 'should return' : message
@@ -813,7 +866,7 @@ class Test extends Promise {
       if (ok) this.passing += 1
       else this.failing += 1
       const explanation = explain(ok, message, assert, Test.prototype.execution, error, null, top)
-      await this.tap.step({ type, assert, ok, message, count, explanation })
+      await this.tap.step({ type, assert, ok, message, count, explanation, idx })
       return ok
     }
 
@@ -822,6 +875,7 @@ class Test extends Promise {
 
   async snapshot (actual, message = 'should match snapshot') {
     this[kIncre]()
+    const idx = this[kIndex]++
     if (actual === undefined) actual = `<${actual}>`
     if (typeof actual === 'symbol') actual = `<${actual.toString()}>`
     if (actual instanceof Error) {
@@ -880,12 +934,18 @@ class Test extends Promise {
       }
     }
     const explanation = explain(ok, message, assert, Test.prototype.snapshot, actual, expected, top)
-    await this.tap.step({ type, assert, ok, message, count, explanation })
+    await this.tap.step({ type, assert, ok, message, count, explanation, idx })
     return ok
   }
 
   async comment (message) {
-    this.tap.step({ type: 'comment', comment: message })
+    const idx = this[kIndex]++
+    await this.tap.step({ type: 'comment', comment: message, idx })
+  }
+
+  async [kInject] (message) {
+    const idx = this[kIndex]++
+    await this.tap.step({ type: 'comment', comment: message, idx, raw: true })
   }
 
   teardown (fn) {

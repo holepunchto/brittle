@@ -19,7 +19,7 @@ import ss from 'snap-shot-core'
 import deepkill from 'deepkill'
 import test, { configure } from './index.js'
 import usage, { covUsage } from './usage.mjs'
-import { kMain, kChildren, kLevel, kReset, kSnap } from './lib/symbols.js'
+import { kMain, kChildren, kLevel, kReset, kSnap, kInject } from './lib/symbols.js'
 
 process.title = 'brittle'
 
@@ -296,17 +296,20 @@ async function run (rerun = false) {
   main.runner = true
   main[kReset]()
   configure({ output, [kLevel]: 1, bail })
+  main.tap.writer.level = 0
+  main.tap.writer.indent = '    '
   let index = 1
   const start = process.hrtime.bigint()
   output.write('TAP version 13')
   for (const path of paths) {
     const start = process.hrtime.bigint()
     const title = path.slice(cwd.length + 8)
-    output.write(`\n# ${title}\n`)
+    main[kInject](`\n# ${title}\n`)
     await import(`${path}?cacheBust=${Date.now()}`)
     const results = await Promise.allSettled(main[kChildren])
     failing += results.reduce((sum, { value }) => sum + value.failing, 0)
     await main.end()
+    await main.tap.writer.iterated
     ss.restore()
     main[kReset]()
     let summary = ''
@@ -317,15 +320,15 @@ async function run (rerun = false) {
       }
     }
     summary += `ok ${index++} - ${title}`
-    output.write(`${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
+    main[kInject](`${summary} # time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
   }
   await Promise.allSettled(main[kChildren])
 
-  output.write(`\n1..${index - 1}\n`)
-  output.write(`# time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
-  if (failing > 0) output.write(`# failing=${failing}\n`)
+  main[kInject](`\n1..${index - 1}\n`)
+  main[kInject](`# time=${(Number(process.hrtime.bigint() - start)) / 1e6}ms\n`)
+  if (failing > 0) main[kInject](`# failing=${failing}\n`)
 
-  if (!watch) output.write(main.advice.join(''))
+  if (!watch) main[kInject](main.advice.join(''))
   advisements.push(...main.advice.filter((adv) => typeof adv === 'object'))
   main.advice.length = 0
   if (output !== process.stdout) output.end()

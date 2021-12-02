@@ -108,11 +108,11 @@ TAP version 13
         ok 1 - passed
     ok 3 - classic, plan w/comment # time=1.3371337ms
     1..3
+
 ok 1 - test/fixtures/classic-pass.js # time=1.3371337ms
 
 1..1
 # time=1.3371337ms
-
 
 `
 
@@ -140,11 +140,11 @@ ok 1 - test/fixtures/classic-pass.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
-
 
 `
 
@@ -201,11 +201,11 @@ ok 1 - test/fixtures/classic-pass.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
-
 
 `
 
@@ -252,12 +252,12 @@ TAP version 13
 
     not ok 2 - classic, with plan # time=1.3371337ms
     1..2
+
 not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
 
 1..1
 # time=1.3371337ms
 # failing=2
-
 
 `
 
@@ -327,12 +327,12 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
         1..1
     not ok 1 - inverted # time=1.3371337ms
     1..1
+
 not ok 2 - test/fixtures/inverted-fail.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
 # failing=3
-
 
 `
 
@@ -387,12 +387,12 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
 # failing=2
-
 
 `
 
@@ -473,12 +473,12 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
 # failing=2
-
 
 `
 
@@ -602,12 +602,12 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
 # failing=2
-
 
 `
 
@@ -705,12 +705,12 @@ not ok 1 - test/fixtures/classic-fail.js # time=1.3371337ms
         1..1
     ok 1 - inverted # time=1.3371337ms
     1..1
+
 ok 2 - test/fixtures/inverted-pass.js # time=1.3371337ms
 
 1..2
 # time=1.3371337ms
 # failing=2
-
 
 `
 
@@ -739,10 +739,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -820,10 +816,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -859,17 +851,17 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
    Press [1mr[22m to change reporter\r
    Press [1mx[22m to exit\r
-c[u[S[STAP version 13\r
+c[u[S[STAP version 13ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
+\r
 # fixtures/classic-pass.js\r
+\r
+1..2\r
+# time=1.3371337ms\r
     # classic, no plan\r
         ok 1 - passed\r
         1..1\r
@@ -891,10 +883,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -928,15 +916,15 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
    Press [1mr[22m to change reporter\r
    Press [1mx[22m to exit\r
+ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
+\r
+1..2\r
+# time=1.3371337ms\r
 [2m\r
 change detected fixtures/classic-pass.js (change)[22m\r
 c[u[S[STAP version 13\r
@@ -962,10 +950,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -999,10 +983,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -1014,6 +994,10 @@ ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
    🥜 [1mtap[22m\r
       dot\r
       spec\r
+ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
+\r
+1..2\r
+# time=1.3371337ms\r
 [3A      [1mtap[22m\r
    🥜 dot\r
       spec\r
@@ -1022,9 +1006,9 @@ ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
 \r
 c[u[S[S\r
 \r
-  ․․․․\r
+  [90m․[0m[90m․[0m[90m․[0m[90m․[0m\r
 \r
-  4 passing 13.37ms\r
+[92m [0m[32m 4 passing[0m[90m [0m\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -1058,10 +1042,6 @@ ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
         1..1\r
     ok 1 - inverted # time=1.3371337ms\r
     1..1\r
-ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
-\r
-1..2\r
-# time=1.3371337ms\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
@@ -1073,22 +1053,48 @@ ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
    🥜 [1mtap[22m\r
       dot\r
       spec\r
+ok 2 - fixtures/inverted-pass.js # time=1.3371337ms\r
+\r
+1..2\r
+# time=1.3371337ms\r
 [3A      [1mtap[22m\r
    🥜 dot\r
       spec\r
-[3A      [1mtap[22m\r
+\r
+📋 Select a reporter\r
+\r
+   🥜 [1mtap[22m\r
       dot\r
-   🥜 spec\r
+      spec\r
+[3A      [1mtap[22m\r
+   🥜 dot\r
+      spec\r
 [2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G\r
-📋 Selected reporter: [1mspec[22m\r
+📋 Selected reporter: [1mtap[22m\r
 \r
-c[u[S[S\r
-[2K[0G  ✓ passed\r
-[2K[0G  ✓ passed\r
-[2K[0G  ✓ passed\r
-[2K[0G  ✓ passed\r
+c[u[S[STAP version 13\r
+# fixtures/classic-pass.js\r
+    # classic, no plan\r
+        ok 1 - passed\r
+        1..1\r
+    ok 1 - classic, no plan # time=1.3371337ms\r
+    # classic, plan\r
+        1..1\r
+        ok 1 - passed\r
+    ok 2 - classic, plan # time=1.3371337ms\r
+    # classic, plan w/comment\r
+        1..1 # comment\r
+        ok 1 - passed\r
+    ok 3 - classic, plan w/comment # time=1.3371337ms\r
+    1..3\r
+ok 1 - fixtures/classic-pass.js # time=1.3371337ms\r
 \r
-  4 passing 13.37ms\r
+# fixtures/inverted-pass.js\r
+    # inverted\r
+        ok 1 - passed\r
+        1..1\r
+    ok 1 - inverted # time=1.3371337ms\r
+    1..1\r
 \r
 🥜 Watch mode on\r
    Press [1mw[22m to force reload\r
