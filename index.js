@@ -253,7 +253,7 @@ class Tap {
       if (test.failing) out = `not ${out}`
       out = `${outdent}${out}`
 
-      const plan = cmd.planned ? `${indent}1..${test.count}\n` : ''
+      const plan = test[kSkip] === false && cmd.planned ? `${indent}1..${test.count}\n` : ''
       return `${plan}${out}`
     }
 
@@ -264,14 +264,17 @@ class Tap {
     }
 
     if (type === 'comment') {
+      if (test[kSkip] || test[kTodo]) return ''
       const { comment, raw = false } = cmd
       return raw ? comment : `${indent}# ${comment.trim()}\n`
     }
     if (type === 'plan') {
+      if (test[kSkip] || test[kTodo]) return ''
       const { planned, comment } = cmd
       return `${indent}1..${planned}${comment ? ` # ${comment.trim()}` : ''}\n`
     }
     if (type === 'assert') {
+      if (test[kSkip] || test[kTodo]) return ''
       const { message, ok, explanation, count } = cmd
 
       let out = `${indent}${ok ? 'ok' : 'not ok'} ${count}`
@@ -292,6 +295,13 @@ class Tap {
   }
 
   async step (cmd) {
+    if (this.test.parent && this.test.parent[kSolo] === false) {
+      await null // tick
+      if (this.test.parent[kSolo]) {
+        if (this.test[kSolo] === false) this.test[kSkip] = true
+      }
+    }
+
     const value = await this.tapify(cmd)
     const bail = (this.test.bail && cmd.type === 'assert' && cmd.ok === false)
 
