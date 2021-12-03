@@ -85,9 +85,7 @@ not ok 1 - classic, no plan # time=1.3371337ms
           fail()
         --^
         })
-      stack: |-
-        test/fixtures/classic-fail.js:13:37
-        test/fixtures/classic-fail.js:13:37
+      stack: test/fixtures/classic-fail.js:13:37
       ...
 
 not ok 2 - classic, with plan # time=1.3371337ms
@@ -1226,9 +1224,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ---------^
           assert.ok(false)
           assert.absent(true)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 2 - expected truthy value
@@ -1246,9 +1242,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ---------^
           assert.absent(true)
           assert.is(1, 2)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 3 - expected falsey value
@@ -1266,9 +1260,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ---------^
           assert.is(1, 2)
           assert.is.coercively('2', 1)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 4 - should be equal
@@ -1286,9 +1278,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ---------^
           assert.is.coercively('2', 1)
           assert.not(1, 1)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 5 - should be equal
@@ -1306,9 +1296,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ------------^
           assert.not(1, 1)
           assert.not.coercively(1, '1')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 6 - should not be equal
@@ -1325,9 +1313,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
           assert.not(1, 1)
         ---------^
           assert.not.coercively(1, '1')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 7 - should not be equal
@@ -1343,9 +1329,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
           assert.not(1, 1)
           assert.not.coercively(1, '1')
         -------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 8 - should deep equal
@@ -1362,9 +1346,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
       source: |-2
           assert.not.coercively(1, '1')
         ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 9 - should deep equal
@@ -1380,9 +1362,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         file: file:///classic-assertions.js
       source: |-2
         ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 10 - should not deep equal
@@ -1399,9 +1379,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
       source: |-2
         ---------^
           assert.execution(Promise.reject(Error('n')))
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 11 - should not deep equal
@@ -1419,9 +1397,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ----------------^
           assert.execution(Promise.reject(Error('n')))
           assert.execution(async () => { throw Error('n') })
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 12 - should resolve
@@ -1434,9 +1410,6 @@ ok 2 - passing (custom messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
       at:
@@ -1504,9 +1477,7 @@ ok 2 - passing (custom messages) # time=1.3371337ms
         ---------^
           assert.exception(Promise.resolve('y'))
           assert.exception(Promise.reject('n'), /y/)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 15 - should reject
@@ -1597,9 +1568,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ---------^
           assert.ok(false, 'brittle')
           assert.absent(true, 'is')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 2 - brittle
@@ -1617,9 +1586,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ---------^
           assert.absent(true, 'is')
           assert.is(1, 2, 'an')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 3 - is
@@ -1637,9 +1604,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ---------^
           assert.is(1, 2, 'an')
           assert.is.coercively('2', 1, 'often')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 4 - an
@@ -1657,9 +1622,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ---------^
           assert.is.coercively('2', 1, 'often')
           assert.not(1, 1, 'overlooked')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 5 - often
@@ -1677,9 +1640,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ------------^
           assert.not(1, 1, 'overlooked')
           assert.not.coercively(1, '1', 'tasty')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 6 - overlooked
@@ -1696,9 +1657,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
           assert.not(1, 1, 'overlooked')
         ---------^
           assert.not.coercively(1, '1', 'tasty')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 7 - tasty
@@ -1714,9 +1673,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
           assert.not(1, 1, 'overlooked')
           assert.not.coercively(1, '1', 'tasty')
         -------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 8 - treat
@@ -1733,9 +1690,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
       source: |-2
           assert.not.coercively(1, '1', 'tasty')
         ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 9 - you should
@@ -1751,9 +1706,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         file: file:///classic-assertions.js
       source: |-2
         ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 10 - try it
@@ -1770,9 +1723,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
       source: |-2
         ---------^
           assert.execution(Promise.reject(Error('n')), 'but')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 11 - sometime
@@ -1790,9 +1741,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ----------------^
           assert.execution(Promise.reject(Error('n')), 'but')
           assert.execution(async () => { throw Error('n') }, 'not really')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 12 - but
@@ -1805,9 +1754,6 @@ not ok 3 - failing (default messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
       at:
@@ -1875,9 +1821,7 @@ not ok 3 - failing (default messages) # time=1.3371337ms
         ---------^
           assert.exception(Promise.resolve('y'), 'I have not had it')
           assert.exception(async () => 'y', 'in a long')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 15 - I have not had it
@@ -1950,9 +1894,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.pass()
           assert.ok(false)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 2 - passed
@@ -1971,9 +1913,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.ok(true)
           assert.absent(true)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 4 - expected truthy value
@@ -1992,9 +1932,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.absent(false)
           assert.is(1, 2)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 6 - expected falsey value
@@ -2013,9 +1951,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.is(1, 1)
           assert.is.coercively('2', 1)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 8 - should be equal
@@ -2034,9 +1970,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ------------^
           assert.is.coercively('1', 1)
           assert.not(1, 1)
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 10 - should be equal
@@ -2055,9 +1989,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.not(1, 2)
           assert.not.coercively(1, '1')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 12 - should not be equal
@@ -2075,9 +2007,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
           assert.not.coercively(1, '1')
         -------------^
           assert.not.coercively(1, '2')
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 14 - should not be equal
@@ -2095,9 +2025,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       source: |-2
           assert.not.coercively(1, '2')
         ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 16 - should deep equal
@@ -2114,9 +2042,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         file: file:///classic-assertions.js
       source: |-2
         ---------------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 18 - should deep equal
@@ -2133,9 +2059,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         file: file:///classic-assertions.js
       source: |-2
         ---------^
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 20 - should not deep equal
@@ -2153,9 +2077,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
       source: |-2
         ----------------^
           assert.execution(Promise.resolve('y'))
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     ok 22 - should not deep equal
@@ -2170,9 +2092,6 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
           Error: n
               at file:///classic-assertions.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///classic-assertions.js:13:37
       expected: null
       operator: execution
       at:
@@ -2243,9 +2162,7 @@ not ok 4 - failing (custom messages) # time=1.3371337ms
         ---------^
           assert.exception(Promise.resolve('y'))
           assert.exception(Promise.reject(Error('n')))
-      stack: |-
-        test/fixtures/classic-assertions.js:13:37
-        test/fixtures/classic-assertions.js:13:37
+      stack: test/fixtures/classic-assertions.js:13:37
       ...
 
     not ok 29 - should reject
@@ -3925,9 +3842,7 @@ not ok 3 - snapshot of a symbol # time=1.3371337ms
           snapshot(new Error(TEST_VALUE))
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3958,9 +3873,7 @@ ok 6 - snapshot of null # time=1.3371337ms
           snapshot(+TEST_VALUE)
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -4293,9 +4206,7 @@ not ok 3 - snapshot of a symbol # time=1.3371337ms
           snapshot(new Error(TEST_VALUE))
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -4326,9 +4237,7 @@ ok 6 - snapshot of null # time=1.3371337ms
           snapshot(+TEST_VALUE)
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -4473,9 +4382,7 @@ ok 1 - success # time=1.3371337ms
         test('fail', async ({ fail }) => fail())
         ---------------------------------^
         test('success again', async ({ pass }) => pass())
-      stack: |-
-        test/fixtures/self-bail.js:13:37
-        test/fixtures/self-bail.js:13:37
+      stack: test/fixtures/self-bail.js:13:37
       ...
 
     Bail out! Failed test - fail

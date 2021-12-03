@@ -1,7 +1,10 @@
 import { promisify } from 'util'
-import test from '../../index.js'
+import test, { configure } from '../../index.js'
 
 const timeout = promisify(setTimeout)
+
+configure({concurrent: true})
+
 
 test('test one', async function ({ pass }) { 
   await timeout(400)

@@ -514,13 +514,15 @@ class Test extends Promise {
       this[kError](new TestError('ERR_CONFIGURE_FIRST'))
       return
     }
+    if (options.concurrent) options.concurrency = 5
+    if (options.concurrency === true) options.concurrency = 5
     const {
       timeout = 30000,
       output = this.output || 1,
       bail = this.bail || false,
-      serial = false,
-      concurrency = this.concurrency || 5
+      concurrency = this.concurrency || 1
     } = options
+
     if (typeof output === 'number' && booms.has(output) === false) {
       booms.set(output, new SonicBoom({ fd: output, sync: true }))
     }
@@ -528,12 +530,12 @@ class Test extends Promise {
       output: { value: typeof output === 'number' ? booms.get(output) : output, configurable: true },
       options: { value: options, configurable: true },
       bail: { value: bail, configurable: true },
-      concurrency: { value: serial ? 1 : concurrency, configurable: true },
+      concurrency: { value: concurrency, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
       [kTodo]: { value: options.todo === true, writable: true },
       [kLevel]: { value: options[kLevel] || 0, writable: true }
     })
-    if (this[kQueue] && (Object.hasOwn(options, 'concurrency') || serial)) {
+    if (this[kQueue]) {
       this[kQueue].setConcurrency(this.concurrency)
     } else {
       Object.defineProperty(this, kQueue, {

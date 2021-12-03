@@ -3,8 +3,10 @@ import { fileURLToPath } from 'url'
 import { dirname, join, resolve, sep } from 'path'
 import { promisify } from 'util'
 import { spawn } from 'child_process'
-import { test } from '../index.js'
+import { test, configure } from '../index.js'
 import Parser from 'tap-parser'
+
+configure({concurrent: true})
 
 const testDir = fileURLToPath(dirname(import.meta.url))
 const ciCompat = join(testDir, 'ci-compat.cjs')
@@ -414,7 +416,7 @@ test('serial', async function ({ ok, is }) {
 })
 
 test('concurrency: 2', async function ({ ok, is }) {
-  const result = await run({ test: 'concurrency.js', dirtyTime: true })
+  const result = await run({ test: 'concurrency-2.js', dirtyTime: true })
   is(result.code, 0)
   const { isValid, parsed } = valid(result, true)
   ok(isValid, 'valid tap output')
@@ -424,8 +426,19 @@ test('concurrency: 2', async function ({ ok, is }) {
   is(sum, time)
 })
 
-test('concurrency default (concurrency: 5)', async function ({ ok, is }) {
-  const result = await run({ test: 'concurrency-default.js', dirtyTime: true })
+test('concurrent: true (-> concurrency: 5)', async function ({ ok, is }) {
+  const result = await run({ test: 'concurrent.js', dirtyTime: true })
+  is(result.code, 0)
+  const { isValid, parsed } = valid(result, true)
+  ok(isValid, 'valid tap output')
+  const times = parsed.filter(([type]) => type === 'assert').map(([, { time }]) => time)
+  const sum =  Math.round((Math.max(...times)) / 100) * 100
+  const time = Math.round(parsed[parsed.length -1][1].time / 100) * 100
+  is(sum, time)
+})
+
+test('concurrency: true (-> concurrency: 5)', async function ({ ok, is }) {
+  const result = await run({ test: 'concurrency-true.js', dirtyTime: true })
   is(result.code, 0)
   const { isValid, parsed } = valid(result, true)
   ok(isValid, 'valid tap output')

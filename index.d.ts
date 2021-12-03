@@ -93,12 +93,13 @@ export interface TestOptions {
   /**
    * @default 5
    */
-  concurrency?: number
+  concurrency?: number | boolean
 
   /**
    * @default false
    */
-  serial?: boolean
+  concurrent?:boolean
+
 }
 
 declare const main: TestFn

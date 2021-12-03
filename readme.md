@@ -18,13 +18,13 @@ Every initializer accepts the same optional options object.
 
 #### Options
 
- * `timeout` (30000) - milliseconds to wait before ending a stalling test
- * `output` (process.stderr) - stream to write TAP output to
- * `skip` - skip this test, alternatively use the `skip()` function
- * `todo` - mark this test as todo and skip it, alternatively use the `todo()` function
- * `bail` - exit the process on first test failure
-  * `concurrency` - sets the upper limit of child tests that can run concurrently. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
- * `serial` - short hand for `concurrency: 1`. run child tests in serial. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). 
+ * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
+ * `output` (`process.stderr`) - stream to write TAP output to
+ * `concurrent` (`false`) - when `true`. Run child tests in "parallel" (event-loop concurrent). Default concurrency limit is 5.
+  * `concurrency` (`1`) - sets the upper limit of child tests that can run concurrently. Only applies to traditional style (`test('desc', fn)`), not inverted tests (`const assert = test('desc')`). May be a boolean, `concurrency: true` is same as `concurrent: true`.
+ * `skip` (`false`) - skip this test, alternatively use the `skip()` function
+ * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function
+ * `bail` (`false`) - exit the process on first test failure
 
 See [Configuration](#configuration) for more information.
 
