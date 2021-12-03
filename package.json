@@ -46,6 +46,9 @@
     "tsd": "^0.18.0",
     "typescript": "^4.4.3"
   },
+  "engines": {
+    "node": "^14.13.1 || >=16.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davidmarkclements/brittle.git"
