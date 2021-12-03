@@ -552,10 +552,6 @@ class Test extends Promise {
 
     await Promise.allSettled(this[kChildren])
 
-    if (this[kCounted] < this.count) {
-      await null // tick
-    }
-
     clearTimeout(this[kTimeout])
     this[kTimeout] = null
 
@@ -569,6 +565,7 @@ class Test extends Promise {
     }
 
     this[kResolve](this[kInfo]())
+    if (this.parent) this.parent[kCount]()
 
     if (this.done) return this
 
@@ -576,6 +573,7 @@ class Test extends Promise {
 
     this[kComplete]()
     this.done = true
+
     return this
   }
 

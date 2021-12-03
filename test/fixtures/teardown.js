@@ -31,3 +31,18 @@ test('teardown after error classic', async ({ teardown, plan }) => {
   throw Error('test')
 
 })
+
+test('teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan', (assert) => {
+  const i = setInterval(function () {}, 1000)
+
+  assert.teardown(async () => {
+    clearInterval(i)
+  })
+
+  assert.plan(1)
+  
+  const s = assert.test()
+
+  s.plan(1)
+  s.pass()
+})
