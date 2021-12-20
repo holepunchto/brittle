@@ -5,6 +5,14 @@ interface Comparator {
   coercively: (actual: unknown, expected: unknown, message?: string) => Promise<boolean>
 }
 
+interface Exception {
+  (fn: () => unknown | Promise<unknown>, message?: string): Promise<boolean>
+  (promise: Promise<unknown>, message?: string): Promise<boolean>
+  (fn: () => unknown | Promise<unknown>, expected: unknown, message?: string): Promise<boolean>
+  (promise: Promise<unknown>, expected: unknown, message?: string): Promise<boolean>
+  all: Exception;
+}
+
 interface Assertions {
   is: Comparator
   not: Comparator
@@ -14,10 +22,7 @@ interface Assertions {
   absent(value: unknown, message?: string): Promise<boolean>
   pass(message?: string): Promise<boolean>
   fail(message?: string): Promise<boolean>
-  exception(fn: () => unknown | Promise<unknown>, message?: string): Promise<boolean>
-  exception(promise: Promise<unknown>, message?: string): Promise<boolean>
-  exception(fn: () => unknown | Promise<unknown>, expected: unknown, message?: string): Promise<boolean>
-  exception(promise: Promise<unknown>, expected: unknown, message?: string): Promise<boolean>
+  exception: Exception;
   execution(fn: () => unknown | Promise<unknown>, message?: string): Promise<boolean>
   execution(promise: Promise<unknown>, message?: string): Promise<boolean>
   snapshot(actual: unknown, message?: string): Promise<boolean>

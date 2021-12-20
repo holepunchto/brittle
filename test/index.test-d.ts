@@ -96,6 +96,14 @@ test('types', async (t) => {
   t.exception(Promise.reject(Error('reject')))
   expectType<boolean>(await t.exception(() => { throw Error('reject') }))
 
+  t.exception.all(() => { throw Error('reject') })
+  t.exception.all(() => { throw Error('reject') }, /reject/)
+  t.exception.all(() => { throw Error('reject') }, 'comment')
+  t.exception.all(() => { throw Error('reject') }, /reject/, 'comment')
+  t.exception.all(async () => { throw Error('reject') })
+  t.exception.all(Promise.reject(Error('reject')))
+  expectType<boolean>(await t.exception.all(() => { throw Error('reject') }))
+
   t.execution(() => { })
   t.execution(() => { }, 'comment')
   t.execution(async () => { })
