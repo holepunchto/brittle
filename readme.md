@@ -399,6 +399,23 @@ test('some test', async ({ ok, teardown }) => {
 })
 ```
 
+You can call `teardown` multiple times in a test and every function passed will be called after a test ends
+
+```js
+import test from 'brittle'
+test('some test', async ({ ok, teardown }) => {
+ teardown(doSomeCleanUp)
+ const assert = test('some sub test')
+ setTime(() => {
+   const resource = createSomeResourceThatNeedsCleaningUpLaterOn()
+   teardown(async () => { await resource.cleanup() })
+   assert.is(resource.methodThatReturnsABoolean(), true)
+ }, Math.random() * 1000)
+ await assert
+ ok('again, cool')
+})
+```
+
 #### `timeout(ms)`
 
 Fail the test after a given timeout.  
