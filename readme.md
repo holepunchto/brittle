@@ -406,11 +406,9 @@ import test from 'brittle'
 test('some test', async ({ ok, teardown }) => {
  teardown(doSomeCleanUp)
  const assert = test('some sub test')
- setTime(() => {
-   const resource = createSomeResourceThatNeedsCleaningUpLaterOn()
-   teardown(async () => { await resource.cleanup() })
-   assert.is(resource.methodThatReturnsABoolean(), true)
- }, Math.random() * 1000)
+ const resource = createSomeResourceThatNeedsCleaningUpLaterOn()
+ teardown(async () => { await resource.cleanup() })
+ assert.is(resource.methodThatReturnsABoolean(), true)
  await assert
  ok('again, cool')
 })
