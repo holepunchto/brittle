@@ -399,7 +399,7 @@ test('some test', async ({ ok, teardown }) => {
 })
 ```
 
-You can call `teardown` multiple times in a test and every function passed will be called after a test ends
+If `teardown` is called multiple times in a test, every function passed will be called after the test ends
 
 ```js
 import test from 'brittle'
