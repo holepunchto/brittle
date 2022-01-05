@@ -7,7 +7,7 @@
   "bin": "./cmd.mjs",
   "scripts": {
     "lint": "standard index.js lib/*.js",
-    "test": "node cmd.mjs test/index.test.js test/cli.test.js",
+    "test": "node -r ./self-runner.js cmd.mjs test/index.test.js test/cli.test.js",
     "ci": "node test/index.test.js && npm run lint"
   },
   "keywords": [],

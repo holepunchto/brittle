@@ -245,9 +245,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -297,9 +295,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -372,9 +368,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -413,9 +407,7 @@ TAP version 13
             file: file:///should-bail.js
           source: |-
             ---------------------------------^
-          stack: |-
-            test/fixtures/should-bail.js:13:37
-            test/fixtures/should-bail.js:13:37
+          stack: test/fixtures/should-bail.js:13:37
           ...
 
         Bail out! Failed test - fail
@@ -458,9 +450,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -497,7 +487,6 @@ exports['--reporter dot 1'] = `
   2) failed:
      Error: failed
       at test/fixtures/classic-fail.js:13:37
-      at test/fixtures/classic-fail.js:13:37
 
 
 
@@ -518,7 +507,6 @@ exports['--reporter spec 1'] = `
 
   2) failed:
      Error: failed
-      at test/fixtures/classic-fail.js:13:37
       at test/fixtures/classic-fail.js:13:37
 
 
@@ -542,9 +530,7 @@ TAP version 13
             file: file:///should-bail.js
           source: |-
             ---------------------------------^
-          stack: |-
-            test/fixtures/should-bail.js:13:37
-            test/fixtures/should-bail.js:13:37
+          stack: test/fixtures/should-bail.js:13:37
           ...
 
         Bail out! Failed test - fail
@@ -587,9 +573,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -626,7 +610,6 @@ exports['--reporter dot 2'] = `
   2) failed:
      Error: failed
       at test/fixtures/classic-fail.js:13:37
-      at test/fixtures/classic-fail.js:13:37
 
 
 
@@ -647,7 +630,6 @@ exports['--reporter spec 2'] = `
 
   2) failed:
      Error: failed
-      at test/fixtures/classic-fail.js:13:37
       at test/fixtures/classic-fail.js:13:37
 
 
@@ -690,9 +672,7 @@ TAP version 13
               fail()
             --^
             })
-          stack: |-
-            test/fixtures/classic-fail.js:13:37
-            test/fixtures/classic-fail.js:13:37
+          stack: test/fixtures/classic-fail.js:13:37
           ...
 
     not ok 2 - classic, with plan # time=1.3371337ms
@@ -763,7 +743,6 @@ exports['--reporter dot 3'] = `
   2) failed:
      Error: failed
       at test/fixtures/classic-fail.js:13:37
-      at test/fixtures/classic-fail.js:13:37
 
 
 
@@ -784,7 +763,6 @@ exports['--reporter spec 3'] = `
 
   2) failed:
      Error: failed
-      at test/fixtures/classic-fail.js:13:37
       at test/fixtures/classic-fail.js:13:37
 
 

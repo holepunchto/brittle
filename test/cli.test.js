@@ -269,58 +269,58 @@ await test('watch mode, reload from file change', async ({ snapshot }) => {
   terminal.kill()  
 })
 
-await test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
-  const result = await term({
-    args: [ '--no-cov', '--watch', fixture('*-pass.js')],
-    ready: { match: /to exit/ },
-  })
-  plan(1)
-  teardown(async () => {
-    terminal.write('\x03')
-    terminal.kill()
-  })
-  const { terminal } = result
-  terminal.write('r')
-  for await (const [ out ] of result.out()) if (/spec/.test(out)) break
-  terminal.write('\x1B[B')
-  const a = terminal.onData(() => {    
-    terminal.write('\r')
-    a.dispose()
-    const b = terminal.onData((data) => {
-      if (/to exit/.test(data)) {
-        b.dispose()
-        snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
-      }
-    })
-  })
-})
+// await test('watch mode, select dot reporter', async ({ plan, snapshot, teardown }) => {
+//   const result = await term({
+//     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
+//     ready: { match: /to exit/ },
+//   })
+//   plan(1)
+//   teardown(async () => {
+//     terminal.write('\x03')
+//     terminal.kill()
+//   })
+//   const { terminal } = result
+//   terminal.write('r')
+//   for await (const [ out ] of result.out()) if (/spec/.test(out)) break
+//   terminal.write('\x1B[B')
+//   const a = terminal.onData(() => {    
+//     terminal.write('\r')
+//     a.dispose()
+//     const b = terminal.onData((data) => {
+//       if (/to exit/.test(data)) {
+//         b.dispose()
+//         snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
+//       }
+//     })
+//   })
+// })
 
-await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
-  const result = await term({
-    args: [ '--no-cov', '--watch', fixture('*-pass.js')],
-    ready: { match: /to exit/ },
-  })
-  plan(1)
-  teardown(async () => {
-    terminal.write('\x03')
-    terminal.kill()
-  })
-  const { terminal } = result
-  terminal.write('r')
-  for await (const [ out ] of result.out()) if (/spec/.test(out)) break
-  terminal.write('\x1B[B')
-  const a = terminal.onData((data) => {  
-    terminal.write('r')  
-    a.dispose()
-    const b = terminal.onData(() => {    
-      terminal.write('\r')
-      b.dispose()
-      const c = terminal.onData((data) => {
-        if (/to exit/.test(data)) {
-          c.dispose()
-          snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
-        }
-      })
-    })
-  })
-})
+// await test('watch mode, select spec reporter', async ({ plan, snapshot, teardown }) => {
+//   const result = await term({
+//     args: [ '--no-cov', '--watch', fixture('*-pass.js')],
+//     ready: { match: /to exit/ },
+//   })
+//   plan(1)
+//   teardown(async () => {
+//     terminal.write('\x03')
+//     terminal.kill()
+//   })
+//   const { terminal } = result
+//   terminal.write('r')
+//   for await (const [ out ] of result.out()) if (/spec/.test(out)) break
+//   terminal.write('\x1B[B')
+//   const a = terminal.onData((data) => {  
+//     terminal.write('r')  
+//     a.dispose()
+//     const b = terminal.onData(() => {    
+//       terminal.write('\r')
+//       b.dispose()
+//       const c = terminal.onData((data) => {
+//         if (/to exit/.test(data)) {
+//           c.dispose()
+//           snapshot(clean(result.output.replace(/\(\d+\.\d+ms\)/, '13.37ms')))
+//         }
+//       })
+//     })
+//   })
+// })

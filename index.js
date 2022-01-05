@@ -44,8 +44,10 @@ const parseStack = StackParser.parse.bind(StackParser)
 const noop = () => {}
 const cwd = process.cwd()
 const { constructor: AsyncFunction } = Object.getPrototypeOf(async () => {})
-const SNAP = Number.isInteger(+process.env.SNAP) ? !!process.env.SNAP : process.env.SNAP && new RegExp(process.env.SNAP)
-const SOLO = Number.isInteger(+process.env.SOLO) ? !!process.env.SOLO : process.env.SOLO && new RegExp(process.env.SOLO)
+const env = process.env
+const LEVEL = Number.isInteger(+env.BRITTLE_INTERNAL_LEVEL) ? +env.BRITTLE_INTERNAL_LEVEL : 0
+const SNAP = Number.isInteger(+env.SNAP) ? !!env.SNAP : env.SNAP && new RegExp(env.SNAP)
+const SOLO = Number.isInteger(+env.SOLO) ? !!env.SOLO : env.SOLO && new RegExp(env.SOLO)
 
 Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
 
@@ -533,7 +535,7 @@ class Test extends Promise {
       concurrency: { value: concurrency, configurable: true },
       [kSkip]: { value: options.skip === true, writable: true },
       [kTodo]: { value: options.todo === true, writable: true },
-      [kLevel]: { value: options[kLevel] || 0, writable: true }
+      [kLevel]: { value: options[kLevel] || LEVEL, writable: true }
     })
     if (this[kQueue]) {
       this[kQueue].setConcurrency(this.concurrency)
