@@ -1001,7 +1001,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
     err.at = {
       line: top.getLineNumber(),
       column: top.getColumnNumber(),
-      file: top.getFileName().replace(/\?cacheBust=\d+/g, '')
+      file: top.getFileName()?.replace(/\?cacheBust=\d+/g, '')
     }
     try {
       const code = readFileSync(fileURLToPath(new URL(err.at.file, 'file:')), { encoding: 'utf-8' })
