@@ -37,7 +37,8 @@
     "tap-mocha-reporter": "^5.0.1",
     "tap-parser": "^10.1.0",
     "tap-yaml": "^1.0.0",
-    "tmatch": "^5.0.0"
+    "tmatch": "^5.0.0",
+    "unix-path-resolve": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^16.10.3",

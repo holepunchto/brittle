@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { createRequire } from 'module'
 import { pathToFileURL, fileURLToPath } from 'url'
-import { realpath } from 'fs/promises'
+import { realpath, stat } from 'fs/promises'
 import { on, once } from 'events'
 import readline from 'readline'
-import { join, resolve } from 'path'
+import { join, resolve, dirname } from 'path'
 import minimist from 'minimist'
 import glob from 'glob'
 import chokidar from 'chokidar'
@@ -18,8 +18,10 @@ import pkgDir from 'pkg-dir'
 import ciInfo from 'ci-info'
 import ss from 'snap-shot-core'
 import deepkill from 'deepkill'
+import unixPathResolve from 'unix-path-resolve'
 import usage, { covUsage } from './usage.mjs'
 import { kMain, kChildren, kLevel, kReset, kSnap, kInject } from './lib/symbols.js'
+import { fstat } from 'fs'
 
 const env = process.env
 
@@ -33,19 +35,20 @@ if ((Symbol.for('brittle.project') in global)) {
 } else {
   const projectRoot = await pkgDir()
   global[Symbol.for('brittle.project')] = projectRoot
-  let localBrittle = join(projectRoot, 'node_modules', '.bin', 'brittle')
+  const require = createRequire(join(projectRoot, 'noop.js'))
+  let brittlePkgPath = null
   try {
-    localBrittle = await realpath(localBrittle)
+    brittlePkgPath = require.resolve('brittle/package.json')
   } catch (err) {
     const { code } = err
-    console.log(localBrittle)
-    if (code === 'ENOENT') throw Error('Unable to locate brittle within project. Ensure brittle is installed within the project.')
+    if (code === 'MODULE_NOT_FOUND') throw Error('Unable to locate brittle within project. Ensure brittle is installed within the project.')
+    throw err
   }
-
-  const executingFile = await realpath(fileURLToPath(import.meta.url))
+  const localBrittle = join(dirname(brittlePkgPath), 'cmd.mjs').toLowerCase()
+  const executingFile = (await realpath(fileURLToPath(import.meta.url))).toLowerCase()
 
   if (executingFile !== localBrittle) {
-    await import(localBrittle)
+    await import(unixPathResolve(localBrittle))
   } else {
     await brittle(global[Symbol.for('brittle.project')])
   }
