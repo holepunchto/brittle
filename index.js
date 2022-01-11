@@ -6,5 +6,4 @@ module.exports.solo = global[kBrittle].solo
 module.exports.todo = global[kBrittle].todo
 module.exports.configure = global[kBrittle].configure
 module.exports.test = module.exports
-module.exports[kMain] = main
-module.exports[kMain] = global[kBrittle][kMain] 
+module.exports[kMain] = global[kBrittle][kMain]
