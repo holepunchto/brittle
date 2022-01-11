@@ -51,15 +51,14 @@ const SOLO = Number.isInteger(+env.SOLO) ? !!env.SOLO : env.SOLO && new RegExp(e
 
 Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
 
-// if the process has an uncaught exception capture callback set, blow it away and set our own
-if (process.hasUncaughtExceptionCaptureCallback()) process.setUncaughtExceptionCaptureCallback(null)
-
-process.setUncaughtExceptionCaptureCallback((err) => {
-  Object.defineProperty(err, 'fatal', { value: true })
-  if (!process.emit('uncaughtException', err)) {
-    Promise.reject(err)
-  }
-})
+if (!process.hasUncaughtExceptionCaptureCallback()) {
+  process.setUncaughtExceptionCaptureCallback((err) => {
+    Object.defineProperty(err, 'fatal', { value: true })
+    if (!process.emit('uncaughtException', err)) {
+      Promise.reject(err)
+    }
+  })
+}
 
 process.on('unhandledRejection', (reason, promise) => {
   if (reason.fatal || promise instanceof Test || reason instanceof TestError || reason instanceof TestTypeError) {
