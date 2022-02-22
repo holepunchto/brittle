@@ -5093,3 +5093,47 @@ ok 3 - deadlocking adjacent awaits # time=1.3371337ms
 exports['adjacency 2'] = `
 
 `
+
+exports['active handles report 1'] = `
+TAP version 13
+# active handles report on SIGINT
+    not ok 0 - test ended without making or planning any assertions
+      ---
+      actual:
+        !error
+        name: Error
+        message: test ended without making or planning any assertions
+        stack: |-
+          Error: test ended without making or planning any assertions
+        code: ERR_NO_ASSERTS
+        test: active handles report on SIGINT
+        plan: 0
+        count: 0
+        ended: false
+      expected: null
+      operator: execution
+      stack: "AssertionError [ERR_ASSERTION]: test ended without making or planning any assertions::"
+      ...
+
+not ok 1 - active handles report on SIGINT # time=1.3371337ms
+
+# Active Handles Report
+# There are 4 handle(s) keeping the process running
+# 
+# # PIPEWRAP
+# node_modules/debug/src/node.js:158         - tty.isatty(process.stderr.fd);
+# node_modules/debug/src/common.js:115       - debug.useColors = createDebug.useColors();
+# node_modules/snap-shot-core/src/index.js:3 - const debug = require('debug')('snap-shot-core')
+# 
+# # PIPEWRAP
+# index.js:44 - const console = new Console(process.stdout, process.stderr)
+# 
+# # SIGNALWRAP
+# index.js:117 - process.prependListener('SIGINT', async function why () {
+# 
+# # Timeout
+# file:///active-handles-report.js:5
+# file:///active-handles-report.js:4
+# index.js:652                                    - const result = await fn(assert)
+
+`

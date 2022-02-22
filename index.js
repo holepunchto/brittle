@@ -3,11 +3,13 @@ const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { Console } = require('console')
+const { format } = require('util')
 const yaml = require('tap-yaml')
 const deepEqual = require('deep-equal')
 const tmatch = require('tmatch')
 const SonicBoom = require('sonic-boom')
 const StackParser = require('error-stack-parser')
+const winr = require('why-is-node-running')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
@@ -99,15 +101,33 @@ async function ender (tests = main[kChildren]) {
   return false
 }
 
-process.on('beforeExit', async () => {
+const drain = async () => {
   const endedTest = await ender()
   if (endedTest === false && main.ended === false) await main.end()
   // allow another beforeExit
   if (endedTest) setImmediate(() => {})
-})
+}
+
+process.on('beforeExit', drain)
 
 process.once('exit', async () => {
   if (main.ended === false) main.end()
+})
+
+process.prependListener('SIGINT', async function why () {
+  process.removeListener('SIGINT', why)
+  const listeners = process.rawListeners('SIGINT')
+  process.removeAllListeners('SIGINT')
+  await main.comment('Active Handles Report')
+  winr({
+    error (...args) {
+      main.comment(format(...args))
+    }
+  })
+  await drain()
+  // honour any other sigint listeners
+  for (const listener of listeners) await listener()
+  setTimeout(() => { process.exit(127) }, 0).unref() // allow for output flushing before exit
 })
 
 class Writer {

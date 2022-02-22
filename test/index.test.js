@@ -1,13 +1,12 @@
 import { rm } from 'fs/promises'
 import { fileURLToPath } from 'url'
 import { dirname, join, resolve, sep } from 'path'
-import { promisify } from 'util'
+import { once } from 'events'
 import { spawn } from 'child_process'
 import { test, configure } from '../index.js'
 import Parser from 'tap-parser'
 
 configure({concurrent: true})
-
 const testDir = fileURLToPath(dirname(import.meta.url))
 const ciCompat = join(testDir, 'ci-compat.cjs')
 const fixtures = join(testDir, 'fixtures')
@@ -25,7 +24,7 @@ const clean = (str, opts = {}) => {
     .replace(/:\d+:\d+/g, ':13:37') // generalize column:linenumber 
     .replace(/.+\ at async .+\n/gm, '') // remove async frames
 }
-const run = promisify(async (testPath, cb) => {
+const run = (testPath, cb) => {
   let opts = {}
   if (typeof testPath === 'object') {
     opts = testPath
@@ -40,11 +39,15 @@ const run = promisify(async (testPath, cb) => {
   sp.stderr.on('data', (chunk) => stderr.push(chunk))
   sp.stdout.on('end', (chunk) => { if (chunk) stdout.push(chunk) })
   sp.stderr.on('end', (chunk) => { if (chunk) stderr.push(chunk) })
-  sp.on('close', (code) => {
-    const out = clean(stdout.join(''), opts)
-    cb(null, { stdout: out, stderr: clean(stderr.join(''), opts), code, [Symbol.toPrimitive] () { return out } })
+  const promise = new Promise((resolve) => {
+    sp.on('close', (code) => {
+      const out = clean(stdout.join(''), opts)
+      resolve({ stdout: out, stderr: clean(stderr.join(''), opts), code, [Symbol.toPrimitive] () { return out } })
+    })
   })
-})
+  promise.sp = sp
+  return promise
+}
 const valid = (tap, returnParsed = false) => {
   try {
     const result = Parser.parse(tap, {
@@ -466,6 +469,19 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   const result = await run('no-handles-unending.js')
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
+test('active handles report', async function ({ snapshot, ok, is }) {
+  const running = run({
+    test: 'active-handles-report.js',
+    env: {...process.env, TEST_EMULATE_SIGINT: 100 }
+  })
+
+  const result = await running
+
+  is(result.code, 127)
+  ok(valid(result), 'valid tap output')  
   snapshot(result.stdout)
 })
 
