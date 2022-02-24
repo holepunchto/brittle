@@ -245,7 +245,7 @@ test('classic after end assert', async function ({ snapshot, ok, is }) {
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
-  snapshot(result.stderr)
+  snapshot(result.stderr.replace(/{|}/g, ''))
 })
 
 test('classic after end count exceeds plan', async function ({ snapshot, ok, is }) {
@@ -253,7 +253,7 @@ test('classic after end count exceeds plan', async function ({ snapshot, ok, is 
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
-  snapshot(result.stderr)
+  snapshot(result.stderr.replace(/{|}/g, ''))
 })
 
 test('classic after end teardown', async function ({ snapshot, ok, is }) {
@@ -261,7 +261,7 @@ test('classic after end teardown', async function ({ snapshot, ok, is }) {
   is(result.code, 1)
   ok(valid(result), 'valid tap output')
   snapshot(result.stdout)
-  snapshot(result.stderr)
+  snapshot(result.stderr.replace(/{|}/g, ''))
 })
 
 test('inverted configure first', async function ({ snapshot, ok, is }) {
@@ -472,17 +472,15 @@ test('no active handles unplanned unending', async function ({ snapshot, ok, is 
   snapshot(result.stdout)
 })
 
-test('active handles report', async function ({ snapshot, ok, is }) {
-  const running = run({
+test('active handles report', async function ({ ok, is }) {
+  const result = await run({
     test: 'active-handles-report.js',
     env: {...process.env, TEST_EMULATE_SIGINT: 100 }
   })
 
-  const result = await running
-
   is(result.code, 127)
-  ok(valid(result), 'valid tap output')  
-  snapshot(result.stdout)
+  ok(valid(result), 'valid tap output')
+  ok(result.stdout.includes('# Active Handles Report'))
 })
 
 // leave this test at the end:
