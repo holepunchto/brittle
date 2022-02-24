@@ -135,7 +135,6 @@ Filter out other tests by using the `solo` method:
 
 ```js
 import { test, solo } from 'brittle'
-solo() // opt-in to solo mode first
 test('some test', async ({ is }) => {
   is(true, true)
 })
@@ -147,17 +146,16 @@ solo('yet another test', async ({ is }) => {
 })
 ```
 
-If a `solo` function is called, `test` functions will not execute,
+If a `solo` function is used, `test` functions will not execute,
 only `solo` functions.
 
 Note how there can be more than one `solo` tests.
 
-If `solo` is not used for the first test, calling it without
-arguments (`solo()`) will trigger solo mode.
-
-Alternatively solo mode can be enabled by setting the `SOLO`
-environment variable to `1` or using the `--solo` flag with the
-`brittle` test runner.
+If `solo` is used in a future tick (for example, in a `setTimeout` callback),
+after `test` has already been used those tests won't be filtered.
+For this edge case either call `solo()` underneath the imports
+or explicitly enable solo mode by setting the `SOLO` environment variable to `1` 
+or using the `--solo` flag with the `brittle` test runner.
 
 The `solo` method is also available on the `test` method,
 and can be used without a function like `test`:

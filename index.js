@@ -648,11 +648,12 @@ class Test extends Promise {
       clearTimeout(assert[kTimeout])
       const promise = this[kQueue].add(async () => {
         try {
+          await null // tick
+          if (assert[kSkip]) return
           assert.start = process.hrtime.bigint()
           assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
-          const result = await fn(assert)
+          await fn(assert)
           await Promise.allSettled(assert[kChildren].map((child) => child[kDone]))
-          return result
         } catch (err) {
           assert[kError](err)
         }
@@ -1060,6 +1061,7 @@ class PromiseQueue extends Array {
     this.concurrency = concurrency
     this.pending = 0
     this.jobs = []
+    // queueMicrotask()
     this.drain()
   }
 

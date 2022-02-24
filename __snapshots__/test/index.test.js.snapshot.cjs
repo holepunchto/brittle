@@ -63,9 +63,7 @@ TAP version 13
           fail()
         --^
         })
-      stack: |-
-        test/fixtures/classic-fail.js:13:37
-        test/fixtures/classic-fail.js:13:37
+      stack: test/fixtures/classic-fail.js:13:37
       ...
 
     1..1
@@ -2257,7 +2255,6 @@ ok 2 - teardown inverted # time=1.3371337ms
         stack: |-
           Error: test
               at file:///teardown.js:13:37
-              at file:///teardown.js:13:37
         test: teardown after error classic
         plan: 0
         count: 0
@@ -3416,9 +3413,6 @@ Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
     at file:///classic-plan-must-be-integer.js:13:37
     at index.js:13:37
-    at index.js:13:37
-    at new Promise (<anonymous>)
-    at file:///classic-plan-must-be-integer.js:13:37 {
   code: 'ERR_PLAN_POSITIVE'
 }
 
@@ -3434,9 +3428,6 @@ Brittle: Fatal Error
 TestTypeError: plan takes a positive whole number only
     at file:///classic-plan-must-be-positive.js:13:37
     at index.js:13:37
-    at index.js:13:37
-    at new Promise (<anonymous>)
-    at file:///classic-plan-must-be-positive.js:13:37 {
   code: 'ERR_PLAN_POSITIVE'
 }
 
@@ -3770,9 +3761,7 @@ TAP version 13
           snapshot(TEST_VALUE)
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3815,9 +3804,7 @@ not ok 2 - inverted snapshot # time=1.3371337ms
           snapshot(Symbol(TEST_VALUE))
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -3974,10 +3961,10 @@ ok 10 - child snapshot # time=1.3371337ms
 1..10
 # time=1.3371337ms
 # failing=8
-# Snapshot "classic snapshot" is failing. To surgically update:
-# SNAP="classic snapshot" node fixtures/snapshot.js
 # Snapshot "inverted snapshot" is failing. To surgically update:
 # SNAP="inverted snapshot" node fixtures/snapshot.js
+# Snapshot "classic snapshot" is failing. To surgically update:
+# SNAP="classic snapshot" node fixtures/snapshot.js
 # Snapshot "snapshot of a symbol" is failing. To surgically update:
 # SNAP="snapshot of a symbol" node fixtures/snapshot.js
 # Snapshot "snapshot of an Error" is failing. To surgically update:
@@ -4134,9 +4121,7 @@ TAP version 13
           snapshot(TEST_VALUE)
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -4179,9 +4164,7 @@ not ok 2 - inverted snapshot # time=1.3371337ms
           snapshot(Symbol(TEST_VALUE))
         --^
         })
-      stack: |-
-        fixtures/snapshot.js:13:37
-        fixtures/snapshot.js:13:37
+      stack: fixtures/snapshot.js:13:37
       ...
 
     1..1
@@ -4338,10 +4321,10 @@ ok 10 - child snapshot # time=1.3371337ms
 1..10
 # time=1.3371337ms
 # failing=8
-# Snapshot "classic snapshot" is failing. To surgically update:
-# SNAP="classic snapshot" node fixtures/snapshot.js
 # Snapshot "inverted snapshot" is failing. To surgically update:
 # SNAP="inverted snapshot" node fixtures/snapshot.js
+# Snapshot "classic snapshot" is failing. To surgically update:
+# SNAP="classic snapshot" node fixtures/snapshot.js
 # Snapshot "snapshot of a symbol" is failing. To surgically update:
 # SNAP="snapshot of a symbol" node fixtures/snapshot.js
 # Snapshot "snapshot of an Error" is failing. To surgically update:
@@ -4865,9 +4848,6 @@ TAP version 13
           ReferenceError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///exception-all.js:13:37
       expected: null
       operator: exception
       at:
@@ -4893,9 +4873,6 @@ TAP version 13
           SyntaxError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///exception-all.js:13:37
       expected: null
       operator: exception
       at:
@@ -4921,9 +4898,6 @@ TAP version 13
           RangeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///exception-all.js:13:37
       expected: null
       operator: exception
       at:
@@ -4949,9 +4923,6 @@ TAP version 13
           EvalError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///exception-all.js:13:37
       expected: null
       operator: exception
       at:
@@ -4977,9 +4948,6 @@ TAP version 13
           TypeError: test
               at file:///exception-all.js:13:37
               at index.js:13:37
-              at index.js:13:37
-              at new Promise (<anonymous>)
-              at file:///exception-all.js:13:37
       expected: null
       operator: exception
       at:
