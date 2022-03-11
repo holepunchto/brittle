@@ -913,7 +913,7 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
-    const file = unixPathResolve(top.getFileName())
+    const file = fileURLToPath(new URL(unixPathResolve(top.getFileName()), 'file:'))
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
