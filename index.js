@@ -1,5 +1,5 @@
 'use strict'
-const { fileURLToPath } = require('url')
+const { normalize } = require('path')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { Console } = require('console')
@@ -12,7 +12,7 @@ const StackParser = require('error-stack-parser')
 const winr = require('why-is-node-running')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
-const unixPathResolve = require('unix-path-resolve')
+
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
 const {
   kIncre,
@@ -913,7 +913,7 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
-    const file = fileURLToPath(new URL(unixPathResolve(top.getFileName()), 'file:'))
+    const file = top.getFileName().replace(/\?.+/, '')
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
