@@ -12,6 +12,7 @@ const StackParser = require('error-stack-parser')
 const winr = require('why-is-node-running')
 const ss = require('snap-shot-core')
 const { serializeError } = require('serialize-error')
+const unixPathResolve = require('unix-path-resolve')
 const { TestError, TestTypeError, PrimitiveError } = require('./lib/errors')
 const {
   kIncre,
@@ -912,7 +913,7 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
-    const file = fileURLToPath(new URL(top.getFileName(), 'file:'))
+    const file = unixPathResolve(top.getFileName())
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
@@ -1025,7 +1026,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
       file: top.getFileName()?.replace(/\?cacheBust=\d+/g, '')
     }
     try {
-      const code = readFileSync(fileURLToPath(new URL(err.at.file, 'file:')), { encoding: 'utf-8' })
+      const code = readFileSync(err.at.file, { encoding: 'utf-8' })
       const split = code.split(/[\n\r]/g)
       const point = Array.from({ length: err.at.column - 1 }).map(() => '-').join('') + '^'
       const source = [...split.slice(err.at.line - 2, err.at.line), point, ...split.slice(err.at.line, err.at.line + 2)]
