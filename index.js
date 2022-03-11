@@ -1,5 +1,4 @@
 'use strict'
-const { normalize } = require('path')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { Console } = require('console')
