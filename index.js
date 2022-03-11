@@ -1,4 +1,5 @@
 'use strict'
+const { fileURLToPath } = require('url')
 const { readFileSync } = require('fs')
 const { AssertionError } = require('assert')
 const { Console } = require('console')
@@ -912,7 +913,8 @@ class Test extends Promise {
       delete actual.stack
     }
     const top = originFrame(Test.prototype.snapshot)
-    const file = top.getFileName().replace(/\?.+/, '')
+    let file = top.getFileName().replace(/\?.+/, '')
+    try { file = fileURLToPath(file) } catch {}
     const type = 'assert'
     const assert = 'snapshot'
     const count = this.count
