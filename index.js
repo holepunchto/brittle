@@ -1027,7 +1027,9 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
       file: top.getFileName()?.replace(/\?cacheBust=\d+/g, '')
     }
     try {
-      const code = readFileSync(err.at.file, { encoding: 'utf-8' })
+      let file = err.at.file
+      try { file = fileURLToPath(new URL(err.at.file, 'file:')) } catch {}
+      const code = readFileSync(file, { encoding: 'utf-8' })
       const split = code.split(/[\n\r]/g)
       const point = Array.from({ length: err.at.column - 1 }).map(() => '-').join('') + '^'
       const source = [...split.slice(err.at.line - 2, err.at.line), point, ...split.slice(err.at.line, err.at.line + 2)]
