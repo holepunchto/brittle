@@ -21,7 +21,6 @@ import deepkill from 'deepkill'
 import unixPathResolve from 'unix-path-resolve'
 import usage, { covUsage } from './usage.mjs'
 import { kMain, kChildren, kLevel, kReset, kSnap, kInject } from './lib/symbols.js'
-import { fstat } from 'fs'
 
 const env = process.env
 
