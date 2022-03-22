@@ -333,6 +333,7 @@ async function brittle (projectRoot) {
     let index = 1
     const start = process.hrtime.bigint()
     output.write('TAP version 13')
+    main.tap.protocol.written = true
     for (const path of paths) {
       const start = process.hrtime.bigint()
       const title = path.slice(cwd.length + 8)

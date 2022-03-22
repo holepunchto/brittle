@@ -217,6 +217,12 @@ Writer.tick = setInterval(() => {
   if (Writer.pending.length === 0) Writer.tick.unref()
 }, 3).unref()
 
+const protocol = (output) => {
+  if (protocol.written) return
+  output.write('TAP version 13\n')
+  protocol.written = true
+}
+
 class Tap {
   constructor (test) {
     this.test = test
@@ -235,7 +241,7 @@ class Tap {
     }
 
     this.outdent = this.indent.slice(4)
-    this.protocolled = false
+    this.protocol = protocol
     if (this.test[kMain]) this._init().catch((err) => this.test[kError](err))
   }
 
@@ -249,12 +255,6 @@ class Tap {
 
   release (stopper) {
     for (const out of this.writer.release(stopper)) this.output.write(out)
-  }
-
-  protocol () {
-    if (this.protocolled) return
-    if (this.test[kLevel] === 0) this.output.write('TAP version 13\n')
-    this.protocolled = true
   }
 
   async tapify (cmd) {
@@ -625,7 +625,7 @@ class Test extends Promise {
 
   get test () {
     function test (description = !this[kMain] ? `${this.description} - subtest` : 'tbd', opts, fn) {
-      if (this[kMain]) this.tap.protocol()
+      if (this[kMain]) this.tap.protocol(this.output)
       if (typeof opts === 'function') {
         fn = opts
         opts = undefined
