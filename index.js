@@ -655,6 +655,7 @@ class Test extends Promise {
           assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
           await fn(assert)
           await Promise.allSettled(assert[kChildren].map((child) => child[kDone]))
+          await assert[kDone]
         } catch (err) {
           assert[kError](err)
         }

@@ -2233,6 +2233,8 @@ exports['teardown 1'] = `
 TAP version 13
 # teardown classic
     ok 1 - passed
+# TEARDOWN SUCCESSFUL (inverted) 
+
     1..1
 ok 1 - teardown classic # time=1.3371337ms
 
@@ -2242,8 +2244,6 @@ ok 1 - teardown classic # time=1.3371337ms
     ok 1 - passed
     1..1
 ok 2 - teardown inverted # time=1.3371337ms
-
-# TEARDOWN SUCCESSFUL (inverted) 
 
 # teardown after error classic
     not ok 0 - test
