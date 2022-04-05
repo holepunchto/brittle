@@ -1,6 +1,6 @@
 {
   "name": "brittle",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": "tap à la mode",
   "main": "index.js",
   "types": "index.d.ts",
