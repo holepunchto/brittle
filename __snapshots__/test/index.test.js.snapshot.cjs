@@ -5105,3 +5105,13 @@ not ok 1 - active handles report on SIGINT # time=1.3371337ms
 # index.js:652                                    - const result = await fn(assert)
 
 `
+
+exports['comment after end 1'] = `
+TAP version 13
+# comment after end
+    1..1
+    ok 1 - should be equal
+ok 1 - comment after end # time=1.3371337ms
+
+
+`

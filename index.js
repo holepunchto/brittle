@@ -972,6 +972,9 @@ class Test extends Promise {
 
   async comment (message) {
     const idx = this[kIndex]++
+    if (this.ended) {
+      throw new TestError('ERR_COMMENT_AFTER_END', { description: this.description, comment: message })
+    }
     await this.tap.step({ type: 'comment', comment: message, idx })
   }
 

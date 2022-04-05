@@ -137,6 +137,13 @@ test('comment', async ({ snapshot, ok, is }) => {
   snapshot(result.stdout)
 })
 
+test('comment after end', async ({ snapshot, ok, is }) => {
+  const result = await run('comment-after-end.js')
+  is(result.code, 1)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
 await test('spacer', async ({ pass }) => {
   await new Promise((resolve) => setTimeout(resolve, 1000))
   pass('spacing')
