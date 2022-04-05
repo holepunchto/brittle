@@ -2266,6 +2266,8 @@ ok 2 - teardown inverted # time=1.3371337ms
 
 not ok 3 - teardown after error classic # time=1.3371337ms
 
+# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
+
 # teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan
     1..1
     # teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan - subtest
@@ -2273,8 +2275,6 @@ not ok 3 - teardown after error classic # time=1.3371337ms
         ok 1 - passed
     ok 1 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan - subtest # time=1.3371337ms
 ok 4 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan # time=1.3371337ms
-
-# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
 
 1..4
 # time=1.3371337ms
