@@ -658,7 +658,7 @@ class Test extends Promise {
         } catch (err) {
           assert[kError](err)
         }
-        try { await assert[kDone] } catch {}
+        try { if (assert.done === false) await assert[kDone] } catch {}
       })
       return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
