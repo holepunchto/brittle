@@ -102,14 +102,16 @@ async function ender (tests = main[kChildren]) {
   return false
 }
 
-const drain = async () => {
+const drain = async (...args) => {
   const endedTest = await ender()
   if (endedTest === false && main.ended === false) await main.end()
   // allow another beforeExit
   if (endedTest) setImmediate(() => {})
 }
 
-process.on('beforeExit', drain)
+process.on('beforeExit', async () => {
+  await drain()
+})
 
 process.once('exit', async () => {
   if (main.ended === false) main.end()
@@ -658,13 +660,11 @@ class Test extends Promise {
         } catch (err) {
           assert[kError](err)
         }
-        try { if (assert.done === false) await assert[kDone] } catch {}
-      })
-      return Object.assign(promise.then(async () => {
         await Promise.allSettled(assert[kChildren])
         if (assert.planned === 0) queueMicrotask(() => assert.end())
-        return await assert
-      }))
+        try { if (assert.done === false) await assert[kDone] } catch {}
+      })
+      return promise.then(() => assert)
     }
     test.skip = this.skip.bind(this)
     test.todo = this.todo.bind(this)
@@ -973,7 +973,8 @@ class Test extends Promise {
   async comment (message) {
     const idx = this[kIndex]++
     if (this.ended) {
-      throw new TestError('ERR_COMMENT_AFTER_END', { description: this.description, comment: message })
+      this[kError](new TestError('ERR_COMMENT_AFTER_END', { description: this.description, comment: message }))
+      return
     }
     await this.tap.step({ type: 'comment', comment: message, idx })
   }

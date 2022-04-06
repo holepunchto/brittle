@@ -2233,8 +2233,6 @@ exports['teardown 1'] = `
 TAP version 13
 # teardown classic
     ok 1 - passed
-# TEARDOWN SUCCESSFUL (inverted) 
-
     1..1
 ok 1 - teardown classic # time=1.3371337ms
 
@@ -2244,6 +2242,8 @@ ok 1 - teardown classic # time=1.3371337ms
     ok 1 - passed
     1..1
 ok 2 - teardown inverted # time=1.3371337ms
+
+# TEARDOWN SUCCESSFUL (inverted) 
 
 # teardown after error classic
     not ok 0 - test
@@ -2266,8 +2266,6 @@ ok 2 - teardown inverted # time=1.3371337ms
 
 not ok 3 - teardown after error classic # time=1.3371337ms
 
-# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
-
 # teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan
     1..1
     # teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan - subtest
@@ -2275,6 +2273,8 @@ not ok 3 - teardown after error classic # time=1.3371337ms
         ok 1 - passed
     ok 1 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan - subtest # time=1.3371337ms
 ok 4 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan # time=1.3371337ms
+
+# TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
 
 1..4
 # time=1.3371337ms
@@ -5113,5 +5113,32 @@ TAP version 13
     ok 1 - should be equal
 ok 1 - comment after end # time=1.3371337ms
 
+
+`
+
+exports['teardown behaviour 1'] = `
+TAP version 13
+# TEARDOWN SUCCESSFUL (classic) 
+
+# start 1
+# teardown 1
+# start 2
+# teardown handle
+    ok 1 - passed
+    1..1
+ok 1 - teardown handle # time=1.3371337ms
+
+# one
+    ok 1 - ok
+    1..1
+ok 2 - one # time=1.3371337ms
+
+# two
+    ok 1 - ok
+    1..1
+ok 3 - two # time=1.3371337ms
+
+1..3
+# time=1.3371337ms
 
 `

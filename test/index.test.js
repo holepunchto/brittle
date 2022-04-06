@@ -123,6 +123,13 @@ test('teardown', async ({ snapshot, ok, is }) => {
   snapshot(result.stdout)
 })
 
+test('teardown behaviour', async ({ snapshot, ok, is }) => {
+  const result = await run('teardown-behaviour.js')
+  is(result.code, 0)
+  ok(valid(result), 'valid tap output')
+  snapshot(result.stdout)
+})
+
 test('timeout', async ({ snapshot, ok, is }) => {
   const result = await run('timeout.js')
   is(result.code, 1)
