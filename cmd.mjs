@@ -88,10 +88,10 @@ async function brittle (projectRoot) {
     try { return fileURLToPath(f)  } catch { return f }
   }
 
-  if (process.stdout.isTTY || FORCE_TTY && args.watch) process.stdout.write(esc.cursorHide)
+  // if (process.stdout.isTTY || FORCE_TTY && args.watch) process.stdout.write(esc.cursorHide)
 
   onExit(() => {
-    if (process.stdout.isTTY || FORCE_TTY && args.watch) process.stdout.write(esc.cursorShow)
+    // if (process.stdout.isTTY || FORCE_TTY && args.watch) process.stdout.write(esc.cursorShow)
     if (!NODE_V8_COVERAGE) {
       if (args['cov-report'] === 'html') open(join(args['cov-dir'], 'index.html'))
     }
