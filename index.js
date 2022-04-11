@@ -655,7 +655,7 @@ class Test extends Promise {
           await null // tick
           if (assert[kSkip]) return
           assert.start = process.hrtime.bigint()
-          assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : 30000)
+          assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : TIMEOUT)
           await fn(assert)
           await Promise.allSettled(assert[kChildren].map((child) => child[kDone]))
         } catch (err) {
