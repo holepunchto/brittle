@@ -528,6 +528,14 @@ For usage information run `brittle -h`
 
 ```
 
+### Default Timeout
+
+The default timeout is 30s or 60s when CI is detected. It default timeout can be overridden by setting the `BRITTLE_TIMEOUT` environment variable, in milliseconds:
+
+```sh
+BRITTLE_TIMEOUT=120000 node path/to/test.js
+```
+
 ### Updating snapshots
 
 If a `snapshot` assert fails it is up to the developer to either verify that the current input is incorrect and fix it,

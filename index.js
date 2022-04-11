@@ -51,6 +51,7 @@ const env = process.env
 const LEVEL = Number.isInteger(+env.BRITTLE_INTERNAL_LEVEL) ? +env.BRITTLE_INTERNAL_LEVEL : 0
 const SNAP = Number.isInteger(+env.SNAP) ? !!env.SNAP : env.SNAP && new RegExp(env.SNAP)
 const SOLO = Number.isInteger(+env.SOLO) ? !!env.SOLO : env.SOLO && new RegExp(env.SOLO)
+const TIMEOUT = Number.isInteger(+env.BRITTLE_TIMEOUT) ? +env.BRITTLE_TIMEOUT : 30000
 
 Object.hasOwn = Object.hasOwn || ((o, p) => Object.hasOwnProperty.call(o, p))
 
@@ -542,7 +543,7 @@ class Test extends Promise {
     if (options.concurrent) options.concurrency = 5
     if (options.concurrency === true) options.concurrency = 5
     const {
-      timeout = 30000,
+      timeout = TIMEOUT,
       output = this.output || 1,
       bail = this.bail || false,
       concurrency = this.concurrency || 1
