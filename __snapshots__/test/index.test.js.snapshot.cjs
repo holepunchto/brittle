@@ -3446,7 +3446,7 @@ ok 1 - assert after end # time=1.3371337ms
 exports['classic after end assert 2'] = `
 Brittle: Fatal Error
 TestError: assert after end in "assert after end"
-    at file:///classic-after-end-assert.js:13:37
+    at file:///classic-after-end-assert.js:13:37 
   code: 'ERR_ASSERT_AFTER_END',
   test: 'assert after end',
   plan: 0,
@@ -3469,7 +3469,7 @@ ok 1 - count exceeds plan after end # time=1.3371337ms
 exports['classic after end count exceeds plan 2'] = `
 Brittle: Fatal Error
 TestError: assert after end in "count exceeds plan after end" & [test count [2] exceeds plan [1]]
-    at file:///classic-after-end-count-exceeds-plan.js:13:37
+    at file:///classic-after-end-count-exceeds-plan.js:13:37 
   code: 'ERR_COUNT_EXCEEDS_PLAN_AFTER_END',
   test: 'count exceeds plan after end',
   plan: 1,
@@ -3492,7 +3492,7 @@ ok 1 - teardown after end # time=1.3371337ms
 exports['classic after end teardown 2'] = `
 Brittle: Fatal Error
 TestError: teardown must be called before test ends
-    at file:///classic-after-end-teardown.js:13:37
+    at file:///classic-after-end-teardown.js:13:37 
   code: 'ERR_TEARDOWN_AFTER_END',
   test: 'teardown after end',
   plan: 0,
