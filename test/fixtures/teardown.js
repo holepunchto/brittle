@@ -12,6 +12,20 @@ test('teardown classic', async ({ pass, teardown }) => {
   await sleep(10)
 })
 
+await test('teardown order option', async ({ pass, teardown }) => {
+  teardown(async function B () {
+    console.log('# TEARDOWN B \n')
+  })
+  teardown(async function C () {
+    console.log('# TEARDOWN C \n')
+  }, { order: -Infinity })
+  teardown(async function A () {
+    console.log('# TEARDOWN A \n')
+  }, { order: Infinity })
+  pass()
+  await sleep(220)
+})
+
 {
   const assert = test('teardown inverted')
   assert.teardown(async () => {
@@ -46,3 +60,4 @@ test('teardown of parent assert should not hang due to an active handle when chi
   s.plan(1)
   s.pass()
 })
+
