@@ -30,7 +30,7 @@ interface Assertions {
 
 interface Utilities {
   plan(n: number, comment?: string): void
-  teardown(fn: () => unknown | Promise<unknown>): void
+  teardown(fn: () => unknown | Promise<unknown>, options: TeardownOptions): void
   timeout(ms: number): void
   comment(message: string): void
   end(): Promise<Test>
@@ -67,6 +67,14 @@ export interface TestFn extends Pick<Test, "test" | "skip" | "todo" | "solo" | "
 
 export interface AssertFn {
   (assert: Test): unknown | Promise<unknown>
+}
+
+
+export interface TeardownOptions {
+  /**
+   * @default 0
+   */
+  order?: number
 }
 
 export interface TestOptions {

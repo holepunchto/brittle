@@ -2238,10 +2238,21 @@ ok 1 - teardown classic # time=1.3371337ms
 
 # TEARDOWN SUCCESSFUL (classic) 
 
+# teardown order option
+    ok 1 - passed
+# TEARDOWN A 
+
+# TEARDOWN B 
+
+# TEARDOWN C 
+
+    1..1
+ok 2 - teardown order option # time=1.3371337ms
+
 # teardown inverted
     ok 1 - passed
     1..1
-ok 2 - teardown inverted # time=1.3371337ms
+ok 3 - teardown inverted # time=1.3371337ms
 
 # TEARDOWN SUCCESSFUL (inverted) 
 
@@ -2264,7 +2275,7 @@ ok 2 - teardown inverted # time=1.3371337ms
       stack: "AssertionError [ERR_ASSERTION]: test::"
       ...
 
-not ok 3 - teardown after error classic # time=1.3371337ms
+not ok 4 - teardown after error classic # time=1.3371337ms
 
 # teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan
     1..1
@@ -2272,11 +2283,11 @@ not ok 3 - teardown after error classic # time=1.3371337ms
         1..1
         ok 1 - passed
     ok 1 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan - subtest # time=1.3371337ms
-ok 4 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan # time=1.3371337ms
+ok 5 - teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan # time=1.3371337ms
 
 # TEARDOWN AFTER ERROR SUCCESSFUL (classic) 
 
-1..4
+1..5
 # time=1.3371337ms
 # failing=1
 

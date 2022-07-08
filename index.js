@@ -588,7 +588,11 @@ class Test extends Promise {
       this[kError](new TestError('ERR_NO_ASSERTS', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
 
-    const teardowns = this[kTeardowns].slice()
+    const teardowns = this[kTeardowns].slice().sort((a, b) => {
+      const an = a.opts?.order || 0
+      const bn = b.opts?.order || 0
+      return an === bn ? 0 : (an > bn ? -1 : 1)
+    })
     this[kTeardowns].length = 0
     this[kEnding] = true
 
@@ -605,7 +609,7 @@ class Test extends Promise {
       const idx = this[kIndex]++
       this.ended = true
       await this.tap.step({ type: 'end', planned: this.planned ? 0 : this.count, description: this.description, idx })
-      for (const fn of teardowns) {
+      for (const { fn } of teardowns) {
         try { await fn() } catch (err) { this[kError](err) }
       }
     }
@@ -994,11 +998,11 @@ class Test extends Promise {
     await this.tap.step({ type: 'comment', comment: message, idx, raw: true })
   }
 
-  teardown (fn) {
+  teardown (fn, opts) {
     if (this.ended || this[kEnding]) {
       this[kError](new TestError('ERR_TEARDOWN_AFTER_END'))
     }
-    this[kTeardowns].push(fn)
+    this[kTeardowns].push({ fn, opts })
   }
 
   timeout (ms) {

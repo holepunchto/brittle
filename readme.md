@@ -378,7 +378,7 @@ using `!=`.
 
 Constrain a test to an explicit amount of assertions.
 
-#### `teardown(function|async function)`
+#### `teardown(function|async function, opts)`
 
 The function passed to `teardown` is called right after a test ends
 
@@ -411,6 +411,34 @@ test('some test', async ({ ok, teardown }) => {
  ok('again, cool')
 })
 ```
+
+
+An options object can be passed as the second argument to set the order priority for a teardown to be executed. Set `order: -Infinity` to
+always position the teardown in the last place, and `order: Infinity` to always be in first place. If two teardown
+calls have the same `order` option set, then they are ordered per time of invocation within that order group.
+
+```js
+import test from 'brittle'
+test('teardown order', async ({ pass, teardown }) => {
+  teardown(async function B () {
+    await sleep(200)
+    console.log('# TEARDOWN B \n')
+  })
+  teardown(async function C () {
+    await sleep(200)
+    console.log('# TEARDOWN C \n')
+  }, { order: -Infinity })
+  teardown(async function A () {
+    await sleep(200)
+    console.log('# TEARDOWN A \n')
+  }, { order: Infinity })
+  pass()
+  await sleep(10)
+})
+```
+
+In the above example, the `A` teardown function is executed first on teardown, then `B` then `C` due to the `order` options provided. Normal integers can also be used, `order: 2` for example is fine. The default order priority is 0.
+
 
 #### `timeout(ms)`
 
