@@ -23,6 +23,7 @@ const {
   kResolve,
   kReject,
   kTimeout,
+  kTimedout,
   kTeardowns,
   kSnap,
   kInfo,
@@ -409,7 +410,6 @@ class Test extends Promise {
   get [Symbol.toStringTag] () {} // just the presence of this corrects the callframe name of this class from Promise to Test
 
   [kReset] (description = this.description, options = this.options) {
-    const start = process.hrtime.bigint()
     const main = description === kMain
     const { parent = null } = options
     if (parent) {
@@ -417,7 +417,7 @@ class Test extends Promise {
       parent[kIncre]()
     }
     this.index = parent?.count || 0
-    this.start = start
+    this.start = main ? process.hrtime.bigint() : 0n
     this.parent = parent
     this.description = main ? '' : description
     this.planned = 0
@@ -482,7 +482,9 @@ class Test extends Promise {
     err.ended = this.ended
     stackScrub(err)
     clearTimeout(this[kTimeout])
+    if (this[kTimedout]) this[kTimedout].clear()
     this[kTimeout] = null
+    this[kTimedout] = null
     this.error = err
 
     if (this.ended || err.code === 'ERR_CONFIGURE_FIRST') {
@@ -579,6 +581,10 @@ class Test extends Promise {
       this[kError](new TestError('ERR_PREMATURE_END', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
     if (this[kMain] === false && this[kSkip] === false && this[kTodo] === false && this.count === 0 && this.planned === 0) {
+      if (this.start === 0n) {
+        await null // tick
+        return
+      }
       this[kError](new TestError('ERR_NO_ASSERTS', { count: this.count, planned: this.planned, invertedTop: this[kInverted] && this.parent[kMain] }))
     }
 
@@ -591,7 +597,9 @@ class Test extends Promise {
     await Promise.allSettled(this[kChildren])
 
     clearTimeout(this[kTimeout])
+    if (this[kTimedout]) this[kTimedout].clear()
     this[kTimeout] = null
+    this[kTimedout] = null
 
     if (this.ended === false) {
       const idx = this[kIndex]++
@@ -650,13 +658,14 @@ class Test extends Promise {
 
       const assert = new Test(description, opts)
       clearTimeout(assert[kTimeout])
+      if (this[kTimedout]) this[kTimedout].clear()
       const promise = this[kQueue].add(async () => {
         try {
           await null // tick
           if (assert[kSkip]) return
           assert.start = process.hrtime.bigint()
           assert.timeout(Object.hasOwn(opts, 'timeout') ? opts.timeout : TIMEOUT)
-          await fn(assert)
+          await Promise.race([fn(assert), assert[kTimedout], assert])
           await Promise.allSettled(assert[kChildren].map((child) => child[kDone]))
         } catch (err) {
           assert[kError](err)
@@ -995,14 +1004,34 @@ class Test extends Promise {
   timeout (ms) {
     clearTimeout(this[kTimeout])
     Object.defineProperties(this, {
+      [kTimedout]: {
+        configurable: true,
+        writable: true,
+        value: new class extends Promise {
+          static get [Symbol.species] () { return Promise }
+          constructor () {
+            let clear = null
+            let timedout = null
+            super((resolve, reject) => {
+              clear = resolve
+              timedout = reject
+            })
+            this.clear = clear
+            this.timedout = timedout
+          }
+        }()
+      },
       [kTimeout]: {
         configurable: true,
         writable: true,
         value: setTimeout(() => {
-          this[kError](new TestError('ERR_TIMEOUT', { ms }))
+          this[kTimedout].timedout(new TestError('ERR_TIMEOUT', { ms }))
+
+          this[kTimedout] = null
         }, ms)
       }
     })
+    this[kTimedout].catch((err) => { this[kError](err) })
     this[kTimeout].unref()
   }
 }
@@ -1066,7 +1095,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
 }
 
 class PromiseQueue extends Array {
-  constructor ({ concurrency } = {}) {
+  constructor ({ concurrency = Infinity } = {}) {
     super()
     this.concurrency = concurrency
     this.pending = 0
@@ -1092,9 +1121,15 @@ class PromiseQueue extends Array {
     return new Promise((resolve, reject) => {
       const run = async () => {
         this.pending++
-        try { resolve(await fn()) } catch (err) { reject(err) }
-        this.pending--
-        this.next()
+        try {
+          await fn()
+          resolve()
+        } catch (err) {
+          reject(err)
+        } finally {
+          this.pending--
+          this.next()
+        }
       }
       this.jobs.push(run)
       this.next()
@@ -1111,7 +1146,9 @@ class PromiseQueue extends Array {
   }
 
   drain () {
-    while (this.next()) {} // eslint-disable-line
+    let drained = false
+    while (this.next()) { drained = true } // eslint-disable-line
+    return drained
   }
 }
 
