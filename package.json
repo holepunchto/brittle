@@ -13,9 +13,10 @@
     "test": "npm run lint"
   },
   "dependencies": {
+    "c8": "^7.11.3",
     "deep-equal": "^2.0.5",
     "error-stack-parser": "^2.1.4",
-    "tap-yaml": "^1.0.0",
+    "js-yaml": "^4.1.0",
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
