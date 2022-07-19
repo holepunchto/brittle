@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const c8pkg = require('c8/package.json')
-const bin = c8pkg.bin ? path.join(path.dirname(require.resolve('c8/package.json')), c8pkg.bin) : null
+
 const cov = process.env.BRITTLE_COVERAGE || process.argv.includes('--coverage') || process.argv.includes('--cov')
 const bail = process.env.BRITTLE_BAIL || process.argv.includes('--bail')
 const solo = process.env.BRITTLE_SOLO || process.argv.includes('--solo')
@@ -10,6 +9,8 @@ const solo = process.env.BRITTLE_SOLO || process.argv.includes('--solo')
 process.title = 'brittle'
 
 if (cov && process.env.BRITTLE_COVERAGE !== 'false') {
+  const c8pkg = require('c8/package.json')
+  const bin = c8pkg.bin ? path.join(path.dirname(require.resolve('c8/package.json')), c8pkg.bin) : null
   process.env.BRITTLE_COVERAGE = 'false'
   process.argv.unshift(bin)
   process.argv.unshift(process.execPath)
