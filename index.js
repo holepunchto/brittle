@@ -1,0 +1,668 @@
+const deepEqual = require('deep-equal')
+
+const SYM = Symbol.for('brittle-runner')
+const IS_NODE = !!(typeof process === 'object' && process && !process.browser)
+const DEFAULT_TIMEOUT = 30000
+
+const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
+
+// loaded on demand since it's error flow and we want ultra fast positive test runs
+const lazy = {
+  _errors: null,
+  _tmatch: null,
+  get errors () {
+    if (!lazy._errors) lazy._errors = require('./errors.js')
+    return lazy._errors
+  },
+  get tmatch () {
+    if (!lazy._tmatch) lazy._tmatch = require('tmatch')
+    return lazy._tmatch
+  }
+}
+
+class Runner {
+  constructor () {
+    this.tests = 0
+    this.passes = 0
+    this.next = null
+    this.solo = null
+    this.padded = true
+    this.started = false
+    this.defaultTimeout = DEFAULT_TIMEOUT
+    this.bail = false
+    this.skipAll = false
+    this.explicitSolo = false
+
+    this._timer = highDefTimer()
+    this._log = console.log.bind(console)
+
+    if (IS_NODE) process.once('beforeExit', () => this.end())
+  }
+
+  async queue (test) {
+    this.start()
+
+    if (test.isSolo) {
+      this.solo = test
+      this.next = test
+    }
+
+    await wait()
+
+    if (this.explicitSolo && !test.isSolo) {
+      return false
+    }
+
+    if (test.isSkip) {
+      return false
+    }
+
+    if (test.isTodo) {
+      return false
+    }
+
+    if (this._shouldTest(test)) {
+      while (this.next !== test) {
+        const next = this.next
+        try {
+          await next
+        } catch (err) {}
+        if (next === this.next) this.next = test
+      }
+
+      if (!this._shouldTest(test)) {
+        return false
+      }
+
+      this.padding()
+      if (test.name) this.comment(test.name)
+
+      if (!IS_NODE) this._autoExit(test)
+
+      return true
+    }
+
+    return false
+  }
+
+  _shouldTest (test) {
+    return !this.skipAll && (!this.solo || this.solo === test)
+  }
+
+  async _autoExit (test) {
+    try {
+      await test
+      await wait(10) // wait 10 ticks...
+      if (this.next === test) {
+        this.end()
+      }
+    } catch {}
+  }
+
+  log (...message) {
+    this._log(...message)
+    this.padded = false
+  }
+
+  padding () {
+    if (this.padded) return
+    this.padded = true
+    this.log()
+  }
+
+  start () {
+    if (this.started) return
+    this.started = true
+    this.log('TAP version 13')
+  }
+
+  comment (...message) {
+    this.log('#', ...message)
+  }
+
+  end () {
+    if (this.next) {
+      if (!this.next.isEnded && !this.next.fulfilledPlan) {
+        this.assertion(false, '- test did not end')
+      } else if (!this.next.isResolved) {
+        this.assertion(false, '- teardown has unresolved promise')
+      }
+      if (this.bail && this.skipAll) {
+        this.log('Bail out!')
+      }
+    }
+
+    this.padding()
+    this.log('1..' + this.tests)
+    this.log('# tests ' + this.tests)
+    this.log('# pass  ' + this.passes)
+    this.log('# time ' + this._timer() + 'ms')
+    this.log()
+
+    if (this.passes === this.tests) this.log('# ok')
+    else this.log('# not ok')
+  }
+
+  assertion (ok, message, explanation) {
+    if (ok) this.ok(message)
+    else this.notOk(message, explanation)
+  }
+
+  ok (message) {
+    this.passes++
+    this.log('ok ' + (++this.tests), message)
+  }
+
+  notOk (message, explanation) {
+    this.log('not ok ' + (++this.tests), message)
+    if (explanation) this.log(lazy.errors.stringify(explanation))
+
+    if (this.bail && !this.skipAll) {
+      this.skipAll = true
+    }
+  }
+}
+
+class Test {
+  constructor (name, parent) {
+    this.resolve = null
+    this.reject = null
+
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve
+      this.reject = reject
+    })
+
+    this.parents = []
+    this.main = parent ? parent.main : this
+    this.runner = getRunner()
+    this.name = name
+    this.passes = 0
+    this.fails = 0
+
+    this.expected = -1
+    this.assertions = 0
+
+    this.fulfilledPlan = false
+    this.isEnded = false
+    this.isDone = false
+    this.isSolo = false
+    this.isSkip = false
+    this.isTodo = false
+    this.isResolved = false
+    this.isMain = this.main === this
+
+    // allow destructuring by binding the functions
+    this.comment = this._comment.bind(this)
+    this.timeout = this._timeout.bind(this)
+    this.teardown = this._teardown.bind(this)
+    this.test = this._test.bind(this)
+    this.plan = this._plan.bind(this)
+
+    this.pass = this._pass.bind(this)
+    this.fail = this._fail.bind(this)
+
+    this.ok = this._ok.bind(this)
+    this.absent = this._absent.bind(this)
+
+    this.is = this._is.bind(this, true)
+    this.is.coercively = this._is.bind(this, false)
+
+    this.not = this._not.bind(this, true)
+    this.not.coercively = this._not.bind(this, false)
+
+    this.alike = this._alike.bind(this, true)
+    this.alike.coercively = this._alike.bind(this, false)
+
+    this.unlike = this._unlike.bind(this, true)
+    this.unlike.coercively = this._unlike.bind(this, false)
+
+    this.exception = this._exception.bind(this, false)
+    this.exception.all = this._exception.bind(this, true)
+
+    this.execution = this._execution.bind(this)
+
+    this.end = this._end.bind(this)
+
+    this._parent = parent
+    this._first = true
+    this._subs = 0
+    this._timer = null
+
+    this._to = null
+    this._teardowns = []
+
+    if (this.runner.defaultTimeout) this._timeout(this.runner.defaultTimeout)
+
+    while (parent) {
+      this.parents.push(parent)
+      parent = parent._parent
+    }
+  }
+
+  then (...args) {
+    return this.promise.then(...args)
+  }
+
+  catch (...args) {
+    return this.promise.catch(...args)
+  }
+
+  finally (...args) {
+    return this.promise.finally(...args)
+  }
+
+  _timeout (ms, message = 'test timed out') {
+    const top = originFrame(this._timeout)
+
+    const ontimeout = () => {
+      this._to = null
+
+      const explanation = explain(false, message, 'timeout', this._fail, undefined, undefined, top)
+      this._assertion(false, message, explanation, top, undefined)
+      this.end()
+    }
+
+    if (!ms) {
+      if (this._to) clearTimeout(this._to)
+      this._to = null
+      return
+    }
+
+    this._to = setTimeout(ontimeout, ms)
+    if (this._to.unref) this._to.unref()
+  }
+
+  _plan (n) {
+    this.expected = n
+  }
+
+  _comment (...m) {
+    this.runner.comment(...m)
+  }
+
+  _message (message) {
+    let m = '- '
+
+    if (!this.isMain) {
+      for (let i = this.parents.length - 2; i >= 0; i--) {
+        const p = this.parents[i]
+        if (!p.name) continue
+        m += '(' + p.name + ') - '
+      }
+      if (this.name) {
+        m += '(' + this.name + ') - '
+      }
+    }
+
+    if (message) {
+      m += message
+    }
+
+    return m
+  }
+
+  _assertion (ok, message, explanation, caller, top) {
+    if (ok) this.passes++
+    else this.fails++
+
+    this.runner.assertion(ok, this._message(message), explanation)
+    this.assertions++
+
+    if (this.isEnded || this.isDone) {
+      const explanation = explain(false, message, 'fail', caller, undefined, undefined, top)
+      this.runner.assertion(false, 'assertion after end', explanation)
+      return
+    }
+
+    if (this.expected > -1 && this.assertions === this.expected + 1) {
+      const explanation = explain(ok, message, 'is', caller, undefined, undefined, top)
+      this.runner.assertion(false, 'too many assertions', explanation)
+      return
+    }
+
+    if (this.expected > -1 && this.assertions === this.expected) {
+      this.fulfilledPlan = true
+      this._checkEnd()
+    }
+  }
+
+  _fail (message = 'failed') {
+    const explanation = explain(false, message, 'fail', this._fail)
+    this._assertion(false, message, explanation, this._fail, undefined)
+  }
+
+  _pass (message = 'passed') {
+    this._assertion(true, message, null, this._pass, undefined)
+  }
+
+  _ok (assertion, message = 'expected truthy value') {
+    const ok = assertion
+    const explanation = explain(ok, message, 'ok', this._ok)
+    this._assertion(ok, message, explanation, this._ok, undefined)
+  }
+
+  _absent (assertion, message = 'expected falsy value') {
+    const ok = !assertion
+    const explanation = explain(ok, message, 'absent', this._absent)
+    this._assertion(ok, message, explanation, this._absent, undefined)
+  }
+
+  _is (strict, actual, expected, message = 'should be equal') {
+    const ok = strict ? actual === expected : actual == expected // eslint-disable-line
+    const explanation = explain(ok, message, 'is', this._is, actual, expected)
+    this._assertion(ok, message, explanation, this._is, undefined)
+  }
+
+  _not (strict, actual, expected, message = 'should not be equal') {
+    const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
+    const explanation = explain(ok, message, 'not', this._not, actual, expected)
+    this._assertion(ok, message, explanation, this._not, undefined)
+  }
+
+  _alike (strict, actual, expected, message = 'should deep equal') {
+    const ok = deepEqual(actual, expected, { strict })
+    const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
+    this._assertion(ok, message, explanation, this._alike, undefined)
+  }
+
+  _unlike (strict, actual, expected, message = 'should not deep equal') {
+    const ok = deepEqual(actual, expected, { strict }) === false
+    const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
+    this._assertion(ok, message, explanation, this._unlike, undefined)
+  }
+
+  _teardown (fn, opts) {
+    this._teardowns.push([(opts && opts.order) || 0, fn])
+  }
+
+  async _exception (natives, functionOrPromise, expectedError, message) {
+    if (typeof expectedError === 'string') {
+      expectedError = message
+      message = undefined
+    }
+
+    const top = originFrame(this._exception)
+    const pristineMessage = message === undefined
+
+    let ok = null
+    let actual = false
+
+    if (pristineMessage) message = 'should throw'
+
+    try {
+      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (isPromise(functionOrPromise)) {
+        if (pristineMessage) message = 'should reject'
+        await functionOrPromise
+      }
+      ok = false
+    } catch (err) {
+      const native = natives === false && isUncaught(err)
+      if (native) throw err
+
+      if (!expectedError) {
+        ok = true
+      } else {
+        ok = lazy.tmatch(err, expectedError)
+      }
+
+      actual = err
+    }
+
+    const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
+    this._assertion(ok, message, explanation, this._execution, top)
+  }
+
+  async _execution (functionOrPromise, message) {
+    const top = originFrame(this._execution)
+    const pristineMessage = message === undefined
+
+    let ok = false
+    let error = null
+
+    if (pristineMessage) message = 'should return'
+
+    try {
+      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (isPromise(functionOrPromise)) {
+        if (pristineMessage) message = 'should resolve'
+        await functionOrPromise
+      }
+      ok = true
+    } catch (err) {
+      error = err
+    }
+
+    const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
+    this._assertion(ok, message, explanation, this._execution, top)
+  }
+
+  _snapshot (actual, message = 'should match snapshot') {
+    // TODO
+    console.trace()
+    process.exit(1)
+    this._assertion(true, message, null, this._snapshot, undefined)
+  }
+
+  _test (name, fn) {
+    if (typeof name === 'function') return this.test(null, name)
+
+    const t = new Test(name, this)
+
+    this._subs++
+
+    return fn ? t._run(fn) : t
+  }
+
+  async _run (fn) {
+    if (!this._parent) {
+      if (!(await this.runner.queue(this))) return
+    }
+
+    this._onstart()
+
+    try {
+      await fn(this)
+    } catch (err) {
+      return this.reject(err)
+    }
+
+    if (this.expected === -1) this.end()
+
+    return this
+  }
+
+  _end () {
+    this.isEnded = true
+    this._timeout(0)
+
+    if (this.expected > -1 && this.assertions !== this.expected) {
+      const message = 'too few assertions'
+      const explanation = explain(false, message, 'end', this._end, this.assertions, this.expected)
+      this.runner.assertion(false, message, explanation)
+    }
+
+    this._checkEnd()
+  }
+
+  _checkEnd () {
+    if (this._subs) return
+    if (this.isEnded || this.assertions === this.expected) this._done()
+  }
+
+  _done () {
+    if (this.isDone) return
+    this.isDone = true
+
+    if (this._teardowns.length) {
+      this._teardowns.sort(cmp)
+      this.comment('running ' + this._teardowns.length + ' teardown' + (this._teardowns.length === 1 ? '' : 's') + '...')
+      this._teardownAndEnd()
+    } else {
+      this._onend()
+    }
+
+    if (this._parent) {
+      const p = this._parent
+
+      this._parent._subs--
+      this._parent = null
+
+      p._checkEnd()
+    }
+  }
+
+  async _teardownAndEnd () {
+    let error = null
+
+    for (const [, teardown] of this._teardowns) {
+      try {
+        await teardown()
+      } catch (err) {
+        if (!error) error = err
+      }
+    }
+
+    this._onend(error)
+  }
+
+  _onstart () {
+    if (this.isMain) {
+      this._timer = highDefTimer()
+    }
+  }
+
+  _onend (err) {
+    this._timeout(0) // just to be sure incase someone ran this during teardown...
+
+    const ok = (this.fails === 0)
+    if (this.isMain) {
+      this.comment('time = ' + this._timer() + 'ms')
+    }
+
+    this.isResolved = true
+
+    if (err) this.reject(err)
+    else this.resolve(ok)
+  }
+}
+
+test.Test = Test
+test.test = test
+test.solo = solo
+test.skip = skip
+test.todo = todo
+test.configure = configure
+
+module.exports = test
+
+function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false } = {}) {
+  const runner = getRunner()
+
+  runner.timeout = DEFAULT_TIMEOUT
+  runner.bail = bail
+  runner.explicitSolo = solo
+}
+
+function highDefTimerNode () {
+  const then = process.hrtime.bigint()
+  return function () {
+    const now = process.hrtime.bigint()
+    return Number(now - then) / 1e6
+  }
+}
+
+function highDefTimerFallback () {
+  const then = Date.now()
+  return function () {
+    const now = Date.now()
+    return now - then
+  }
+}
+
+function cmp (a, b) {
+  return a[0] - b[0]
+}
+
+function test (name, opts, fn, defaults) {
+  if (typeof name === 'function') return test(null, null, name, defaults)
+  if (typeof opts === 'function') return test(name, null, opts, defaults)
+
+  const t = new Test(name, null)
+
+  opts = { ...defaults, ...opts }
+
+  if (opts.solo) t.isSolo = true
+  if (opts.skip) t.isSkip = true
+  if (opts.todo) t.isTodo = true
+
+  if (fn) return t._run(fn)
+
+  t._onstart()
+  return t
+}
+
+function solo (name, opts, fn) {
+  return test(name, opts, fn, { solo: true })
+}
+
+function skip (name, opts, fn) {
+  return test(name, opts, fn, { skip: true })
+}
+
+function todo (name, opts, fn) {
+  return test(name, opts, fn, { todo: true })
+}
+
+function wait (ticks = 1) {
+  return new Promise(resolve => {
+    tickish(function loop () {
+      if (--ticks <= 0) return resolve()
+      tickish(loop)
+    })
+  })
+}
+
+function tickish (fn) {
+  if (IS_NODE) { // do both types of tick in node to flush both queues
+    process.nextTick(queueMicrotask, fn)
+  } else {
+    queueMicrotask(fn)
+  }
+}
+
+function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
+  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, top, extra)
+}
+
+function originFrame (stackStartFunction) {
+  const { prepareStackTrace } = Error
+  Error.prepareStackTrace = (_, stack) => {
+    if (stack[0].getFunctionName() === '[brittle.error]') return null
+    if (stack[0].getMethodName() === 'coercively') return stack[1]
+    return stack[0]
+  }
+  const err = {}
+  Error.captureStackTrace(err, stackStartFunction)
+  const { stack: top } = err
+  Error.prepareStackTrace = prepareStackTrace
+  return top
+}
+
+function isPromise (p) {
+  return !!(p && typeof p.then === 'function')
+}
+
+function isUncaught (err) {
+  return err instanceof SyntaxError ||
+    err instanceof ReferenceError ||
+    err instanceof TypeError ||
+    err instanceof EvalError ||
+    err instanceof RangeError
+}
+
+function getRunner () {
+  if (!global[SYM]) global[SYM] = new Runner()
+  return global[SYM]
+}

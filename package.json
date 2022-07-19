@@ -1,0 +1,24 @@
+{
+  "name": "brittle-next",
+  "version": "0.0.0",
+  "description": "tap à la mode",
+  "main": "index.js",
+  "bin": {
+    "brittle": "./cmd.js"
+  },
+  "author": "David Mark Clements (@davidmarkclem)",
+  "license": "MIT",
+  "scripts": {
+    "lint": "standard",
+    "test": "npm run lint"
+  },
+  "dependencies": {
+    "deep-equal": "^2.0.5",
+    "error-stack-parser": "^2.1.4",
+    "tap-yaml": "^1.0.0",
+    "tmatch": "^5.0.0"
+  },
+  "devDependencies": {
+    "standard": "^17.0.0"
+  }
+}
