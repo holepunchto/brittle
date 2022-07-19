@@ -2,16 +2,22 @@
 
 const path = require('path')
 
-const cov = process.env.BRITTLE_COVERAGE || process.argv.includes('--coverage') || process.argv.includes('--cov')
-const bail = process.env.BRITTLE_BAIL || process.argv.includes('--bail')
-const solo = process.env.BRITTLE_SOLO || process.argv.includes('--solo')
+const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim())
+
+for (const arg of process.argv) {
+  if (arg[0] === '-') args.push(arg)
+}
+
+const cov = flag('coverage', 'cov')
+const bail = flag('bail')
+const solo = flag('solo')
 
 process.title = 'brittle'
 
 if (cov && process.env.BRITTLE_COVERAGE !== 'false') {
   const c8pkg = require('c8/package.json')
   const bin = c8pkg.bin ? path.join(path.dirname(require.resolve('c8/package.json')), c8pkg.bin) : null
-  process.env.BRITTLE_COVERAGE = 'false'
+  process.env.BRITTLE = (process.env.BRITTLE || '') + ' --no-coverage'
   process.argv.unshift(bin)
   process.argv.unshift(process.execPath)
   require(bin)
@@ -31,4 +37,12 @@ async function start () {
     if (arg.startsWith('-')) continue
     await import(path.resolve(arg))
   }
+}
+
+function flag (...names) {
+  for (const name of names) {
+    if (args.includes('--no-' + name)) return false
+    if (args.includes('--' + name)) return true
+  }
+  return undefined
 }
