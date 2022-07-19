@@ -232,8 +232,6 @@ class Test {
     this._to = null
     this._teardowns = []
 
-    if (this.runner.defaultTimeout) this._timeout(this.runner.defaultTimeout)
-
     while (parent) {
       this.parents.push(parent)
       parent = parent._parent
@@ -253,20 +251,19 @@ class Test {
   }
 
   _timeout (ms, message = 'test timed out') {
-    const top = originFrame(this._timeout)
-
-    const ontimeout = () => {
-      this._to = null
-
-      const explanation = explain(false, message, 'timeout', this._fail, undefined, undefined, top)
-      this._assertion(false, message, explanation, top, undefined)
-      this.end()
-    }
-
     if (!ms) {
       if (this._to) clearTimeout(this._to)
       this._to = null
       return
+    }
+
+    const top = originFrame(this._timeout)
+
+    const ontimeout = () => {
+      this._to = null
+      const explanation = explain(false, message, 'timeout', this._fail, undefined, undefined, top)
+      this._assertion(false, message, explanation, top, undefined)
+      this.end()
     }
 
     this._to = setTimeout(ontimeout, ms)
@@ -440,8 +437,6 @@ class Test {
 
   _snapshot (actual, message = 'should match snapshot') {
     // TODO
-    console.trace()
-    process.exit(1)
     this._assertion(true, message, null, this._snapshot, undefined)
   }
 
@@ -475,7 +470,6 @@ class Test {
 
   _end () {
     this.isEnded = true
-    this._timeout(0)
 
     if (this.expected > -1 && this.assertions !== this.expected) {
       const message = 'too few assertions'
@@ -497,7 +491,6 @@ class Test {
 
     if (this._teardowns.length) {
       this._teardowns.sort(cmp)
-      this.comment('running ' + this._teardowns.length + ' teardown' + (this._teardowns.length === 1 ? '' : 's') + '...')
       this._teardownAndEnd()
     } else {
       this._onend()
@@ -515,6 +508,16 @@ class Test {
 
   async _teardownAndEnd () {
     let error = null
+    let fired = false
+
+    const t = setTimeout(() => {
+      fired = true
+      this.comment('...teardown still running after 250ms')
+    }, 250)
+
+    if (t.unref) t.unref()
+
+    const time = highDefTimer()
 
     for (const [, teardown] of this._teardowns) {
       try {
@@ -524,12 +527,15 @@ class Test {
       }
     }
 
+    clearTimeout(t)
+    if (fired) this.comment('...teardown time ' + time() + 'ms')
     this._onend(error)
   }
 
   _onstart () {
     if (this.isMain) {
       this._timer = highDefTimer()
+      if (this.runner.defaultTimeout) this._timeout(this.runner.defaultTimeout)
     }
   }
 
@@ -537,7 +543,7 @@ class Test {
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
     const ok = (this.fails === 0)
-    if (this.isMain) {
+    if (this._timer) {
       this.comment('time = ' + this._timer() + 'ms')
     }
 
