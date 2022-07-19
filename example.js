@@ -1,4 +1,4 @@
-const test = process.argv.includes('--brittle') ? require('brittle') : require('./')
+const test = require('./')
 
 test.skip('hello world', function (t) {
   const a = t.test('a')
