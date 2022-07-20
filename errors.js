@@ -1,6 +1,5 @@
 const StackParser = require('error-stack-parser')
-const yaml = require('js-yaml')
-const { IS_NODE } = require('./constants')
+const { INDENT, IS_NODE } = require('./constants')
 const url = requireIfNode('url')
 const fs = requireIfNode('fs')
 const assert = requireIfNode('assert')
@@ -82,11 +81,11 @@ function stackScrub (err) {
 }
 
 function indent (src) {
-  return src.split('\n').map(s => '  ' + s).join('\n')
+  return src.split('\n').map(s => INDENT + '  ' + s).join('\n')
 }
 
 function stringify (o) {
-  return indent(yaml.dump(o)).trimRight()
+  return indent('---\n' + toYAML(o)).trimRight() + '\n' + INDENT + '  ...'
 }
 
 function getCWD () {
@@ -95,4 +94,34 @@ function getCWD () {
 
 function requireIfNode (name) {
   return IS_NODE ? require(name) : null
+}
+
+// for the life of me can't find a module that does this, that also works in the browser...
+function toYAML (o, maxDepth = 5, indent = '', prev = null) {
+  if (maxDepth < 0) return indent + '...'
+
+  if (typeof o === 'string') {
+    if (o.indexOf('\n') === -1) return o + '\n'
+    return '|\n' + o.split('\n').map(s => indent + s).join('\n').trimRight() + '\n'
+  }
+
+  if (o && Array.isArray(o)) {
+    let s = prev ? '\n' : ''
+    for (const i of o) {
+      s += indent + '- ' + toYAML(i, maxDepth - 1, indent + '  ', 'array')
+    }
+    return s.trimRight() + '\n'
+  }
+
+  if (o && typeof o === 'object') {
+    const p = prev && prev !== 'array'
+    let s = p ? '\n' : ''
+    for (const k of Object.keys(o)) {
+      const v = o[k]
+      s += indent + k + ': ' + toYAML(v, maxDepth - 1, indent + '  ', 'object')
+    }
+    return (p ? s.trimRight() : s.trim()) + '\n'
+  }
+
+  return '' + o + '\n'
 }

@@ -1,5 +1,5 @@
 const deepEqual = require('deep-equal')
-const { RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./constants')
+const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./constants')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 
@@ -19,8 +19,9 @@ const lazy = {
 
 class Runner {
   constructor () {
-    this.tests = 0
-    this.passes = 0
+    this.tests = { count: 0, pass: 0 }
+    this.assertions = { count: 0, pass: 0 }
+
     this.next = null
     this.solo = null
     this.padded = true
@@ -41,7 +42,6 @@ class Runner {
 
     if (test.isSolo) {
       this.solo = test
-      this.next = test
     }
 
     await wait()
@@ -50,29 +50,32 @@ class Runner {
       return false
     }
 
-    if (test.isSkip) {
-      return false
-    }
-
-    if (test.isTodo) {
-      return false
-    }
-
     if (this._shouldTest(test)) {
-      while (this.next !== test) {
+      while (this.next !== null) {
         const next = this.next
         try {
           await next
         } catch (err) {}
-        if (next === this.next) this.next = test
+
+        if (next === this.next) this.next = null
+      }
+
+      if (test.isSkip) {
+        this._skip('SKIP', test)
+        return false
+      }
+
+      if (test.isTodo) {
+        this._skip('TODO', test)
+        return false
       }
 
       if (!this._shouldTest(test)) {
         return false
       }
 
-      this.padding()
-      if (test.name) this.comment(test.name)
+      this.next = test
+      test.header()
 
       if (!IS_NODE) this._autoExit(test)
 
@@ -80,6 +83,15 @@ class Runner {
     }
 
     return false
+  }
+
+  _skip (reason, test) {
+    if (this._shouldTest(test)) {
+      test.header()
+      this.tests.pass++
+      this.tests.count++
+      this.assert(false, true, this.tests.count, '- ' + test.name + ' # ' + reason, null)
+    }
   }
 
   _shouldTest (test) {
@@ -120,9 +132,11 @@ class Runner {
   end () {
     if (this.next) {
       if (!this.next.isEnded && !this.next.fulfilledPlan) {
-        this.assertion(false, '- test did not end')
+        this.next._internalFail('test did not end', null)
+        this.next._onend(null)
       } else if (!this.next.isResolved) {
-        this.assertion(false, '- teardown has unresolved promise')
+        this.next._internalFail('teardown has unresolved promise', null)
+        this.next._onend(null)
       }
       if (this.bail && this.skipAll) {
         this.log('Bail out!')
@@ -130,32 +144,25 @@ class Runner {
     }
 
     this.padding()
-    this.log('1..' + this.tests)
-    this.log('# tests ' + this.tests)
-    this.log('# pass  ' + this.passes)
-    this.log('# time ' + this._timer() + 'ms')
+    this.log('1..' + this.tests.count)
+    this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
+    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
+    this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.passes === this.tests) this.log('# ok')
+    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
     else this.log('# not ok')
   }
 
-  assertion (ok, message, explanation) {
-    if (ok) this.ok(message)
-    else this.notOk(message, explanation)
-  }
+  assert (indent, ok, number, message, explanation) {
+    const ind = indent ? INDENT : ''
 
-  ok (message) {
-    this.passes++
-    this.log('ok ' + (++this.tests), message)
-  }
-
-  notOk (message, explanation) {
-    this.log('not ok ' + (++this.tests), message)
-    if (explanation) this.log(lazy.errors.stringify(explanation))
-
-    if (this.bail && !this.skipAll) {
-      this.skipAll = true
+    if (ok) {
+      this.log(ind + 'ok ' + number, message)
+    } else {
+      this.log(ind + 'not ok ' + number, message)
+      if (explanation) this.log(lazy.errors.stringify(explanation))
+      if (this.bail && !this.skipAll) this.skipAll = true
     }
   }
 }
@@ -226,6 +233,7 @@ class Test {
     this._subs = 0
     this._timer = null
 
+    this._headerLogged = false
     this._to = null
     this._teardowns = []
 
@@ -247,6 +255,13 @@ class Test {
     return this.promise.finally(...args)
   }
 
+  header () {
+    if (this._headerLogged) return
+    this._headerLogged = true
+    this.runner.padding()
+    this.runner.comment(this.name || 'test')
+  }
+
   _timeout (ms, message = 'test timed out') {
     if (!ms) {
       if (this._to) clearTimeout(this._to)
@@ -258,8 +273,7 @@ class Test {
 
     const ontimeout = () => {
       this._to = null
-      const explanation = explain(false, message, 'timeout', this._fail, undefined, undefined, top)
-      this._assertion(false, message, explanation, top, undefined)
+      this._internalFail(message, explain(false, message, 'timeout', this._fail, undefined, undefined, top))
       this.end()
     }
 
@@ -272,7 +286,7 @@ class Test {
   }
 
   _comment (...m) {
-    this.runner.comment(...m)
+    this.runner.log(INDENT + '#', ...m)
   }
 
   _message (message) {
@@ -296,22 +310,45 @@ class Test {
     return m
   }
 
-  _assertion (ok, message, explanation, caller, top) {
+  _internalFail (msg, explanation) {
+    const isResolved = this.main.isResolved
+    const message = '- ' + msg + (isResolved ? ' (in ' + this.main.name + ')' : '')
+    this.runner.assert(!isResolved, false, this._track(isResolved, false), message, explanation)
+  }
+
+  _tick (ok) {
     if (ok) this.passes++
     else this.fails++
-
-    this.runner.assertion(ok, this._message(message), explanation)
     this.assertions++
+  }
+
+  _track (topLevel, ok) {
+    if (topLevel) {
+      this.runner.tests.count++
+      if (ok) this.runner.tests.pass++
+      return this.runner.tests.count
+    }
+
+    this._tick(ok)
+    if (!this.isMain) this.main._tick(ok)
+
+    this.runner.assertions.count++
+    if (ok) this.runner.assertions.pass++
+
+    return this.main.assertions
+  }
+
+  _assertion (ok, message, explanation, caller, top) {
+    this.runner.assert(true, ok, this._track(false, ok), this._message(message), explanation)
 
     if (this.isEnded || this.isDone) {
-      const explanation = explain(false, message, 'fail', caller, undefined, undefined, top)
-      this.runner.assertion(false, 'assertion after end', explanation)
+      this._internalFail('assertion after end', explanation)
       return
     }
 
     if (this.expected > -1 && this.assertions === this.expected + 1) {
       const explanation = explain(ok, message, 'is', caller, undefined, undefined, top)
-      this.runner.assertion(false, 'too many assertions', explanation)
+      this._internalFail('too many assertions', explanation)
       return
     }
 
@@ -472,7 +509,7 @@ class Test {
     if (this.expected > -1 && this.assertions !== this.expected) {
       const message = 'too few assertions'
       const explanation = explain(false, message, 'end', this._end, this.assertions, this.expected)
-      this.runner.assertion(false, message, explanation)
+      this._internalFail(message, explanation)
     }
 
     this._checkEnd()
@@ -532,6 +569,7 @@ class Test {
 
   _onstart () {
     if (this.isMain) {
+      this.header()
       this._timer = highDefTimer()
       if (this.runner.defaultTimeout) this._timeout(this.runner.defaultTimeout)
     }
@@ -541,8 +579,10 @@ class Test {
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
     const ok = (this.fails === 0)
-    if (this._timer) {
-      this.comment('time = ' + this._timer() + 'ms')
+
+    if (this.isMain) {
+      const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
+      this.runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
     }
 
     this.isResolved = true
@@ -600,6 +640,7 @@ function test (name, opts, fn, defaults) {
   if (opts.solo) t.isSolo = true
   if (opts.skip) t.isSkip = true
   if (opts.todo) t.isTodo = true
+  if (opts.timeout !== undefined) t.timeout(opts.timeout)
 
   if (fn) return t._run(fn)
 
