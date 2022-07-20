@@ -25,21 +25,24 @@ test('another one', function (t) {
   t.pass('super yes')
 })
 
-test.skip('another one', function (t) {
+test('another one', async function (t) {
   t.plan(2)
+  t.timeout(100)
   t.pass('yes sir')
-  t.end()
-  t.pass('super yes')
+  t.fail('yes sir')
+  // t.end()
+  // t.pass('super yes')
+  // return new Promise(r => {})
 })
 
 test('another one', async function (t) {
   t.teardown(() => {
-    console.log('teardown nu 0')
+    t.comment('teardown nu 0')
   }, { order: 1 })
 
   t.teardown(() => {
-    console.log('teardown nu 1')
-    // return new Promise(() => {})
+    t.comment('teardown nu 1')
+    return new Promise(() => {})
   })
 
   t.not(1, 2, 'no sir')
