@@ -223,6 +223,8 @@ class Test {
 
     this.execution = this._execution.bind(this)
 
+    this.snapshot = this._snapshot.bind(this)
+
     this.end = this._end.bind(this)
 
     this._parent = parent
