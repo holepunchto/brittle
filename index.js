@@ -53,10 +53,7 @@ class Runner {
     if (this._shouldTest(test)) {
       while (this.next !== null) {
         const next = this.next
-        try {
-          await next
-        } catch (err) {}
-
+        await next
         if (next === this.next) this.next = null
       }
 
