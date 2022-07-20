@@ -1,5 +1,6 @@
 const StackParser = require('error-stack-parser')
 const yaml = require('js-yaml')
+const { IS_NODE } = require('./constants')
 const url = requireIfNode('url')
 const fs = requireIfNode('fs')
 const assert = requireIfNode('assert')
@@ -89,9 +90,9 @@ function stringify (o) {
 }
 
 function getCWD () {
-  return (typeof process === 'object' && process.cwd) ? process.cwd() : '/'
+  return IS_NODE ? process.cwd() : '/no/cwd/exists'
 }
 
 function requireIfNode (name) {
-  return (typeof process === 'object' && process && !process.browser) ? require(name) : null
+  return IS_NODE ? require(name) : null
 }

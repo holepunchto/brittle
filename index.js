@@ -1,8 +1,5 @@
 const deepEqual = require('deep-equal')
-
-const SYM = Symbol.for('brittle-runner')
-const IS_NODE = !!(typeof process === 'object' && process && !process.browser)
-const DEFAULT_TIMEOUT = 30000
+const { RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./constants')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 
@@ -669,6 +666,6 @@ function isUncaught (err) {
 }
 
 function getRunner () {
-  if (!global[SYM]) global[SYM] = new Runner()
-  return global[SYM]
+  if (!global[RUNNER]) global[RUNNER] = new Runner()
+  return global[RUNNER]
 }
