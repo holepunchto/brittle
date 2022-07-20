@@ -434,6 +434,7 @@ class Test {
 
   _snapshot (actual, message = 'should match snapshot') {
     // TODO
+    // console.log('snap!', ...arguments)
     this._assertion(true, message, null, this._snapshot, undefined)
   }
 
@@ -640,6 +641,7 @@ function explain (ok, message, assert, stackStartFunction, actual, expected, top
 }
 
 function originFrame (stackStartFunction) {
+  if (!Error.captureStackTrace) return undefined
   const { prepareStackTrace } = Error
   Error.prepareStackTrace = (_, stack) => {
     if (stack[0].getFunctionName() === '[brittle.error]') return null
