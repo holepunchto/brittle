@@ -408,8 +408,8 @@ class Test {
 
   async _exception (natives, functionOrPromise, expectedError, message) {
     if (typeof expectedError === 'string') {
-      expectedError = message
-      message = undefined
+      message = expectedError
+      expectedError = undefined
     }
 
     const top = originFrame(this._exception)
