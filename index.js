@@ -281,6 +281,12 @@ class Test {
   }
 
   _plan (n) {
+    if (typeof n !== 'number' || n < 0) {
+      const message = 'plan takes a positive whole number only'
+      this._internalFail(message, explain(false, message, 'plan', this._plan))
+      return
+    }
+
     this.expected = n
   }
 
