@@ -229,6 +229,7 @@ class Test {
 
     this._parent = parent
     this._first = true
+    this._wait = false
     this._subs = 0
     this._timer = null
 
@@ -496,14 +497,21 @@ class Test {
     }
 
     this._onstart()
+    this._wait = true
 
     try {
       await fn(this)
     } catch (err) {
-      return this.reject(err)
+      this._wait = false
+      this.reject(err)
+      this._checkEnd()
+      return
     }
 
     if (this.expected === -1) this.end()
+
+    this._wait = false
+    this._checkEnd()
 
     return this
   }
@@ -521,7 +529,7 @@ class Test {
   }
 
   _checkEnd () {
-    if (this._subs) return
+    if (this._subs || this._wait) return
     if (this.isEnded || this.assertions === this.expected) this._done()
   }
 
