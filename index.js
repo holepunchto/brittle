@@ -270,12 +270,9 @@ class Test {
       return
     }
 
-    const top = originFrame(this._timeout)
-
     const ontimeout = () => {
       this._to = null
-      this._internalFail(message, explain(false, message, 'timeout', this._fail, undefined, undefined, top))
-      this.end()
+      this._onend(new Error('Test timed out after ' + ms + ' ms'))
     }
 
     this._to = setTimeout(ontimeout, ms)
@@ -482,22 +479,23 @@ class Test {
     this._assertion(true, message, null, this._snapshot, undefined)
   }
 
-  _test (name, fn) {
-    if (typeof name === 'function') return this.test(null, name)
+  _test (name, opts, fn) {
+    if (typeof name === 'function') return this.test(null, null, name)
+    if (typeof opts === 'function') return this.test(name, null, opts)
 
     const t = new Test(name, this)
 
     this._subs++
 
-    return fn ? t._run(fn) : t
+    return fn ? t._run(fn, opts || {}) : t
   }
 
-  async _run (fn) {
+  async _run (fn, opts) {
     if (!this._parent) {
       if (!(await this.runner.queue(this))) return
     }
 
-    this._onstart()
+    this._onstart(opts)
     this._wait = true
 
     try {
@@ -542,7 +540,7 @@ class Test {
       this._teardowns.sort(cmp)
       this._teardownAndEnd()
     } else {
-      this._onend()
+      this._onend(null)
     }
 
     if (this._parent) {
@@ -581,15 +579,22 @@ class Test {
     this._onend(error)
   }
 
-  _onstart () {
+  _onstart (opts) {
+    const to = this.isMain
+      ? (opts && opts.timeout !== undefined) ? opts.timeout : this.runner.defaultTimeout // main tests need a default timeout, unless opt-out
+      : opts && opts.timeout // non main ones do not
+
     if (this.isMain) {
       this.header()
       this._timer = highDefTimer()
-      if (this.runner.defaultTimeout) this._timeout(this.runner.defaultTimeout)
     }
+
+    if (to) this._timeout(to)
   }
 
   _onend (err) {
+    if (this.isResolved) return
+
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
     const ok = (this.fails === 0)
@@ -600,6 +605,7 @@ class Test {
     }
 
     this.isResolved = true
+    this.isDone = true
 
     if (err) this.reject(err)
     else this.resolve(ok)
@@ -622,7 +628,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false } = 
     throw new Error('configuration must happen prior to registering any tests')
   }
 
-  runner.timeout = DEFAULT_TIMEOUT
+  runner.defaultTimeout = DEFAULT_TIMEOUT
   runner.bail = bail
   runner.explicitSolo = solo
 }
@@ -658,11 +664,10 @@ function test (name, opts, fn, defaults) {
   if (opts.solo) t.isSolo = true
   if (opts.skip) t.isSkip = true
   if (opts.todo) t.isTodo = true
-  if (opts.timeout !== undefined) t.timeout(opts.timeout)
 
-  if (fn) return t._run(fn)
+  if (fn) return t._run(fn, opts)
 
-  t._onstart()
+  t._onstart(opts)
   return t
 }
 
