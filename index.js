@@ -1,4 +1,6 @@
 const deepEqual = require('deep-equal')
+const b4a = require('b4a')
+const { getSnapshot } = require('./snapshot')
 const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./constants')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -237,6 +239,7 @@ class Test {
     this._headerLogged = false
     this._to = null
     this._teardowns = []
+    this._tickers = new Map()
 
     while (parent) {
       this.parents.push(parent)
@@ -474,9 +477,31 @@ class Test {
   }
 
   _snapshot (actual, message = 'should match snapshot') {
-    // TODO
-    // console.log('snap!', ...arguments)
-    this._assertion(true, message, null, this._snapshot, undefined)
+    const top = originFrame(this._snapshot)
+
+    if (!top) {
+      this._assertion(true, message, null, this._snapshot, undefined)
+      return
+    }
+
+    if (b4a.isBuffer(actual)) {
+      actual = new Uint8Array(actual.buffer, actual.byteOffset, actual.byteLength)
+    }
+
+    const filename = top.getFileName()
+    const key = (this.name || '') + ' ' + this._message(message)
+    const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
+
+    const ok = deepEqual(actual, expected, { strict: true })
+    const explanation = explain(ok, message, 'snapshot', this._snapshot, actual, expected)
+
+    this._assertion(ok, message, explanation, this._snapshot, undefined)
+  }
+
+  _getTick (key) {
+    const tick = this._tickers.get(key) || 0
+    this._tickers.set(key, 1 + tick)
+    return tick
   }
 
   _test (name, opts, fn) {
