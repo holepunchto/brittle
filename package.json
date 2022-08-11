@@ -9,8 +9,7 @@
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "MIT",
   "scripts": {
-    "lint": "standard",
-    "test": "npm run lint"
+    "test": "standard && node test/all.mjs"
   },
   "dependencies": {
     "c8": "^7.11.3",
@@ -19,6 +18,7 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
+    "chalk": "^4.1.2",
     "standard": "^17.0.0"
   }
 }
