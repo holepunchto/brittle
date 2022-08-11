@@ -412,6 +412,7 @@ class Test {
   }
 
   _teardown (fn, opts) {
+    if (this.isDone) throw new Error('Can\'t add teardown after end')
     this._teardowns.push([(opts && opts.order) || 0, fn])
   }
 
