@@ -1,7 +1,7 @@
 const deepEqual = require('deep-equal')
 const b4a = require('b4a')
-const { getSnapshot } = require('./snapshot')
-const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./constants')
+const { getSnapshot, createTypedArray } = require('./lib/snapshot')
+const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./lib/constants')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 
@@ -10,7 +10,7 @@ const lazy = {
   _errors: null,
   _tmatch: null,
   get errors () {
-    if (!lazy._errors) lazy._errors = require('./errors.js')
+    if (!lazy._errors) lazy._errors = require('./lib/errors.js')
     return lazy._errors
   },
   get tmatch () {
@@ -293,7 +293,7 @@ class Test {
   }
 
   _comment (...m) {
-    if (this.isEnded || this.isDone) throw new Error('Can\'t comment after end')
+    if (this.isResolved) throw new Error('Can\'t comment after end')
     this.runner.log(INDENT + '#', ...m)
   }
 
@@ -644,6 +644,9 @@ test.solo = solo
 test.skip = skip
 test.todo = todo
 test.configure = configure
+
+// Used by snapshots
+test.createTypedArray = createTypedArray
 
 module.exports = test
 
