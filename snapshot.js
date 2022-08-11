@@ -70,11 +70,11 @@ function split (filename) {
 
   if (i === -1) return null
 
-  const dirname = filename.slice(0, i) + sep + 'snapshots'
+  const dirname = filename.slice(0, i) + sep + 'fixtures'
 
   return {
     dirname,
-    filename: dirname + sep + filename.slice(i + 1).replace(/\.[^.]+$/, '') + '.cjs'
+    filename: dirname + sep + filename.slice(i + 1).replace(/\.[^.]+$/, '') + '.snapshot.cjs'
   }
 }
 
