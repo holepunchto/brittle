@@ -14,7 +14,7 @@ for (const file of files) {
   const filepath = path.join(__dirname, file.name)
 
   console.log(chalk.green.bold('Running'), filepath)
-  await import(filepath)
+  await import('file://' + filepath)
 }
 
 if (process.exitCode) {
