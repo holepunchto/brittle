@@ -7,39 +7,45 @@ const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
 
 module.exports = { tester, spawner, standardizeTap }
 
-async function tester (name, fn, expected, expectedMore = {}) {
+async function tester (name, fn, expectedOut, expectedMore) {
   name = JSON.stringify(name)
 
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
   print('tester', 'yellow', script)
-  return executeTap(script, expected, expectedMore)
+  return executeTap(script, expectedOut, expectedMore)
 }
 
-async function spawner (fn, expected, expectedMore = {}) {
+async function spawner (fn, expectedOut, expectedMore) {
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   print('spawner', 'yellow', script)
-  return executeTap(script, expected, expectedMore)
+  return executeTap(script, expectedOut, expectedMore)
 }
 
-async function executeTap (script, expected, expectedMore = {}) {
+async function executeTap (script, expectedOut, more = {}) {
+  if (typeof expectedOut === 'object') [more, expectedOut] = [expectedOut, '']
+
   const { exitCode, error, stdout, stderr } = await executeCode(script)
-  const errors = []
+  const errors = new Errors()
   let tapout
   let tapexp
+  // console.log({ exitCode, error, stdout, stderr })
+  // console.log({ expectedOut, more })
 
-  if (expectedMore.exitCode !== undefined && exitCode !== expectedMore.exitCode) {
-    errors.push({ error: new Error('exitCode is not the expected'), actual: exitCode, expected: expectedMore.exitCode })
+  if (more.exitCode !== undefined && exitCode !== more.exitCode) {
+    errors.add('exitCode is the expected', exitCode, more.exitCode)
   }
 
-  if (error) errors.push({ error })
-  if (stderr) errors.push({ error: new Error(stderr) })
+  stdValidation(errors, 'stderr', stderr, more.stderr)
 
-  if (!error && !stderr) {
+  if (error) errors.add(error)
+  if (!more.stderr && stderr) errors.add(stderr)
+
+  if (!error && (more.stderr || !stderr) && expectedOut) {
     tapout = standardizeTap(stdout)
-    tapexp = standardizeTap(expected)
+    tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.push({ error: new Error('TAP output matches the expected output'), actual: tapout, expected: tapexp })
+      errors.add('TAP output matches the expected output', tapout, tapexp)
     }
 
     print('stdout', 'green', stdout)
@@ -47,10 +53,10 @@ async function executeTap (script, expected, expectedMore = {}) {
     print('tapexp', 'cyan', tapexp)
   }
 
-  if (errors.length) {
+  if (errors.list.length) {
     process.exitCode = 1
 
-    for (const err of errors) {
+    for (const err of errors.list) {
       console.error(chalk.red.bold('Error:'), err.error.message)
 
       if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
@@ -60,7 +66,39 @@ async function executeTap (script, expected, expectedMore = {}) {
     }
   }
 
-  return { errors, exitCode, stdout, tapout, tapexp, stderr }
+  return { errors: errors.list, exitCode, stdout, tapout, tapexp, stderr }
+}
+
+function stdValidation (errors, name, actual, std) {
+  // console.log('stdValidation', { errors, name, actual, std })
+  if (std === undefined) return
+
+  if (std && typeof std === 'object') {
+    if (std.includes) {
+      if (!actual || !actual.includes(std.includes)) {
+        errors.add(name + ' did not include the expected', actual, std.includes)
+      }
+    }
+  } else {
+    throw new Error('Expected type not supported (only object)')
+  }
+}
+
+class Errors {
+  constructor () {
+    this.list = []
+  }
+
+  add (error, actual, expected) {
+    const err = {
+      error: typeof error === 'string' ? new Error(error) : error
+    }
+
+    if (actual !== undefined) err.actual = actual
+    if (expected !== undefined) err.expected = expected
+
+    this.list.push(err)
+  }
 }
 
 function executeCode (script) {
@@ -77,7 +115,7 @@ function executeCode (script) {
       exitCode = code
     })
 
-    child.on('close', function (code) {
+    child.on('close', function () {
       resolve({ exitCode, stdout, stderr })
     })
 
