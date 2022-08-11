@@ -628,7 +628,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false } = 
     throw new Error('configuration must happen prior to registering any tests')
   }
 
-  runner.defaultTimeout = DEFAULT_TIMEOUT
+  runner.defaultTimeout = timeout
   runner.bail = bail
   runner.explicitSolo = solo
 }
