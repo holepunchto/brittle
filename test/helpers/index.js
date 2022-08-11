@@ -32,7 +32,7 @@ async function executeTap (script, expectedOut, more = {}) {
   // console.log({ expectedOut, more })
 
   if (more.exitCode !== undefined && exitCode !== more.exitCode) {
-    errors.add('exitCode is the expected', exitCode, more.exitCode)
+    errors.add('exitCode is not the expected', exitCode, more.exitCode)
   }
 
   stdValidation(errors, 'stderr', stderr, more.stderr)
@@ -45,7 +45,7 @@ async function executeTap (script, expectedOut, more = {}) {
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.add('TAP output matches the expected output', tapout, tapexp)
+      errors.add('TAP output does not matches the expected output', tapout, tapexp)
     }
 
     print('stdout', 'green', stdout)
