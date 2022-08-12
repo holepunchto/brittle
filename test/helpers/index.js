@@ -15,14 +15,12 @@ async function tester (name, fn, expectedOut, expectedMore) {
   name = JSON.stringify(name)
 
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
-  // print('tester', 'yellow', script)
   return executeTap(script, expectedOut, expectedMore)
 }
 
 async function spawner (fn, expectedOut, expectedMore) {
   log(chalk.yellow.bold('Spawner'))
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
-  // print('spawner', 'yellow', script)
   return executeTap(script, expectedOut, expectedMore)
 }
 
@@ -61,12 +59,8 @@ async function executeTap (script, expectedOut, more = {}) {
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      if (!more._silent) print('stdout', 'green', stdout)
-      errors.add('TAP_MISMATCH', 'TAP output does not matches the expected output', tapout, tapexp)
+      errors.add('TAP_MISMATCH', 'TAP output does not matches the expected output', stdout, expectedOut)
     }
-
-    // print('tapout', 'magenta', tapout)
-    // print('tapexp', 'cyan', tapexp)
   }
 
   if (!more._silent && errors.list.length) {
@@ -76,8 +70,10 @@ async function executeTap (script, expectedOut, more = {}) {
       console.error(chalk.red.bold('Error:'), err.error.message)
 
       if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
-        console.error(chalk.red('[actual]'), err.actual)
-        console.error(chalk.red('[expected]'), err.expected)
+        console.error(chalk.red('[actual]'))
+        console.error(err.actual)
+        console.error(chalk.red('[expected]'))
+        console.error(err.expected)
       }
     }
   }
@@ -168,12 +164,4 @@ function log (str) {
   if (!PRINT_ENABLED) return
 
   console.log(str)
-}
-
-function print (name, color, str) {
-  if (!PRINT_ENABLED) return
-
-  console.log(chalk[color]('[' + name + ']'))
-  console.log(str)
-  console.log(chalk[color]('[/' + name + ']'))
 }
