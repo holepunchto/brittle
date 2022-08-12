@@ -280,6 +280,7 @@ class Test {
   header () {
     if (this._headerLogged) return
     this._headerLogged = true
+    this.runner.start()
     this.runner.padding()
     this.runner.comment(this.name || 'test')
   }
