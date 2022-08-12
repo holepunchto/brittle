@@ -365,18 +365,17 @@ class Test {
   }
 
   _assertion (ok, message, explanation, caller, top) {
-    this.runner.assert(true, ok, this._track(false, ok), this._message(message), explanation)
-
     if (this.isEnded || this.isDone) {
-      this._internalFail('assertion after end', explanation)
+      this._internalFail('assertion after end', explain(false, message, 'fail', caller, undefined, undefined, top))
       return
     }
 
     if (this.expected > -1 && this.assertions === this.expected + 1) {
-      const explanation = explain(ok, message, 'is', caller, undefined, undefined, top)
-      this._internalFail('too many assertions', explanation)
+      this._internalFail('too many assertions', explain(false, message, 'is', caller, undefined, undefined, top))
       return
     }
+
+    this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
 
     if (this.expected > -1 && this.assertions === this.expected) {
       this.fulfilledPlan = true
