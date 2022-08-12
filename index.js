@@ -35,8 +35,26 @@ class Runner {
 
     this._timer = highDefTimer()
     this._log = console.log.bind(console)
+    this._paused = null
+    this._resume = null
 
     if (IS_NODE) process.once('beforeExit', () => this.end())
+  }
+
+  resume () {
+    if (!this._paused) return
+    this._resume()
+    this._resume = this._paused = null
+  }
+
+  pause () {
+    if (this._paused) return
+    this._paused = new Promise((resolve) => { this._resume = resolve })
+  }
+
+  async _wait () {
+    await wait()
+    await this._paused
   }
 
   async queue (test) {
@@ -46,7 +64,7 @@ class Runner {
       this.solo = test
     }
 
-    await wait()
+    await this._wait()
 
     if (this.explicitSolo && !test.isSolo) {
       return false
@@ -653,6 +671,8 @@ test.solo = solo
 test.skip = skip
 test.todo = todo
 test.configure = configure
+test.pause = pause
+test.resume = resume
 
 // Used by snapshots
 test.createTypedArray = createTypedArray
@@ -719,6 +739,14 @@ function skip (name, opts, fn) {
 
 function todo (name, opts, fn) {
   return test(name, opts, fn, { todo: true })
+}
+
+function pause () {
+  getRunner().pause()
+}
+
+function resume () {
+  getRunner().resume()
 }
 
 function wait (ticks = 1) {
