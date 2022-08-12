@@ -366,6 +366,8 @@ class Test {
   }
 
   _assertion (ok, message, explanation, caller, top) {
+    this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
+
     if (this.isEnded || this.isDone) {
       this._internalFail('assertion after end', explain(false, message, 'fail', caller, undefined, undefined, top))
       return
@@ -375,8 +377,6 @@ class Test {
       this._internalFail('too many assertions', explain(false, message, 'is', caller, undefined, undefined, top))
       return
     }
-
-    this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
 
     if (this.expected > -1 && this.assertions === this.expected) {
       this.fulfilledPlan = true
