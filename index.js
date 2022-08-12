@@ -430,6 +430,7 @@ class Test {
 
     if (pristineMessage) message = 'should throw'
 
+    this._subs++
     try {
       if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
@@ -448,10 +449,13 @@ class Test {
       }
 
       actual = err
+    } finally {
+      this._subs--
     }
 
     const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
     this._assertion(ok, message, explanation, this._execution, top)
+    this._checkEnd()
   }
 
   async _execution (functionOrPromise, message) {
@@ -463,6 +467,7 @@ class Test {
 
     if (pristineMessage) message = 'should return'
 
+    this._subs++
     try {
       if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
@@ -472,10 +477,13 @@ class Test {
       ok = true
     } catch (err) {
       error = err
+    } finally {
+      this._subs--
     }
 
     const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
     this._assertion(ok, message, explanation, this._execution, top)
+    this._checkEnd()
   }
 
   _snapshot (actual, message = 'should match snapshot') {
