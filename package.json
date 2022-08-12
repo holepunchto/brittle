@@ -1,6 +1,6 @@
 {
   "name": "brittle",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "description": "tap à la mode",
   "main": "index.js",
   "bin": {
