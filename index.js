@@ -201,11 +201,8 @@ class Test {
     this.name = name
     this.passes = 0
     this.fails = 0
-
-    this.expected = -1
     this.assertions = 0
 
-    this.fulfilledPlan = false
     this.isEnded = false
     this.isDone = false
     this.isSolo = false
@@ -251,7 +248,9 @@ class Test {
     this._parent = parent
     this._first = true
     this._wait = false
-    this._subs = 0
+    this._planned = 0
+    this._hasPlan = false
+    this._active = 0
     this._timer = null
 
     this._headerLogged = false
@@ -263,6 +262,10 @@ class Test {
       this.parents.push(parent)
       parent = parent._parent
     }
+  }
+
+  get fulfilledPlan () {
+    return this._hasPlan && this._planned === 0
   }
 
   then (...args) {
@@ -283,6 +286,10 @@ class Test {
     this.runner.start()
     this.runner.padding()
     this.runner.comment(this.name || 'test')
+  }
+
+  _planDoneOrEnd () {
+    return this.isEnded || (this._hasPlan && this._planned === 0)
   }
 
   _timeout (ms, message = 'test timed out') {
@@ -308,7 +315,8 @@ class Test {
       return
     }
 
-    this.expected = n
+    this._hasPlan = true
+    this._planned = n
   }
 
   _comment (...m) {
@@ -356,7 +364,9 @@ class Test {
       return this.runner.tests.count
     }
 
+    if (this._hasPlan) this._planned--
     this._tick(ok)
+
     if (!this.isMain) this.main._tick(ok)
 
     this.runner.assertions.count++
@@ -373,13 +383,12 @@ class Test {
       return
     }
 
-    if (this.expected > -1 && this.assertions === this.expected + 1) {
+    if (this._hasPlan && this._planned < 0) {
       this._internalFail('too many assertions', explain(false, message, 'is', caller, undefined, undefined, top))
       return
     }
 
-    if (this.expected > -1 && this.assertions === this.expected) {
-      this.fulfilledPlan = true
+    if (this._hasPlan && this._planned === 0) {
       this._checkEnd()
     }
   }
@@ -448,7 +457,7 @@ class Test {
 
     if (pristineMessage) message = 'should throw'
 
-    this._subs++
+    this._active++
     try {
       if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
@@ -468,7 +477,7 @@ class Test {
 
       actual = err
     } finally {
-      this._subs--
+      this._active--
     }
 
     const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
@@ -485,7 +494,7 @@ class Test {
 
     if (pristineMessage) message = 'should return'
 
-    this._subs++
+    this._active++
     try {
       if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
@@ -496,7 +505,7 @@ class Test {
     } catch (err) {
       error = err
     } finally {
-      this._subs--
+      this._active--
     }
 
     const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
@@ -538,7 +547,8 @@ class Test {
 
     const t = new Test(name, this)
 
-    this._subs++
+    if (this._hasPlan) this._planned--
+    this._active++
 
     return fn ? t._run(fn, opts || {}) : t
   }
@@ -560,7 +570,7 @@ class Test {
       return
     }
 
-    if (this.expected === -1) this.end()
+    if (!this._hasPlan) this.end()
 
     this._wait = false
     this._checkEnd()
@@ -571,9 +581,9 @@ class Test {
   _end () {
     this.isEnded = true
 
-    if (this.expected > -1 && this.assertions !== this.expected) {
+    if (this._hasPlan && this._planned > 0) {
       const message = 'too few assertions'
-      const explanation = explain(false, message, 'end', this._end, this.assertions, this.expected)
+      const explanation = explain(false, message, 'end', this._end, this._planned, 0)
       this._internalFail(message, explanation)
     }
 
@@ -581,8 +591,8 @@ class Test {
   }
 
   _checkEnd () {
-    if (this._subs || this._wait) return
-    if (this.isEnded || this.assertions === this.expected) this._done()
+    if (this._active || this._wait) return
+    if (this.isEnded || (this._hasPlan && this._planned === 0)) this._done()
   }
 
   _done () {
@@ -599,7 +609,7 @@ class Test {
     if (this._parent) {
       const p = this._parent
 
-      this._parent._subs--
+      this._parent._active--
       this._parent = null
 
       p._checkEnd()
