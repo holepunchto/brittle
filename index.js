@@ -675,19 +675,19 @@ class Test {
   }
 }
 
-test.Test = Test
-test.test = test
-test.solo = solo
-test.skip = skip
-test.todo = todo
-test.configure = configure
-test.pause = pause
-test.resume = resume
+exports = module.exports = test
+
+exports.Test = Test
+exports.test = test
+exports.solo = solo
+exports.skip = skip
+exports.todo = todo
+exports.configure = configure
+exports.pause = pause
+exports.resume = resume
 
 // Used by snapshots
-test.createTypedArray = createTypedArray
-
-module.exports = test
+exports.createTypedArray = createTypedArray
 
 function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false } = {}) {
   const runner = getRunner()
