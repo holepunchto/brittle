@@ -158,7 +158,7 @@ class Runner {
           this.next._onend(new Error('Teardown did not end (unresolved promise)'))
           return
         }
-        this.next._onend(new Error('Test is seems deadlocked'))
+        this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
     }
