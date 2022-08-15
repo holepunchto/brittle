@@ -13,8 +13,5 @@ await tester('comment after end',
       ok 1 - should be equal
   ok 1 - comment after end # time = 0.716469ms
   `,
-  {
-    stderr: { includes: 'Can\'t comment after end' },
-    exitCode: 1
-  }
+  { exitCode: 1, stderr: { includes: 'Can\'t comment after end' } }
 )

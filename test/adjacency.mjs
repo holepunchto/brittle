@@ -32,7 +32,7 @@ await tester('trailing adjacent awaits',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('interruptive adjacent awaits',
@@ -68,7 +68,7 @@ await tester('interruptive adjacent awaits',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('deadlocking adjacent awaits',
@@ -95,8 +95,5 @@ await tester('deadlocking adjacent awaits',
       ok 1 - (little test C) - little passed
       ok 2 - (big test C) - big passed
   `,
-  {
-    stderr: { includes: 'Test did not end' },
-    exitCode: 1
-  }
+  { exitCode: 1, stderr: { includes: 'Test did not end' } }
 )

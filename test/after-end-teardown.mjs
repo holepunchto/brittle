@@ -15,10 +15,7 @@ await tester('classic teardown after end',
       ok 1 - passed
   ok 1 - classic teardown after end # time = 0.711746ms
   `,
-  {
-    stderr: { includes: 'Can\'t add teardown after end' },
-    exitCode: 1
-  }
+  { exitCode: 1, stderr: { includes: 'Can\'t add teardown after end' } }
 )
 
 await spawner(
@@ -37,8 +34,5 @@ await spawner(
       ok 1 - passed
   ok 1 - inverted teardown after end # time = 0.629008ms
   `,
-  {
-    stderr: { includes: 'Can\'t add teardown after end' },
-    exitCode: 1
-  }
+  { exitCode: 1, stderr: { includes: 'Can\'t add teardown after end' } }
 )

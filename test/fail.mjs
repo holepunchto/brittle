@@ -29,7 +29,7 @@ await tester('classic no plan',
 
   # not ok
   `,
-  { exitCode: 1 }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('classic with plan',
@@ -62,7 +62,7 @@ await tester('classic with plan',
 
   # not ok
   `,
-  { exitCode: 1 }
+  { exitCode: 1, stderr: '' }
 )
 
 await spawner(
@@ -101,7 +101,7 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1 }
+  { exitCode: 1, stderr: '' }
 )
 
 await spawner(
@@ -141,5 +141,5 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1 }
+  { exitCode: 1, stderr: '' }
 )

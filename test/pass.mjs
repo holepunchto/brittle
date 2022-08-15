@@ -18,7 +18,7 @@ await tester('classic no plan',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic plan',
@@ -40,7 +40,7 @@ await tester('classic plan',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic plan w/comment',
@@ -62,7 +62,7 @@ await tester('classic plan w/comment',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -85,7 +85,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -109,7 +109,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -133,5 +133,5 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )

@@ -167,7 +167,6 @@ class Runner {
       this.log('Bail out!')
     }
 
-
     this.padding()
     this.log('1..' + this.tests.count)
     this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')

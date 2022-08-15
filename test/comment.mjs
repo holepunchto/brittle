@@ -1,5 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
+// + Should add a feature in spawner to also check the comments for tap outputs
+
 await tester('classic comment',
   function (t) {
     t.pass()
@@ -20,7 +22,7 @@ await tester('classic comment',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic comment after classic child',
@@ -45,7 +47,7 @@ await tester('classic comment after classic child',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic comment after inverted child',
@@ -72,7 +74,7 @@ await tester('classic comment after inverted child',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic comment inside classic child',
@@ -99,7 +101,7 @@ await tester('classic comment inside classic child',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await tester('classic comment on inverted child',
@@ -126,7 +128,7 @@ await tester('classic comment on inverted child',
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -151,7 +153,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -178,7 +180,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -207,7 +209,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -238,7 +240,7 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -269,5 +271,5 @@ await spawner(
 
   # ok
   `,
-  { exitCode: 0 }
+  { exitCode: 0, stderr: '' }
 )

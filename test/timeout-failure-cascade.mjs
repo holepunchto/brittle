@@ -18,8 +18,5 @@ await spawner(
 
   # tbd
   `,
-  {
-    stderr: { includes: 'Test timed out after 10 ms' },
-    exitCode: 1
-  }
+  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
 )

@@ -2,17 +2,19 @@ import { spawner } from './helpers/index.js'
 
 await spawner(
   function ({ test, solo }) {
-    solo()
-
     test('skip this one', function (t) {
       t.pass()
     })
 
-    solo('only one solo is ran', function (t) {
+    solo('this solo is skipped', function (t) {
       t.pass()
     })
 
     test('skip this other one', function (t) {
+      t.pass()
+    })
+
+    solo('only one solo is ran', function (t) {
       t.pass()
     })
   },
@@ -21,12 +23,12 @@ await spawner(
 
   # only one solo is ran
       ok 1 - passed
-  ok 1 - only one solo is ran # time = 0.332794ms
+  ok 1 - only one solo is ran # time = 0.613949ms
 
   1..1
   # tests = 1/1 pass
   # asserts = 1/1 pass
-  # time = 3.964696ms
+  # time = 3.695355ms
 
   # ok
   `,

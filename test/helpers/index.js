@@ -25,7 +25,8 @@ async function spawner (fn, expectedOut, expectedMore) {
 }
 
 async function executeTap (script, expectedOut, more = {}) {
-  if (typeof expectedOut === 'object') [more, expectedOut] = [expectedOut, '']
+  if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
+  if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
   const { exitCode, error, stdout, stderr } = await executeCode(script)
   const errors = new Errors()
@@ -34,27 +35,14 @@ async function executeTap (script, expectedOut, more = {}) {
   // log({ exitCode, error, stdout, stderr })
   // log({ expectedOut, more })
 
-  if (more.exitCode !== undefined) {
-    if (typeof more.exitCode === 'number') {
-      if (exitCode !== more.exitCode) {
-        errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', exitCode, more.exitCode)
-      }
-    } else if (typeof more.exitCode === 'string') {
-      if (EXIT_CODES_VK[exitCode] === undefined || EXIT_CODES_KV[more.exitCode] === undefined || exitCode !== EXIT_CODES_KV[more.exitCode]) {
-        errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', exitCode + ' (' + EXIT_CODES_VK[exitCode] + ')', EXIT_CODES_KV[more.exitCode] + ' (' + more.exitCode + ')')
-      }
-    } else {
-      throw new Error('exitCode type not supported (only number or string)')
-    }
-  }
+  exitCodeValidation(errors, exitCode, more.exitCode)
 
   stdValidation(errors, 'stderr', stderr, more.stderr)
-  stdValidation(errors, 'stdout', stdout, more.stdout)
 
   if (error) errors.add('NODE_ERROR', error)
   if (!more.stderr && stderr) errors.add('STDERR', stderr)
 
-  if (!error && (more.stderr || !stderr) && expectedOut) {
+  if (!error && expectedOut !== undefined) {
     tapout = standardizeTap(stdout)
     tapexp = standardizeTap(expectedOut)
 
@@ -81,19 +69,55 @@ async function executeTap (script, expectedOut, more = {}) {
   return { errors: errors.list, exitCode, stdout, tapout, tapexp, stderr }
 }
 
+function exitCodeValidation (errors, actual, expected) {
+  if (expected === undefined) return
+
+  if (typeof expected === 'number') {
+    if (actual !== expected) {
+      errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', actual, expected)
+    }
+    return
+  }
+
+  if (typeof expected === 'string') {
+    const expectedCode = EXIT_CODES_KV[expected]
+    const errorName = EXIT_CODES_VK[actual]
+    if (errorName === undefined || expectedCode === undefined || actual !== expectedCode) {
+      errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', actual + ' (' + errorName + ')', expectedCode + ' (' + expected + ')')
+    }
+    return
+  }
+
+  throw new Error('exitCode type not supported (only number or string)')
+}
+
 function stdValidation (errors, name, actual, std) {
   // log('stdValidation', { errors, name, actual, std })
   if (std === undefined) return
 
-  if (std && typeof std === 'object') {
-    if (std.includes) {
+  if (typeof std === 'string') {
+    if (actual !== std) {
+      errors.add(name.toUpperCase() + '_VALIDATION', name + ' is not the expected', actual, std)
+    }
+    return
+  }
+
+  if (typeof std === 'object' && std) {
+    if (typeof std.includes === 'string') {
+      if (!std.includes) {
+        throw new Error('Expected stderr.includes can not be empty')
+      }
+
       if (!actual || !actual.includes(std.includes)) {
         errors.add(name.toUpperCase() + '_VALIDATION', name + ' did not include the expected', actual, std.includes)
       }
+      return
     }
-  } else {
-    throw new Error('Expected type not supported (only object)')
+
+    throw new Error('Expected stderr is required')
   }
+
+  throw new Error('Expected type not supported (only string or object)')
 }
 
 class Errors {
@@ -149,7 +173,7 @@ function executeCode (script) {
 
 function standardizeTap (stdout) {
   return stdout
-    .replace(/#.+\n/g, '\n') // strip comments
+    .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/\n[^\n]*node:internal[^\n]*\n/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(\[eval\])[^\n]*\n/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(Test\._run) \((.*):[\d]+:[\d]+\)[^\n]*\n/g, '\n$1 ($2:13:37)\n') // static line numbers for "Test._run"
@@ -160,8 +184,8 @@ function standardizeTap (stdout) {
     .join('\n')
 }
 
-function log (str) {
+function log (...str) {
   if (!PRINT_ENABLED) return
 
-  console.log(str)
+  console.log(...str)
 }
