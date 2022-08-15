@@ -154,7 +154,11 @@ class Runner {
       }
 
       if (!this.next.isResolved) {
-        this.next._onend(new Error('Teardown did not end (unresolved promise)'))
+        if (this.next.isDone) {
+          this.next._onend(new Error('Teardown did not end (unresolved promise)'))
+          return
+        }
+        this.next._onend(new Error('Test is seems deadlocked'))
         return
       }
 
@@ -561,8 +565,8 @@ class Test {
       await fn(this)
     } catch (err) {
       this._wait = false
-      this.reject(err)
-      return
+      this._onend(err)
+      throw err
     }
 
     if (!this._hasPlan) this.end()
