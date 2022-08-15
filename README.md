@@ -1,9 +1,13 @@
 # brittle
 
-TAP test runner built with few dependencies for Node.js, Browsers and React Native.
+> tap à la mode
+
+A TAP test runner built for modern times.
+
+<img width=300 height=200 src=brittle.png>
 
 ```
-npm i brittle@next
+npm i brittle
 ```
 
 ## Usage

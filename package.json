@@ -1,7 +1,7 @@
 {
   "name": "brittle",
   "version": "3.0.0-alpha.4",
-  "description": "tap à la mode",
+  "description": "A TAP test runner built for modern times",
   "main": "index.js",
   "bin": {
     "brittle": "./cmd.js"
@@ -21,5 +21,13 @@
   "devDependencies": {
     "chalk": "^4.1.2",
     "standard": "^17.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holepunchto/brittle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/holepunchto/brittle/issues"
+  },
+  "homepage": "https://github.com/holepunchto/brittle#readme"
 }
