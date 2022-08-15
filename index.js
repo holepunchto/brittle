@@ -149,7 +149,7 @@ class Runner {
   end () {
     if (this.next) {
       if (!this.next.isEnded && !this.next.fulfilledPlan) {
-        this.next._onend(new Error('Test did not end'))
+        this.next._onend(prematureEnd(this.next, 'Test did not end'))
         return
       }
 
@@ -345,12 +345,6 @@ class Test {
     }
 
     return m
-  }
-
-  _internalFail (msg, explanation) {
-    const isResolved = this.main.isResolved
-    const message = '- ' + msg + (isResolved ? ' (in ' + this.main.name + ')' : '')
-    this.runner.assert(!isResolved, false, this._track(isResolved, false), message, explanation)
   }
 
   _tick (ok) {
@@ -568,7 +562,6 @@ class Test {
     } catch (err) {
       this._wait = false
       this.reject(err)
-      this._checkEnd()
       return
     }
 
@@ -584,9 +577,7 @@ class Test {
     this.isEnded = true
 
     if (this._hasPlan && this._planned > 0) {
-      const message = 'too few assertions'
-      const explanation = explain(false, message, 'end', this._end, this._planned, 0)
-      this._internalFail(message, explanation)
+      throw prematureEnd(this, 'Too few assertions')
     }
 
     this._checkEnd()
@@ -821,4 +812,12 @@ function isUncaught (err) {
 function getRunner () {
   if (!global[RUNNER]) global[RUNNER] = new Runner()
   return global[RUNNER]
+}
+
+function prematureEnd (t, message) {
+  const details = t._hasPlan
+    ? ' [assertion count (' + t.assertions + ') did not reach plan (' + (t.assertions + t._planned) + ')]'
+    : ''
+
+  return new Error(message + details)
 }
