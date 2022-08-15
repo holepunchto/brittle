@@ -6,11 +6,16 @@ A TAP test runner built for modern times.
 
 <img width=300 height=200 src=brittle.png>
 
+## Usage
+
+First install brittle from npm
+
 ```
 npm i brittle
 ```
 
-## Usage
+Then start writing tests
+
 ```javascript
 import test from 'brittle'
 
