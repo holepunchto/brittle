@@ -744,12 +744,14 @@ function test (name, opts, fn, defaults) {
   if (t.isSkip) {
     throw new Error('An inverted test cannot be skipped')
   }
-
   if (t.isTodo) {
-    t.runner._skip('TODO', t)
-  } else {
-    t._onstart(opts)
+    throw new Error('An inverted test cannot be marked as todo')
   }
+  if (t.isSolo) {
+    t.runner.solo = t
+  }
+
+  t._onstart(opts)
 
   return t
 }
