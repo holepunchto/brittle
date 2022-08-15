@@ -312,6 +312,7 @@ class Test {
       this._onend(new Error('Test timed out after ' + ms + ' ms'))
     }
 
+    if (this._to) clearTimeout(this._to)
     this._to = setTimeout(ontimeout, ms)
     if (this._to.unref) this._to.unref()
   }
