@@ -149,12 +149,15 @@ class Runner {
   end () {
     if (this.next) {
       if (!this.next.isEnded && !this.next.fulfilledPlan) {
-        this.next._internalFail('test did not end', null)
-        this.next._onend(null)
-      } else if (!this.next.isResolved) {
-        this.next._internalFail('teardown has unresolved promise', null)
-        this.next._onend(null)
+        this.next._onend(new Error('Test did not end'))
+        return
       }
+
+      if (!this.next.isResolved) {
+        this.next._onend(new Error('Teardown did not end (unresolved promise)'))
+        return
+      }
+
       if (this.bail && this.skipAll) {
         this.log('Bail out!')
       }
@@ -293,7 +296,7 @@ class Test {
     return this.isEnded || (this._hasPlan && this._planned === 0)
   }
 
-  _timeout (ms, message = 'test timed out') {
+  _timeout (ms) {
     if (!ms) {
       if (this._to) clearTimeout(this._to)
       this._to = null
@@ -311,9 +314,7 @@ class Test {
 
   _plan (n) {
     if (typeof n !== 'number' || n < 0) {
-      const message = 'plan takes a positive whole number only'
-      this._internalFail(message, explain(false, message, 'plan', this._plan))
-      return
+      throw new Error('Plan takes a positive whole number only')
     }
 
     this._hasPlan = true
@@ -380,13 +381,11 @@ class Test {
     this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
 
     if (this.isEnded || this.isDone) {
-      this._internalFail('assertion after end', explain(false, message, 'fail', caller, undefined, undefined, top))
-      return
+      throw new Error('Assertion after end')
     }
 
     if (this._hasPlan && this._planned < 0) {
-      this._internalFail('too many assertions', explain(false, message, 'is', caller, undefined, undefined, top))
-      return
+      throw new Error('Too many assertions')
     }
 
     if (this._hasPlan && this._planned === 0) {
@@ -669,7 +668,7 @@ class Test {
 
     const ok = (this.fails === 0)
 
-    if (this.isMain) {
+    if (this.isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
       this.runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
     }
@@ -677,12 +676,12 @@ class Test {
     this.isResolved = true
     this.isDone = true
 
-    if (err) this.reject(err)
-    else this.resolve(ok)
-
     if (this.isMain && this.runner.next === this) {
       this.runner.next = null
     }
+
+    if (err) this.reject(err)
+    else this.resolve(ok)
   }
 }
 
@@ -704,7 +703,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false } = 
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
-    throw new Error('configuration must happen prior to registering any tests')
+    throw new Error('Configuration must happen prior to registering any tests')
   }
 
   runner.defaultTimeout = timeout
