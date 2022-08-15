@@ -161,11 +161,12 @@ class Runner {
         this.next._onend(new Error('Test is seems deadlocked'))
         return
       }
-
-      if (this.bail && this.skipAll) {
-        this.log('Bail out!')
-      }
     }
+
+    if (this.bail && this.skipAll) {
+      this.log('Bail out!')
+    }
+
 
     this.padding()
     this.log('1..' + this.tests.count)
