@@ -94,15 +94,9 @@ await tester('deadlocking adjacent awaits',
   # deadlocking adjacent awaits
       ok 1 - (little test C) - little passed
       ok 2 - (big test C) - big passed
-      not ok 3 - test did not end
-  not ok 1 - deadlocking adjacent awaits # time = 0.982872ms
-
-  1..1
-  # tests = 0/1 pass
-  # asserts = 2/3 pass
-  # time = 3.671312ms
-
-  # not ok
   `,
-  { exitCode: 1 }
+  {
+    stderr: { includes: 'Test did not end' },
+    exitCode: 1
+  }
 )

@@ -17,7 +17,6 @@ await spawner(
   TAP version 13
 
   # tbd
-  ok 1 - tbd # time = 10.865197ms
   `,
   {
     stderr: { includes: 'Test timed out after 10 ms' },
