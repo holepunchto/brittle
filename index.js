@@ -739,12 +739,10 @@ function test (name, opts, fn, defaults) {
   if (opts.todo) t.isTodo = true
 
   if (fn) return t._run(fn, opts)
+  if (t.isTodo) return t._run(() => {}, opts)
 
   if (t.isSkip) {
     throw new Error('An inverted test cannot be skipped')
-  }
-  if (t.isTodo) {
-    throw new Error('An inverted test cannot be marked as todo')
   }
   if (t.isSolo) {
     t.runner.solo = t

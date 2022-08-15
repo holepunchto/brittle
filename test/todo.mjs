@@ -47,10 +47,20 @@ await spawner(
 
 await spawner(
   function ({ todo }) {
-    const t = todo('inverted todo')
-    t.pass()
-    t.end()
+    todo('inverted todo')
   },
-  '',
-  { exitCode: 1, stderr: { includes: 'An inverted test cannot be marked as todo' } }
+  `
+  TAP version 13
+
+  # inverted todo
+  ok 1 - inverted todo # TODO
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 0/0 pass
+  # time = 1.743833ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
 )
