@@ -736,7 +736,14 @@ function test (name, opts, fn, defaults) {
 
   if (fn) return t._run(fn, opts)
 
-  t._onstart(opts)
+  if (t.isSkip) {
+    t.runner._skip('SKIP', t)
+  } else if (t.isTodo) {
+    t.runner._skip('TODO', t)
+  } else {
+    t._onstart(opts)
+  }
+
   return t
 }
 
