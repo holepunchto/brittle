@@ -13,23 +13,28 @@ import test from 'brittle'
 test('basic', function (t) {
   t.is(typeof Date.now(), 'number')
   t.not(typeof Date.now(), 'string')
+
   t.ok(Date.now() > 0)
   t.absent(null)
-})
 
-test('deep equal', function (t) {
+  t.comment('text')
+
   t.alike({ a: 1 }, { a: 1 })
-  t.unlike({ a: 1 }, { a: 2 })
+  t.unlike({ a: 2 }, { a: 3 })
+
+  t.pass()
+  t.fail()
 })
 
-test('promises', async function (t) {
-  await new Promise(r => { setTimeout(r, 250) })
+test('asynchronous', async function (t) {
+  await new Promise(r => setTimeout(r, 250))
   t.pass()
 })
 
 test('plans', function (t) {
-  t.plan(1)
+  t.plan(2)
   t.pass()
+  setTimeout(() => t.pass(), 250)
 })
 
 test('classic subtest', function (t) {
@@ -45,13 +50,13 @@ test('inverted subtest', function (t) {
   sub.pass()
 })
 
-test('assert throws', function (t) {
+test('executions', async function (t) {
   t.execution(() => 'should not throw')
-  t.exception(() => { throw Error('expected to throw') })
+  await t.execution(async () => 'should not reject')
 })
 
-test('assert rejections', async function (t) {
-  await t.execution(async () => 'should not reject')
+test('exceptions', async function (t) {
+  t.exception(() => { throw Error('expected to throw') })
   await t.exception(async () => { throw Error('expected to reject') })
 })
 
@@ -69,6 +74,10 @@ setTimeout(() => c.pass(), 250)
 await c
 ```
 
+Every assertion can have a message, i.e. `t.pass('msg')`, `t.ok(false, 'should be true')`, etc.\
+There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
+Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
+
 ## API
 
 ```js
@@ -81,7 +90,7 @@ Create a classic test with an optional `name`.
 
 #### Available `options` for any test creation:
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
- * `solo` (`false`) - Skip all other tests except the `solo()` ones.
+ * `solo` (`false`) - Skip all other tests except the `solo()` one.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
 
@@ -92,7 +101,7 @@ The `callback` function (can be async) receives an object called `assert`.\
 import test from 'brittle'
 
 test('basic', function (t) {
-  t.ok(true)
+  t.pass()
 })
 ```
 
@@ -110,7 +119,7 @@ Any test function returns a promise so you can optionally await for its result:
 
 ```js
 const isOk = await test('basic', function (t) {
-  t.ok(true)
+  t.pass()
 })
 ```
 
@@ -132,7 +141,7 @@ const t = test('basic')
 t.plan(1)
 
 setTimeout(() => {
-  t.ok(true)
+  t.pass()
 }, 1000)
 
 await t // Won't proceed past here until plan is fulfilled
@@ -144,7 +153,7 @@ For inverted tests without a plan, the `end` method must be called:
 const t = test('basic')
 
 setTimeout(() => {
-  t.ok(true)
+  t.pass()
   t.end()
 }, 1000)
 
@@ -155,7 +164,7 @@ The `end()` method can be called inline, for inverted tests without a plan:
 
 ```js
 const t = test('basic')
-t.ok(true)
+t.pass()
 t.end()
 ```
 
@@ -182,8 +191,8 @@ t.pass()
 const isOk = await t
 ```
 
-#### `assert.test([name], [options], callback)`
-#### `assert.test([name], [options]) => assert`
+#### `t.test([name], [options], callback)`
+#### `t.test([name], [options]) => assert`
 
 A subtest can be created by calling `test` on an `assert` (or `t`) object.\
 This will provide a new sub-assert object.
@@ -207,7 +216,7 @@ test('basic', async function (t) {
   await a
   await b
 
-  t.ok('cool')
+  t.pass()
 })
 ```
 
@@ -217,11 +226,11 @@ Subtest test options can be set by passing an object to the `test` function:
 test('parent', { timeout: 1000 }, function (t) {
   t.test('basic using parent config', async function (t) {
     await new Promise(r => setTimeout(r, 500))
-    t.ok(true)
+    t.pass()
   })
 
   t.test('another basic using parent config', function (t) {
-    t.ok(true)
+    t.pass()
   })
 })
 ```
@@ -246,34 +255,30 @@ Filter out other tests by using the `solo` method:
 import { test, solo } from 'brittle'
 
 test('this test is skipped', function (t) {
-  t.ok(true)
+  t.pass()
 })
 
 solo('some test', function (t) {
-  t.ok(true)
-})
-
-solo('another test', function (t) {
-  t.ok(true)
+  t.pass()
 })
 ```
 
-If a `solo` function is used, `test` functions will not execute, only `solo` functions.\
-Note how there can be more than one `solo` tests.
+If a `solo` function is used, `test` functions will not execute.\
+If you have multiple `solo` tests then only one will be executed.
 
 If `solo` is used in a future tick (for example, in a `setTimeout` callback),\
 after `test` has already been used those tests won't be filtered.
 
 A few ways to enable `solo` functions:
-- You can call `solo()` without callback underneath the imports.
 - Use `configure({ solo: true })` before any tests.
+- You can call `solo()` without callback underneath the imports.
 - Using the `--solo` flag with the `brittle` test runner.
 
 It can also be used as an inverted test:
 
 ```js
 const t = test.solo('inverted some test')
-t.ok(true)
+t.pass()
 t.end()
 ```
 
@@ -285,15 +290,15 @@ Skip a test:
 import { test, skip } from 'brittle'
 
 skip('this test is skipped', function (t) {
-  t.ok(true)
+  t.pass()
 })
 
 test('middle test', function (t) {
-  t.ok(true)
+  t.pass()
 })
 
 test.skip('another skipped test', function (t) {
-  t.ok(true)
+  t.pass()
 })
 ```
 
@@ -308,7 +313,7 @@ It must be executed before any tests.
 
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
  * `bail` (`false`) - exit the process on first test failure
- * `solo` (`false`) - Skip all other tests except the `solo()` ones.
+ * `solo` (`false`) - Skip all other tests except the `solo()` one.
 
 ```js
 import { configure } from 'brittle'
@@ -318,53 +323,53 @@ configure({ timeout: 15000 }) // All tests will have a 15 seconds timeout
 
 ### Assertions
 
-#### `is(actual, expected, [message])`
+#### `t.is(actual, expected, [message])`
 
 Compare `actual` to `expected` with `===`
 
-#### `not(actual, expected, [message])`
+#### `t.not(actual, expected, [message])`
 
 Compare `actual` to `expected` with `!==`
 
-#### `alike(actual, expected, [message])`
+#### `t.alike(actual, expected, [message])`
 
 Object comparison, comparing all primitives on the 
 `actual` object to those on the `expected` object
 using `===`.
 
-#### `unlike(actual, expected, [message])`
+#### `t.unlike(actual, expected, [message])`
 
 Object comparison, comparing all primitives on the 
 `actual` object to those on the `expected` object
 using `!==`.
 
-#### `ok(value, [message])`
+#### `t.ok(value, [message])`
 
 Checks that `value` is truthy: `!!value === true`
 
-#### `absent(value, [message])`
+#### `t.absent(value, [message])`
 
 Checks that `value` is falsy: `!!value === false`
 
-#### `pass([message])`
+#### `t.pass([message])`
 
 Asserts success. Useful for explicitly confirming
 that a function was called, or that behavior is 
 as expected.
 
-#### `fail([message])`
+#### `t.fail([message])`
 
 Asserts failure. Useful for explicitly checking
 that a function should not be called.
 
-#### `exception(Promise|function|async function, [error], [message])`
+#### `t.exception(Promise|function|async function, [error], [message])`
 
 Verify that a function throws, or a promise rejects.
 
 ```js
-exception(() => { throw Error('an err') }, /an err/)
-await exception(async () => { throw Error('an err') }, /an err/)
-await exception(Promise.reject(Error('an err')), /an err/)
+t.exception(() => { throw Error('an err') }, /an err/)
+await t.exception(async () => { throw Error('an err') }, /an err/)
+await t.exception(Promise.reject(Error('an err')), /an err/)
 ```
 
 If the error is an instance of any of the following native error constructors,
@@ -376,44 +381,50 @@ then this will still result in failure since native errors often tend to be unin
 * `EvalError`
 * `RangeError`
 
-#### `exception.all(Promise|function|async function, [error], [message])`
+If a `t.exception` is async, then you're supposed to await it.
+
+#### `t.exception.all(Promise|function|async function, [error], [message])`
 
 Verify that a function throws, or a promise rejects, including native errors.
 
 ```js
-exception.all(() => { throw Error('an err') }, /an err/)
-await exception.all(async () => { throw Error('an err') }, /an err/)
-await exception.all(Promise.reject(new SyntaxError('native error')), /native error/)
+t.exception.all(() => { throw Error('an err') }, /an err/)
+await t.exception.all(async () => { throw Error('an err') }, /an err/)
+await t.exception.all(Promise.reject(new SyntaxError('native error')), /native error/)
 ```
 
-The `exception.all` method is an escape-hatch so it can be used with the
+The `t.exception.all` method is an escape-hatch so it can be used with the
 normally filtered native errors.
 
-#### `execution(Promise|function|async function, [message])`
+If a `t.exception.all` is async, then you're supposed to await it.
+
+#### `t.execution(Promise|function|async function, [message])`
 
 Assert that a function executes instead of throwing or that a promise resolves instead of rejecting.
 
 ```js
-execution(() => { })
-await execution(async () => { })
-await execution(Promise.resolve('cool'))
+t.execution(() => {})
+await t.execution(async () => {})
+await t.execution(Promise.resolve('cool'))
 ```
 
-#### `is.coercively(actual, expected, [message])`
+If a `t.execution` is async, then you're supposed to await it
+
+#### `t.is.coercively(actual, expected, [message])`
 
 Compare `actual` to `expected` with `==`.
 
-#### `not.coercively(actual, expected, [message])`
+#### `t.not.coercively(actual, expected, [message])`
 
 Compare `actual` to `expected` with `!=`.
 
-#### `alike.coercively(actual, expected, [message])`
+#### `t.alike.coercively(actual, expected, [message])`
 
 Object comparison, comparing all primitives on the 
 `actual` object to those on the `expected` object
 using `==`.
 
-#### `unlike.coercively(actual, expected, [message])`
+#### `t.unlike.coercively(actual, expected, [message])`
 
 Object comparison, comparing all primitives on the 
 `actual` object to those on the `expected` object
@@ -421,11 +432,11 @@ using `!=`.
 
 ### Utilities
 
-#### `plan(n)`
+#### `t.plan(n)`
 
 Constrain a test to an explicit amount of assertions.
 
-#### `teardown(function|async function, [options])`
+#### `t.teardown(function|async function, [options])`
 
 #### Available `options` for teardowns:
  * `order` (`0`) - set the ascending position priority for a teardown to be executed.
@@ -448,11 +459,11 @@ test('basic', function (t) {
 If `teardown` is called multiple times in a test, every function passed will be called after the test ends:
 
 ```js
-test('basic', async function (t) {
+test('basic', function (t) {
   t.teardown(doSomeCleanUp)
 
   const timeoutId = setTimeout(() => {}, 1000)
-  t.teardown(() => { clearTimeout(timeoutId) })
+  t.teardown(() => clearTimeout(timeoutId))
 
   t.ok('again, cool')
 })
@@ -484,15 +495,15 @@ test('teardown order', function (t) {
 
 The `A` teardown is executed first, then `B`, and finally `C` due to the `order` option.
 
-#### `timeout(ms)`
+#### `t.timeout(ms)`
 
 Fail the test after a given timeout.  
 
-#### `comment(message)`
+#### `t.comment(message)`
 
 Inject a TAP comment into the output.
 
-#### `end()`
+#### `t.end()`
 
 Force end a test.\
 `end` is determined by `assert` resolution or when a containing async function completes.\
