@@ -751,6 +751,7 @@ function test (name, opts, fn, defaults) {
 }
 
 function solo (name, opts, fn) {
+  if (!name && !opts && !fn) return test.configure({ solo: true })
   return test(name, opts, fn, { solo: true })
 }
 
