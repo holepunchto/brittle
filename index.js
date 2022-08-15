@@ -209,6 +209,7 @@ class Test {
     this.isSkip = false
     this.isTodo = false
     this.isResolved = false
+    this.isQueued = false
     this.isMain = this.main === this
 
     // allow destructuring by binding the functions
@@ -554,6 +555,8 @@ class Test {
   }
 
   async _run (fn, opts) {
+    this.isQueued = true
+
     if (!this._parent) {
       if (!(await this.runner.queue(this))) return
     }
@@ -575,7 +578,7 @@ class Test {
     this._wait = false
     this._checkEnd()
 
-    return this
+    await this
   }
 
   _end () {
@@ -648,6 +651,10 @@ class Test {
       : opts && opts.timeout // non main ones do not
 
     if (this.isMain) {
+      if (!this.isQueued) {
+        if (this.runner.next) throw new Error('Only run test can be running at the same time')
+        this.runner.next = this
+      }
       this.header()
       this._timer = highDefTimer()
     }
@@ -672,6 +679,10 @@ class Test {
 
     if (err) this.reject(err)
     else this.resolve(ok)
+
+    if (this.isMain && this.runner.next === this) {
+      this.runner.next = null
+    }
   }
 }
 
