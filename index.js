@@ -742,8 +742,10 @@ function test (name, opts, fn, defaults) {
   if (fn) return t._run(fn, opts)
 
   if (t.isSkip) {
-    t.runner._skip('SKIP', t)
-  } else if (t.isTodo) {
+    throw new Error('An inverted test cannot be skipped')
+  }
+
+  if (t.isTodo) {
     t.runner._skip('TODO', t)
   } else {
     t._onstart(opts)
