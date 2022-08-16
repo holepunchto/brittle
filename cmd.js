@@ -1,28 +1,38 @@
 #!/usr/bin/env node
 
 const path = require('path')
+const glob = require('glob')
+const minimist = require('minimist')
 
-const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim())
+const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
+const argv = minimist(args, {
+  alias: {
+    solo: 's',
+    bail: 'b',
+    coverage: 'cov',
+    cov: 'c',
+    runner: 'r'
+  },
+  boolean: ['solo', 'bail', 'coverage']
+})
 
-for (const arg of process.argv) {
-  if (arg[0] === '-') args.push(arg)
-}
+const files = []
+for (const g of argv._) files.push(...glob.sync(g))
 
-const cov = flag('coverage', 'cov')
-const bail = flag('bail')
-const solo = flag('solo')
-const runner = flag('runner') || flag('r')
+const { solo, bail, cov } = argv
 
 process.title = 'brittle'
 
-if (runner) {
+if (argv.runner) {
   const fs = require('fs')
 
-  const i = flag('runner') ? process.argv.indexOf('--runner') : process.argv.indexOf('-r')
-  const out = path.resolve(process.argv[i + 1])
-  const dir = path.dirname(out)
+  if (argv.runner === true) {
+    console.error('--runner must be a path to the generated test runner')
+    process.exit(2)
+  }
 
-  process.argv.splice(i, 2) // remove it, easier for now
+  const out = path.resolve(argv.runner)
+  const dir = path.dirname(out)
 
   let s = ''
 
@@ -34,10 +44,8 @@ if (runner) {
 
   s += '  test.pause()\n\n'
 
-  for (const arg of process.argv.slice(2)) {
-    if (arg.startsWith('-')) continue
-
-    const t = path.resolve(arg)
+  for (const f of files) {
+    const t = path.resolve(f)
     if (t === out) continue
 
     let r = path.relative(dir, t)
@@ -81,19 +89,9 @@ async function start () {
 
   brittle.pause()
 
-  for (const arg of process.argv.slice(2)) {
-    if (arg.startsWith('-')) continue
-    await import('file://' + path.resolve(arg))
+  for (const f of files) {
+    await import('file://' + path.resolve(f))
   }
 
   brittle.resume()
-}
-
-function flag (...names) {
-  for (const name of names) {
-    if (args.includes('-' + name)) return true
-    if (args.includes('--no-' + name)) return false
-    if (args.includes('--' + name)) return true
-  }
-  return undefined
 }
