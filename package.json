@@ -11,6 +11,11 @@
   "scripts": {
     "test": "standard && node test/all.mjs"
   },
+  "files": [
+    "index.js",
+    "cmd.js",
+    "lib/**.js"
+  ],
   "dependencies": {
     "b4a": "^1.6.0",
     "c8": "^7.11.3",
