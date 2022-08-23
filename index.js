@@ -493,6 +493,8 @@ class Test {
 
     if (pristineMessage) message = 'should return'
 
+    const time = highDefTimer()
+
     this._active++
     try {
       if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
@@ -507,9 +509,13 @@ class Test {
       this._active--
     }
 
+    const elapsed = time()
+
     const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
+
+    return elapsed
   }
 
   _snapshot (actual, message = 'should match snapshot') {

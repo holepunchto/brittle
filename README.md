@@ -409,7 +409,7 @@ If a `t.exception.all` is async, then you're supposed to await it.
 
 #### `t.execution(Promise|function|async function, [message])`
 
-Assert that a function executes instead of throwing or that a promise resolves instead of rejecting.
+Assert that a function executes instead of throwing or that a promise resolves instead of rejecting. Resolves to the execution time, in milliseconds, of the function or promise.
 
 ```js
 t.execution(() => {})
