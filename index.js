@@ -149,7 +149,7 @@ class Runner {
   end () {
     if (this.next) {
       if (!this.next.isEnded && !this.next.fulfilledPlan) {
-        this.next._onend(prematureEnd(this.next, 'Test did not end'))
+        this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
         return
       }
 
