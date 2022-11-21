@@ -103,7 +103,7 @@ await spawner(
   # top level inverted
       ok 1 - passed
   `,
-  { exitCode: 1, stderr: { includes: 'Test did not end [assertion count (1) did not reach plan (2)]' } }
+  { exitCode: 1, stderr: { includes: 'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]' } }
 )
 
 await spawner(

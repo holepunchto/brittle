@@ -174,8 +174,8 @@ function executeCode (script) {
 function standardizeTap (stdout) {
   return stdout
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
-    .replace(/\n[^\n]*node:internal[^\n]*\n/g, '\n') // strip internal node stacks
-    .replace(/\n[^\n]*(\[eval\])[^\n]*\n/g, '\n') // strip internal node stacks
+    .replace(/\n[^\n]*node:(?:internal|vm)[^\n]*/g, '\n') // strip internal node stacks
+    .replace(/\n[^\n]*(\[eval\])[^\n]*/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(Test\._run) \((.*):[\d]+:[\d]+\)[^\n]*\n/g, '\n$1 ($2:13:37)\n') // static line numbers for "Test._run"
     .replace(/[/\\]/g, '/')
     .split('\n')
