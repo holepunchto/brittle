@@ -323,7 +323,7 @@ It must be executed before any tests.
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
  * `bail` (`false`) - exit the process on first test failure
  * `solo` (`false`) - skip all other tests except the `solo()` one
- * `source` (`true`) - shows extra error `source` information
+ * `source` (`true`) - shows error `source` information
 
 ```js
 import { configure } from 'brittle'
