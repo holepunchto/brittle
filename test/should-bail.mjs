@@ -25,10 +25,6 @@ await spawner(
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 9
-          column: 9
-          file: /[eval]
         stack: |
           [eval]:9:9
           Test._run (./index.js:555:13)

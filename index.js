@@ -32,7 +32,7 @@ class Runner {
     this.bail = false
     this.skipAll = false
     this.explicitSolo = false
-    this.top = true
+    this.source = true
 
     this._timer = highDefTimer()
     this._log = console.log.bind(console)
@@ -702,7 +702,7 @@ exports.resume = resume
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, top = true } = {}) {
+function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, source = true } = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
@@ -712,7 +712,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, top
   runner.defaultTimeout = timeout
   runner.bail = bail
   runner.explicitSolo = solo
-  runner.top = top
+  runner.source = source
 }
 
 function highDefTimerNode () {
@@ -802,7 +802,7 @@ function tickish (fn) {
 
 function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
   const runner = getRunner()
-  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.top ? top : null, extra)
+  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.source ? top : null, extra)
 }
 
 function originFrame (stackStartFunction) {

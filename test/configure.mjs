@@ -2,7 +2,7 @@ import { spawner } from './helpers/index.js'
 
 await spawner(
   function (test) {
-    test.configure({ top: true })
+    test.configure({ source: true })
 
     test('classic test', function (t) {
       t.fail('custom')
@@ -15,10 +15,6 @@ await spawner(
       not ok 1 - custom
         ---
         operator: fail
-        at: 
-          line: 7
-          column: 9
-          file: /[eval]
         stack: |
           [eval]:7:9
           Test._run (./index.js:573:13)
@@ -38,7 +34,7 @@ await spawner(
 
 await spawner(
   function (test) {
-    test.configure({ top: false })
+    test.configure({ source: false })
 
     test('classic test', function (t) {
       t.fail('custom')
@@ -70,7 +66,7 @@ await spawner(
 
 await spawner(
   function (test) {
-    test.configure({ top: true })
+    test.configure({ source: true })
 
     const t = test('inverted test')
     t.fail('custom')
@@ -83,10 +79,6 @@ await spawner(
       not ok 1 - custom
         ---
         operator: fail
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           [eval]:11:1
@@ -111,7 +103,7 @@ await spawner(
 
 await spawner(
   function (test) {
-    test.configure({ top: false })
+    test.configure({ source: false })
 
     const t = test('inverted test')
     t.fail('custom')

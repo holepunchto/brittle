@@ -11,10 +11,6 @@ await tester('classic no plan',
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 4
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:4:7)
           Test._run (./index.js:555:13)
@@ -44,10 +40,6 @@ await tester('classic with plan',
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           Test._run (./index.js:529:13)
@@ -78,10 +70,6 @@ await spawner(
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           [eval]:9:1
@@ -118,10 +106,6 @@ await spawner(
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           [eval]:10:1
