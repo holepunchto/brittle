@@ -1,4 +1,4 @@
-const deepEqual = require('deep-equal')
+const sameObject = require('same-object')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./lib/constants')
@@ -426,13 +426,13 @@ class Test {
   }
 
   _alike (strict, actual, expected, message = 'should deep equal') {
-    const ok = deepEqual(actual, expected, { strict })
+    const ok = sameObject(actual, expected, { strict })
     const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
     this._assertion(ok, message, explanation, this._alike, undefined)
   }
 
   _unlike (strict, actual, expected, message = 'should not deep equal') {
-    const ok = deepEqual(actual, expected, { strict }) === false
+    const ok = sameObject(actual, expected, { strict }) === false
     const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
@@ -534,7 +534,7 @@ class Test {
     const key = (this.name || '') + ' ' + this._message(message)
     const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
 
-    const ok = deepEqual(actual, expected, { strict: true })
+    const ok = sameObject(actual, expected, { strict: true })
     const explanation = explain(ok, message, 'snapshot', this._snapshot, actual, expected)
 
     this._assertion(ok, message, explanation, this._snapshot, undefined)
