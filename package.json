@@ -22,7 +22,7 @@
     "error-stack-parser": "^2.1.4",
     "glob": "^8.0.3",
     "minimist": "^1.2.6",
-    "same-object": "^1.0.0",
+    "same-object": "github:holepunchto/same-object#rewrite",
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
