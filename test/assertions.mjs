@@ -134,10 +134,6 @@ await tester('failing (default messages)',
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 4
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:4:7)
           Test._run (./index.js:555:13)
@@ -146,10 +142,6 @@ await tester('failing (default messages)',
       not ok 2 - expected truthy value
         ---
         operator: ok
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           Test._run (./index.js:555:13)
@@ -158,10 +150,6 @@ await tester('failing (default messages)',
       not ok 3 - expected falsy value
         ---
         operator: absent
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           Test._run (./index.js:555:13)
@@ -172,10 +160,6 @@ await tester('failing (default messages)',
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           Test._run (./index.js:555:13)
@@ -186,10 +170,6 @@ await tester('failing (default messages)',
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 8
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:8:10)
           Test._run (./index.js:555:13)
@@ -200,10 +180,6 @@ await tester('failing (default messages)',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 9
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:9:7)
           Test._run (./index.js:555:13)
@@ -214,10 +190,6 @@ await tester('failing (default messages)',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 10
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:10:11)
           Test._run (./index.js:555:13)
@@ -230,10 +202,6 @@ await tester('failing (default messages)',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 11
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:11:7)
           Test._run (./index.js:555:13)
@@ -246,10 +214,6 @@ await tester('failing (default messages)',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 12
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:12:13)
           Test._run (./index.js:555:13)
@@ -262,10 +226,6 @@ await tester('failing (default messages)',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 13
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:13:7)
           Test._run (./index.js:555:13)
@@ -278,10 +238,6 @@ await tester('failing (default messages)',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 14
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:14:14)
           Test._run (./index.js:555:13)
@@ -292,10 +248,6 @@ await tester('failing (default messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 15
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:15:5)
@@ -306,10 +258,6 @@ await tester('failing (default messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 16
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:16:5)
@@ -320,10 +268,6 @@ await tester('failing (default messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 17
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:17:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -334,10 +278,6 @@ await tester('failing (default messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 18
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:18:5)
@@ -348,10 +288,6 @@ await tester('failing (default messages)',
         actual: 
         expected: 
         operator: exception
-        at: 
-          line: 19
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:19:5)
@@ -362,10 +298,6 @@ await tester('failing (default messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 20
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:20:5)
@@ -376,10 +308,6 @@ await tester('failing (default messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 21
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:21:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -424,10 +352,6 @@ await tester('failing (custom messages)',
       not ok 1 - peanut
         ---
         operator: fail
-        at: 
-          line: 4
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:4:7)
           Test._run (./index.js:555:13)
@@ -436,10 +360,6 @@ await tester('failing (custom messages)',
       not ok 2 - brittle
         ---
         operator: ok
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           Test._run (./index.js:555:13)
@@ -448,10 +368,6 @@ await tester('failing (custom messages)',
       not ok 3 - is
         ---
         operator: absent
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           Test._run (./index.js:555:13)
@@ -462,10 +378,6 @@ await tester('failing (custom messages)',
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           Test._run (./index.js:555:13)
@@ -476,10 +388,6 @@ await tester('failing (custom messages)',
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 8
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:8:10)
           Test._run (./index.js:555:13)
@@ -490,10 +398,6 @@ await tester('failing (custom messages)',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 9
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:9:7)
           Test._run (./index.js:555:13)
@@ -504,10 +408,6 @@ await tester('failing (custom messages)',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 10
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:10:11)
           Test._run (./index.js:555:13)
@@ -520,10 +420,6 @@ await tester('failing (custom messages)',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 11
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:11:7)
           Test._run (./index.js:555:13)
@@ -536,10 +432,6 @@ await tester('failing (custom messages)',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 12
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:12:13)
           Test._run (./index.js:555:13)
@@ -552,10 +444,6 @@ await tester('failing (custom messages)',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 13
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:13:7)
           Test._run (./index.js:555:13)
@@ -568,10 +456,6 @@ await tester('failing (custom messages)',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 14
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:14:14)
           Test._run (./index.js:555:13)
@@ -582,10 +466,6 @@ await tester('failing (custom messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 15
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:15:5)
@@ -596,10 +476,6 @@ await tester('failing (custom messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 16
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:16:5)
@@ -610,10 +486,6 @@ await tester('failing (custom messages)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 17
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:17:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -624,10 +496,6 @@ await tester('failing (custom messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 18
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:18:5)
@@ -638,10 +506,6 @@ await tester('failing (custom messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 19
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:19:5)
@@ -652,10 +516,6 @@ await tester('failing (custom messages)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 20
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:20:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -717,10 +577,6 @@ await tester('passing and failing mixed',
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 4
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:4:7)
           Test._run (./index.js:555:13)
@@ -730,10 +586,6 @@ await tester('passing and failing mixed',
       not ok 3 - expected truthy value
         ---
         operator: ok
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           Test._run (./index.js:555:13)
@@ -743,10 +595,6 @@ await tester('passing and failing mixed',
       not ok 5 - expected falsy value
         ---
         operator: absent
-        at: 
-          line: 8
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:8:7)
           Test._run (./index.js:555:13)
@@ -758,10 +606,6 @@ await tester('passing and failing mixed',
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 10
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:10:7)
           Test._run (./index.js:555:13)
@@ -773,10 +617,6 @@ await tester('passing and failing mixed',
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 12
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:12:10)
           Test._run (./index.js:555:13)
@@ -788,10 +628,6 @@ await tester('passing and failing mixed',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 14
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:14:7)
           Test._run (./index.js:555:13)
@@ -803,10 +639,6 @@ await tester('passing and failing mixed',
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 16
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:16:11)
           Test._run (./index.js:555:13)
@@ -820,10 +652,6 @@ await tester('passing and failing mixed',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 18
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:18:7)
           Test._run (./index.js:555:13)
@@ -837,10 +665,6 @@ await tester('passing and failing mixed',
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 20
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:20:13)
           Test._run (./index.js:555:13)
@@ -854,10 +678,6 @@ await tester('passing and failing mixed',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 22
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:22:7)
           Test._run (./index.js:555:13)
@@ -871,10 +691,6 @@ await tester('passing and failing mixed',
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 24
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:24:14)
           Test._run (./index.js:555:13)
@@ -887,10 +703,6 @@ await tester('passing and failing mixed',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 27
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:27:5)
@@ -902,10 +714,6 @@ await tester('passing and failing mixed',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 29
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:29:5)
@@ -917,10 +725,6 @@ await tester('passing and failing mixed',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 31
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:31:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -931,10 +735,6 @@ await tester('passing and failing mixed',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 32
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:32:5)
@@ -946,10 +746,6 @@ await tester('passing and failing mixed',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 34
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:34:5)
@@ -961,10 +757,6 @@ await tester('passing and failing mixed',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 36
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:36:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -1123,10 +915,6 @@ await spawner(
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           [eval]:26:1
@@ -1140,10 +928,6 @@ await spawner(
       not ok 2 - expected truthy value
         ---
         operator: ok
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           [eval]:26:1
@@ -1157,10 +941,6 @@ await spawner(
       not ok 3 - expected falsy value
         ---
         operator: absent
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           [eval]:26:1
@@ -1176,10 +956,6 @@ await spawner(
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 8
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:8:7)
           [eval]:26:1
@@ -1195,10 +971,6 @@ await spawner(
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 9
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:9:10)
           [eval]:26:1
@@ -1214,10 +986,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 10
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:10:7)
           [eval]:26:1
@@ -1233,10 +1001,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 11
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:11:11)
           [eval]:26:1
@@ -1254,10 +1018,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 12
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:12:7)
           [eval]:26:1
@@ -1275,10 +1035,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 13
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:13:13)
           [eval]:26:1
@@ -1296,10 +1052,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 14
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:14:7)
           [eval]:26:1
@@ -1317,10 +1069,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 15
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:15:14)
           [eval]:26:1
@@ -1336,10 +1084,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 16
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:16:5)
@@ -1349,10 +1093,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 17
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:17:5)
@@ -1362,10 +1102,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 18
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:18:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -1375,10 +1111,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 19
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:19:5)
@@ -1388,10 +1120,6 @@ await spawner(
         actual: 
         expected: 
         operator: exception
-        at: 
-          line: 20
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:20:5)
@@ -1401,10 +1129,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 21
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:21:5)
@@ -1414,10 +1138,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 22
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:22:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -1463,10 +1183,6 @@ await spawner(
       not ok 1 - peanut
         ---
         operator: fail
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           [eval]:25:1
@@ -1480,10 +1196,6 @@ await spawner(
       not ok 2 - brittle
         ---
         operator: ok
-        at: 
-          line: 6
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:6:7)
           [eval]:25:1
@@ -1497,10 +1209,6 @@ await spawner(
       not ok 3 - is
         ---
         operator: absent
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           [eval]:25:1
@@ -1516,10 +1224,6 @@ await spawner(
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 8
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:8:7)
           [eval]:25:1
@@ -1535,10 +1239,6 @@ await spawner(
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 9
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:9:10)
           [eval]:25:1
@@ -1554,10 +1254,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 10
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:10:7)
           [eval]:25:1
@@ -1573,10 +1269,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 11
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:11:11)
           [eval]:25:1
@@ -1594,10 +1286,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 12
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:12:7)
           [eval]:25:1
@@ -1615,10 +1303,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 13
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:13:13)
           [eval]:25:1
@@ -1636,10 +1320,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 14
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:14:7)
           [eval]:25:1
@@ -1657,10 +1337,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 15
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:15:14)
           [eval]:25:1
@@ -1676,10 +1352,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 16
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:16:5)
@@ -1689,10 +1361,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 17
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:17:5)
@@ -1702,10 +1370,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 18
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:18:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -1715,10 +1379,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 19
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:19:5)
@@ -1728,10 +1388,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 20
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:20:5)
@@ -1741,10 +1397,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 21
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:21:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -1807,10 +1459,6 @@ await spawner(
       not ok 1 - failed
         ---
         operator: fail
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:5:7)
           [eval]:42:1
@@ -1825,10 +1473,6 @@ await spawner(
       not ok 3 - expected truthy value
         ---
         operator: ok
-        at: 
-          line: 7
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:7:7)
           [eval]:42:1
@@ -1843,10 +1487,6 @@ await spawner(
       not ok 5 - expected falsy value
         ---
         operator: absent
-        at: 
-          line: 9
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:9:7)
           [eval]:42:1
@@ -1863,10 +1503,6 @@ await spawner(
         actual: 1
         expected: 2
         operator: is
-        at: 
-          line: 11
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:11:7)
           [eval]:42:1
@@ -1883,10 +1519,6 @@ await spawner(
         actual: 2
         expected: 1
         operator: is
-        at: 
-          line: 13
-          column: 10
-          file: /[eval]
         stack: |
           _fn ([eval]:13:10)
           [eval]:42:1
@@ -1903,10 +1535,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 15
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:15:7)
           [eval]:42:1
@@ -1923,10 +1551,6 @@ await spawner(
         actual: 1
         expected: 1
         operator: not
-        at: 
-          line: 17
-          column: 11
-          file: /[eval]
         stack: |
           _fn ([eval]:17:11)
           [eval]:42:1
@@ -1945,10 +1569,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 19
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:19:7)
           [eval]:42:1
@@ -1967,10 +1587,6 @@ await spawner(
         expected: 
           a: 2
         operator: alike
-        at: 
-          line: 21
-          column: 13
-          file: /[eval]
         stack: |
           _fn ([eval]:21:13)
           [eval]:42:1
@@ -1989,10 +1605,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 23
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:23:7)
           [eval]:42:1
@@ -2011,10 +1623,6 @@ await spawner(
         expected: 
           a: 2
         operator: unlike
-        at: 
-          line: 25
-          column: 14
-          file: /[eval]
         stack: |
           _fn ([eval]:25:14)
           [eval]:42:1
@@ -2032,10 +1640,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 28
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:28:5)
@@ -2046,10 +1650,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 30
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:30:5)
@@ -2060,10 +1660,6 @@ await spawner(
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 32
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:32:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
@@ -2073,10 +1669,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 33
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:33:5)
@@ -2087,10 +1679,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 35
-          column: 13
-          file: /[eval]
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:35:5)
@@ -2101,10 +1689,6 @@ await spawner(
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 37
-          column: 7
-          file: /[eval]
         stack: |
           _fn ([eval]:37:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)

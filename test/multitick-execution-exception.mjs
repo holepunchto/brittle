@@ -41,10 +41,6 @@ await tester('multi-tick execution (promise reject)',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 5
-          column: 13
-          file: /[eval]
         stack: |
           async _fn ([eval]:5:5)
           async Test._run (./index.js:565:7)
@@ -78,10 +74,6 @@ await tester('multi-tick exception (promise resolve)',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 5
-          column: 13
-          file: /[eval]
         stack: |
           async _fn ([eval]:5:5)
           async Test._run (./index.js:565:7)
@@ -158,10 +150,6 @@ await tester('execution (promise reject) without awaiting',
         actual: 
         expected: null
         operator: execution
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: AssertionError [ERR_ASSERTION]: should resolve::
         ...
   `,
@@ -185,10 +173,6 @@ await tester('exception (promise resolve) without awaiting',
         actual: false
         expected: undefined
         operator: exception
-        at: 
-          line: 5
-          column: 7
-          file: /[eval]
         stack: AssertionError [ERR_ASSERTION]: should reject::
         ...
   `,
