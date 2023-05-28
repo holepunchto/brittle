@@ -7,7 +7,7 @@
     "brittle": "./cmd.js"
   },
   "author": "David Mark Clements (@davidmarkclem)",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "test": "standard && node test/all.mjs"
   },

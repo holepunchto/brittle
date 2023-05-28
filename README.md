@@ -581,4 +581,4 @@ BRITTLE_COVERAGE=false brittle test.js
 ```
 
 ## License
-MIT
+Apache-2.0
