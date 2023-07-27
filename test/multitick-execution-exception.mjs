@@ -55,7 +55,8 @@ await tester('multi-tick execution (promise reject)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await tester('multi-tick exception (promise resolve)',
@@ -88,7 +89,8 @@ await tester('multi-tick exception (promise resolve)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await tester('multi-tick exception (promise reject)',
@@ -153,7 +155,8 @@ await tester('execution (promise reject) without awaiting',
         stack: AssertionError [ERR_ASSERTION]: should resolve::
         ...
   `,
-  { exitCode: 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 1, stderr: { includes: 'Assertion after end' } },
+  { bail: false }
 )
 
 await tester('exception (promise resolve) without awaiting',
@@ -176,7 +179,8 @@ await tester('exception (promise resolve) without awaiting',
         stack: AssertionError [ERR_ASSERTION]: should reject::
         ...
   `,
-  { exitCode: 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 1, stderr: { includes: 'Assertion after end' } },
+  { bail: false }
 )
 
 await tester('exception (promise reject) without awaiting',

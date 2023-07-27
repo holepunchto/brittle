@@ -10,17 +10,35 @@ const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
 module.exports = { tester, spawner, standardizeTap }
 
-async function tester (name, fn, expectedOut, expectedMore) {
+async function tester (name, fn, expectedOut, expectedMore, configure) {
   log(chalk.yellow.bold('Tester'), name)
   name = JSON.stringify(name)
 
-  const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
+  const script = `
+const test = require(${pkg})
+
+const options = ${JSON.stringify(configure)}
+if (options) test.configure(options)
+
+const _fn = (${fn.toString()})\n\ntest(${name}, _fn)
+  `.trim()
+
   return executeTap(script, expectedOut, expectedMore)
 }
 
-async function spawner (fn, expectedOut, expectedMore) {
+async function spawner (fn, expectedOut, expectedMore, configure) {
   log(chalk.yellow.bold('Spawner'))
-  const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
+
+  const script = `
+const test = require(${pkg})
+
+const options = ${JSON.stringify(configure)}
+if (options) test.configure(options)
+
+const _fn = (${fn.toString()})
+_fn(test)
+`.trim()
+
   return executeTap(script, expectedOut, expectedMore)
 }
 

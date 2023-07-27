@@ -322,7 +322,8 @@ await tester('failing (default messages)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await tester('failing (custom messages)',
@@ -530,7 +531,8 @@ await tester('failing (custom messages)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await tester('passing and failing mixed',
@@ -772,7 +774,8 @@ await tester('passing and failing mixed',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await spawner(
@@ -1151,7 +1154,8 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await spawner(
@@ -1410,7 +1414,8 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )
 
 await spawner(
@@ -1703,5 +1708,6 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )

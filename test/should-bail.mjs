@@ -43,5 +43,6 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: 1, stderr: '' },
+  { bail: false }
 )

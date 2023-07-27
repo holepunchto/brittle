@@ -29,7 +29,7 @@ class Runner {
     this.padded = true
     this.started = false
     this.defaultTimeout = DEFAULT_TIMEOUT
-    this.bail = false
+    this.bail = true
     this.skipAll = false
     this.explicitSolo = false
     this.source = true
@@ -702,7 +702,7 @@ exports.resume = resume
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, source = true } = {}) {
+function configure ({ timeout = DEFAULT_TIMEOUT, bail = true, solo = false, source = true } = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
