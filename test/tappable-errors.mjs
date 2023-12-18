@@ -89,6 +89,38 @@ await tester('count exceeds plan',
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
 )
 
+await tester('Assertion after end from within a safety-caught callback',
+  function (t) {
+    const EventEmitter = require('events')
+    const safetyCatch = require('safety-catch')
+    class SimpleEmitter extends EventEmitter {
+      emitEvent () {
+        try {
+          this.emit('event')
+        } catch (e) { safetyCatch(e) }
+      }
+    }
+    const emitter = new SimpleEmitter()
+
+    const subT = t.test('sub1')
+    subT.plan(1)
+
+    emitter.on('event', () => {
+      subT.pass('An event was emitted')
+    })
+    emitter.emitEvent()
+    emitter.emitEvent() // Triggers second assertion for plan(1)
+  },
+  `
+  TAP version 13
+
+  # too-many-assertions from within a safety-caught callback
+    ok 1 - (sub1) - An event was emitted
+    ok 2 - (sub1) - An event was emitted
+  `,
+  { exitCode: 1, stderr: { includes: 'Assertion after end' } }
+)
+
 await spawner(
   async function (test) {
     const t = test('top level inverted')
