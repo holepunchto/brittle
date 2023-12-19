@@ -3,6 +3,7 @@ const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
+
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
