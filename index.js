@@ -320,7 +320,7 @@ class Test {
 
   _plan (n) {
     if (typeof n !== 'number' || n < 0) {
-      throw new AssertionError({ message: 'Plan takes a positive whole number only' })
+      throw new Error('Plan takes a positive whole number only')
     }
 
     this._hasPlan = true
@@ -328,7 +328,7 @@ class Test {
   }
 
   _comment (...m) {
-    if (this.isResolved) throw new AssertionError({ message: 'Can\'t comment after end' })
+    if (this.isResolved) throw new Error('Can\'t comment after end')
     this.runner.log(INDENT + '#', ...m)
   }
 
@@ -439,7 +439,7 @@ class Test {
   }
 
   _teardown (fn, opts) {
-    if (this.isDone) throw new AssertionError({ message: 'Can\'t add teardown after end' })
+    if (this.isDone) throw new Error('Can\'t add teardown after end')
     this._teardowns.push([(opts && opts.order) || 0, fn])
   }
 
@@ -654,7 +654,7 @@ class Test {
 
     if (this.isMain) {
       if (!this.isQueued) {
-        if (this.runner.next) throw new AssertionError({ message: 'Only run test can be running at the same time' })
+        if (this.runner.next) throw new Error('Only run test can be running at the same time')
         this.runner.next = this
       }
       this.header()
@@ -706,7 +706,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, sou
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
-    throw new AssertionError({ message: 'Configuration must happen prior to registering any tests' })
+    throw new Error('Configuration must happen prior to registering any tests')
   }
 
   runner.defaultTimeout = timeout
@@ -751,7 +751,7 @@ function test (name, opts, fn, defaults) {
   if (t.isTodo) return t._run(() => {}, opts)
 
   if (t.isSkip) {
-    throw new AssertionError({ message: 'An inverted test cannot be skipped' })
+    throw new Error('An inverted test cannot be skipped')
   }
   if (t.isSolo) {
     t.runner.solo = t
