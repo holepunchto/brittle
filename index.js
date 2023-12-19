@@ -2,6 +2,7 @@ const sameObject = require('same-object')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const AssertionError = require('./lib/assertion-error')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 
@@ -381,11 +382,11 @@ class Test {
     this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
 
     if (this.isEnded || this.isDone) {
-      throw new Error('Assertion after end')
+      throw new AssertionError({ message: 'Assertion after end' })
     }
 
     if (this._hasPlan && this._planned < 0) {
-      throw new Error('Too many assertions')
+      throw new AssertionError({ message: 'Too many assertions' })
     }
 
     if (this._hasPlan && this._planned === 0) {

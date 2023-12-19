@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "chalk": "^4.1.2",
+    "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
   },
   "repository": {
