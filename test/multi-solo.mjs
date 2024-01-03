@@ -6,7 +6,7 @@ await spawner(
       t.pass()
     })
 
-    test('this test is skipped', function (t) {
+    solo('this solo is ran', function (t) {
       t.pass()
     })
 
@@ -14,21 +14,25 @@ await spawner(
       t.pass()
     })
 
-    solo('only one solo is ran', function (t) {
+    solo('this solo is also ran', function (t) {
       t.pass()
     })
   },
   `
   TAP version 13
 
-  # only one solo is ran
-      ok 1 - passed
-  ok 1 - only one solo is ran # time = 0.613949ms
+  # this solo is ran
+    ok 1 - passed
+  ok 1 - this solo is ran # time = 0.761623ms
 
-  1..1
-  # tests = 1/1 pass
-  # asserts = 1/1 pass
-  # time = 3.695355ms
+  # this solo is also ran
+      ok 1 - passed
+  ok 2 - this solo is also ran # time = 0.06351ms
+
+  1..2
+  # tests = 2/2 pass
+  # asserts = 2/2 pass
+  # time = 4.934907ms
 
   # ok
   `,
