@@ -1,7 +1,7 @@
 const sameObject = require('same-object')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const { INDENT, RUNNER, IS_NODE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -41,6 +41,7 @@ class Runner {
     this._resume = null
 
     if (IS_NODE) process.once('beforeExit', () => this.end())
+    if (IS_BARE) Bare.once('beforeExit', () => this.end())
   }
 
   resume () {
