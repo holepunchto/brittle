@@ -9,7 +9,8 @@
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "standard && node test/all.mjs"
+    "test": "standard && node test/all.mjs",
+    "test-bare": "bare test/bare-test.mjs"
   },
   "files": [
     "index.js",
@@ -26,6 +27,7 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
+    "bare-subprocess": "^2.0.2",
     "chalk": "^4.1.2",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
