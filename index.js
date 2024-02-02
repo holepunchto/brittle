@@ -41,7 +41,7 @@ class Runner {
     this._resume = null
 
     if (IS_NODE) process.once('beforeExit', () => this.end())
-    if (IS_BARE) Bare.once('beforeExit', () => this.end())
+    if (IS_BARE) global.Bare.once('beforeExit', () => this.end())
   }
 
   resume () {
