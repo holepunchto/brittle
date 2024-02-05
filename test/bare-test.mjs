@@ -1,45 +1,45 @@
 import { IS_BARE, IS_NODE } from '../lib/constants.js'
 import { spawn } from 'child_process'
 
-const chalk = !IS_BARE && import('chalk').then(m => m.default)
+const chalk = !IS_BARE && await import('chalk').then(m => m.default)
 const runtime = IS_BARE ? 'bare' : 'node'
 
 let didTestError = false
 
 const { exitCode, error, stdout, stderr } = await executeCode('./test/helpers/bare-test-script.js')
-if (!is(IS_BARE ? 0 : 1, exitCode)) await fnError('wrong exitcode', IS_BARE ? 0 : 1, exitCode)
-if (!absent(error)) await fnError('error is there')
-if (!ok(stderr.includes('assertion count (0) did not reach plan (1)'))) await fnError('should include assertion count')
-if (!ok(stdout.includes('test should fail'))) await fnError('wrong test name') // Name of the test, stored in ./helpers/bare-test-script.js
+if (!is(IS_BARE ? 0 : 1, exitCode)) fnError('wrong exitcode', IS_BARE ? 0 : 1, exitCode)
+if (!absent(error)) fnError('error is there')
+if (!ok(stderr.includes('assertion count (0) did not reach plan (1)'))) fnError('should include assertion count')
+if (!ok(stdout.includes('test should fail'))) fnError('wrong test name') // Name of the test, stored in ./helpers/bare-test-script.js
 
 if (didTestError) {
   if (IS_BARE) global.Bare.exitCode = 1
   if (IS_NODE) process.exitCode = 1
 }
 
-async function fnError (err, expected, actual) {
+function fnError (err, expected, actual) {
   didTestError = true
 
-  console.error(await redBold('Error:'), err)
+  console.error(redBold('Error:'), err)
 
   if (actual || expected) {
-    console.error(await red('[actual]'))
+    console.error(red('[actual]'))
     console.error(actual)
-    console.error(await red('[expected'))
+    console.error(red('[expected'))
     console.error(expected)
   }
 }
 
-async function red (str) {
+function red (str) {
   return IS_BARE
     ? str
-    : (await chalk).red(str)
+    : chalk.red(str)
 }
 
-async function redBold (str) {
+function redBold (str) {
   return IS_BARE
     ? str
-    : (await chalk).red.bold(str)
+    : chalk.red.bold(str)
 }
 
 // This is a modified version of executeCode() in test/helpers/index.js to support `bare.
