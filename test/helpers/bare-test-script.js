@@ -1,5 +1,6 @@
 // This script is used as a test case with the `bare` runtime.
-// It is stored as a file, instead of generated, because `bare` does not take code as an argument
+// It is stored as a file, instead of generated, because the passed code to
+// `bare --eval` does not seem able to require modules from relative paths
 const test = require('../../index.js')
 
 const _fn = t => t.plan(1)

@@ -43,7 +43,7 @@ function redBold (str) {
 }
 
 // This is a modified version of executeCode() in test/helpers/index.js to support `bare.
-// The reason is that `bare` does not support passing code as a commandline argument.
+// The reason is that the passed code to `bare --eval` does not seem able to require modules from relative paths
 async function executeCode (scriptPath) {
   return new Promise((resolve, reject) => {
     const child = spawn(runtime, [scriptPath])
