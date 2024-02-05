@@ -97,7 +97,7 @@ class Runner {
       this.next = test
       test.header()
 
-      if (!IS_NODE) this._autoExit(test)
+      if (!IS_NODE && !IS_BARE) this._autoExit(test)
 
       return true
     }
@@ -188,6 +188,7 @@ class Runner {
       this.log(ind + 'ok ' + number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
+      if (IS_BARE) global.Bare.exitCode = 1
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true

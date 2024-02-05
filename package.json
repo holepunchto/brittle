@@ -27,10 +27,15 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "bare-subprocess": "^2.0.2",
+    "bare-subprocess": "^2.0.3",
     "chalk": "^4.1.2",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
+  },
+  "imports": {
+    "child_process": {
+      "bare": "bare-subprocess"
+    }
   },
   "repository": {
     "type": "git",
