@@ -114,7 +114,7 @@ class Runner {
   }
 
   _shouldTest (test) {
-    return !this.skipAll && (this.solos.size === 0 || !this.solos.has(test))
+    return !this.skipAll && (this.solos.size === 0 || this.solos.has(test))
   }
 
   async _autoExit (test) {
