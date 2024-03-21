@@ -26,7 +26,7 @@ class Runner {
     this.assertions = { count: 0, pass: 0 }
 
     this.next = null
-    this.solo = null
+    this.solos = new Set()
     this.padded = true
     this.started = false
     this.defaultTimeout = DEFAULT_TIMEOUT
@@ -64,7 +64,7 @@ class Runner {
     this.start()
 
     if (test.isSolo) {
-      this.solo = test
+      this.solos.add(test)
     }
 
     await this._wait()
@@ -115,7 +115,7 @@ class Runner {
   }
 
   _shouldTest (test) {
-    return !this.skipAll && (!this.solo || this.solo === test)
+    return !this.skipAll && (this.solos.size === 0 || this.solos.has(test))
   }
 
   async _autoExit (test) {

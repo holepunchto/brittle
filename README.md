@@ -99,7 +99,7 @@ Create a classic test with an optional `name`.
 
 #### Available `options` for any test creation:
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
- * `solo` (`false`) - Skip all other tests except the `solo()` one.
+ * `solo` (`false`) - Skip all other tests except the `solo()` ones.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
 
@@ -273,7 +273,6 @@ solo('some test', function (t) {
 ```
 
 If a `solo` function is used, `test` functions will not execute.\
-If you have multiple `solo` tests then only one will be executed.
 
 If `solo` is used in a future tick (for example, in a `setTimeout` callback),\
 after `test` has already been used those tests won't be filtered.
@@ -322,7 +321,7 @@ It must be executed before any tests.
 
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
  * `bail` (`false`) - exit the process on first test failure
- * `solo` (`false`) - skip all other tests except the `solo()` one
+ * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
 
 ```js
