@@ -119,6 +119,8 @@ await tester('failing (default messages)',
     t.alike.coercively({ a: 1 }, { a: '2' })
     t.unlike({ a: 2 }, { a: 2 })
     t.unlike.coercively({ a: 2 }, { a: '2' })
+    t.alike(new Set([1, 2]), new Set([3, 4]))
+    t.unlike(new Set([1, 2]), new Set([1, 2]))
     await t.execution(Promise.reject(Error('n')))
     await t.execution(async () => { throw Error('n') })
     t.execution(() => { throw Error('n') })
@@ -136,7 +138,7 @@ await tester('failing (default messages)',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 2 - expected truthy value
@@ -144,7 +146,7 @@ await tester('failing (default messages)',
         operator: ok
         stack: |
           _fn ([eval]:5:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 3 - expected falsy value
@@ -152,7 +154,7 @@ await tester('failing (default messages)',
         operator: absent
         stack: |
           _fn ([eval]:6:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 4 - should be equal
@@ -162,7 +164,7 @@ await tester('failing (default messages)',
         operator: is
         stack: |
           _fn ([eval]:7:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 5 - should be equal
@@ -172,7 +174,7 @@ await tester('failing (default messages)',
         operator: is
         stack: |
           _fn ([eval]:8:10)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 6 - should not be equal
@@ -182,7 +184,7 @@ await tester('failing (default messages)',
         operator: not
         stack: |
           _fn ([eval]:9:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 7 - should not be equal
@@ -192,7 +194,7 @@ await tester('failing (default messages)',
         operator: not
         stack: |
           _fn ([eval]:10:11)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 8 - should deep equal
@@ -204,7 +206,7 @@ await tester('failing (default messages)',
         operator: alike
         stack: |
           _fn ([eval]:11:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 9 - should deep equal
@@ -216,7 +218,7 @@ await tester('failing (default messages)',
         operator: alike
         stack: |
           _fn ([eval]:12:13)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 10 - should not deep equal
@@ -228,7 +230,7 @@ await tester('failing (default messages)',
         operator: unlike
         stack: |
           _fn ([eval]:13:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 11 - should not deep equal
@@ -240,58 +242,66 @@ await tester('failing (default messages)',
         operator: unlike
         stack: |
           _fn ([eval]:14:14)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
-      not ok 12 - should resolve
+      not ok 12 - should deep equal
+        ---
+        actual:
+          - 1
+          - 2
+        expected:
+          - 3
+          - 4
+        operator: alike
+        stack: |
+          _fn ([eval]:15:7)
+          Test._run (./index.js:576:13)
+          processTicksAndRejections (node:internal/process/task_queues:96:5)
+        ...
+      not ok 13 - should not deep equal
+        ---
+        actual:
+        - 1
+        - 2
+        expected:
+        - 1
+        - 2
+        operator: unlike
+        stack: |
+          _fn ([eval]:16:14)
+          Test._run (./index.js:576:13)
+          processTicksAndRejections (node:internal/process/task_queues:96:5)
+        ...
+      not ok 14 - should resolve
         ---
         actual: 
         expected: null
         operator: execution
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async _fn ([eval]:15:5)
-          async Test._run (./index.js:555:7)
+          async _fn ([eval]:17:5)
+          async Test._run (./index.js:576:7)
         ...
-      not ok 13 - should resolve
+      not ok 15 - should resolve
         ---
         actual: 
         expected: null
         operator: execution
-        stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async _fn ([eval]:16:5)
-          async Test._run (./index.js:555:7)
-        ...
-      not ok 14 - should return
-        ---
-        actual: 
-        expected: null
-        operator: execution
-        stack: |
-          _fn ([eval]:17:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
-        ...
-      not ok 15 - should reject
-        ---
-        actual: false
-        expected: undefined
-        operator: exception
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:18:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
-      not ok 16 - should reject
+      not ok 16 - should return
         ---
         actual: 
-        expected: 
-        operator: exception
+        expected: null
+        operator: execution
         stack: |
+          _fn ([eval]:19:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async _fn ([eval]:19:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 17 - should reject
         ---
@@ -301,23 +311,43 @@ await tester('failing (default messages)',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:20:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
-      not ok 18 - should throw
+      not ok 18 - should reject
+        ---
+        actual: 
+        expected: 
+        operator: exception
+        stack: |
+          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          async _fn ([eval]:21:5)
+          async Test._run (./index.js:576:7)
+        ...
+      not ok 19 - should reject
         ---
         actual: false
         expected: undefined
         operator: exception
         stack: |
-          _fn ([eval]:21:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
+          async _fn ([eval]:22:5)
+          async Test._run (./index.js:576:7)
+        ...
+      not ok 20 - should throw
+        ---
+        actual: false
+        expected: undefined
+        operator: exception
+        stack: |
+          _fn ([eval]:23:7)
+          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          async Test._run (./index.js:576:7)
         ...
   not ok 1 - failing (default messages) # time = 10.34778ms
 
   1..1
   # tests = 0/1 pass
-  # asserts = 0/18 pass
+  # asserts = 0/20 pass
   # time = 13.21987ms
 
   # not ok
@@ -354,7 +384,7 @@ await tester('failing (custom messages)',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 2 - brittle
@@ -362,7 +392,7 @@ await tester('failing (custom messages)',
         operator: ok
         stack: |
           _fn ([eval]:5:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 3 - is
@@ -370,7 +400,7 @@ await tester('failing (custom messages)',
         operator: absent
         stack: |
           _fn ([eval]:6:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 4 - an
@@ -380,7 +410,7 @@ await tester('failing (custom messages)',
         operator: is
         stack: |
           _fn ([eval]:7:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 5 - often
@@ -390,7 +420,7 @@ await tester('failing (custom messages)',
         operator: is
         stack: |
           _fn ([eval]:8:10)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 6 - overlooked
@@ -400,7 +430,7 @@ await tester('failing (custom messages)',
         operator: not
         stack: |
           _fn ([eval]:9:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 7 - tasty
@@ -410,7 +440,7 @@ await tester('failing (custom messages)',
         operator: not
         stack: |
           _fn ([eval]:10:11)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 8 - treat
@@ -422,7 +452,7 @@ await tester('failing (custom messages)',
         operator: alike
         stack: |
           _fn ([eval]:11:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 9 - you should
@@ -434,7 +464,7 @@ await tester('failing (custom messages)',
         operator: alike
         stack: |
           _fn ([eval]:12:13)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 10 - try it
@@ -446,7 +476,7 @@ await tester('failing (custom messages)',
         operator: unlike
         stack: |
           _fn ([eval]:13:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 11 - sometime
@@ -458,7 +488,7 @@ await tester('failing (custom messages)',
         operator: unlike
         stack: |
           _fn ([eval]:14:14)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       not ok 12 - but
@@ -469,7 +499,7 @@ await tester('failing (custom messages)',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:15:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 13 - not really
         ---
@@ -479,7 +509,7 @@ await tester('failing (custom messages)',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:16:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 14 - personally
         ---
@@ -489,7 +519,7 @@ await tester('failing (custom messages)',
         stack: |
           _fn ([eval]:17:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 15 - I have not had it
         ---
@@ -499,7 +529,7 @@ await tester('failing (custom messages)',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:18:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 16 - in a long
         ---
@@ -509,7 +539,7 @@ await tester('failing (custom messages)',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:19:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 17 - long time
         ---
@@ -519,7 +549,7 @@ await tester('failing (custom messages)',
         stack: |
           _fn ([eval]:20:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
   not ok 1 - failing (custom messages) # time = 10.129451ms
 
@@ -579,7 +609,7 @@ await tester('passing and failing mixed',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 2 - passed
@@ -588,7 +618,7 @@ await tester('passing and failing mixed',
         operator: ok
         stack: |
           _fn ([eval]:6:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 4 - expected truthy value
@@ -597,7 +627,7 @@ await tester('passing and failing mixed',
         operator: absent
         stack: |
           _fn ([eval]:8:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 6 - expected falsy value
@@ -608,7 +638,7 @@ await tester('passing and failing mixed',
         operator: is
         stack: |
           _fn ([eval]:10:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 8 - should be equal
@@ -619,7 +649,7 @@ await tester('passing and failing mixed',
         operator: is
         stack: |
           _fn ([eval]:12:10)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 10 - should be equal
@@ -630,7 +660,7 @@ await tester('passing and failing mixed',
         operator: not
         stack: |
           _fn ([eval]:14:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 12 - should not be equal
@@ -641,7 +671,7 @@ await tester('passing and failing mixed',
         operator: not
         stack: |
           _fn ([eval]:16:11)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 14 - should not be equal
@@ -654,7 +684,7 @@ await tester('passing and failing mixed',
         operator: alike
         stack: |
           _fn ([eval]:18:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 16 - should deep equal
@@ -667,7 +697,7 @@ await tester('passing and failing mixed',
         operator: alike
         stack: |
           _fn ([eval]:20:13)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 18 - should deep equal
@@ -680,7 +710,7 @@ await tester('passing and failing mixed',
         operator: unlike
         stack: |
           _fn ([eval]:22:7)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 20 - should not deep equal
@@ -693,7 +723,7 @@ await tester('passing and failing mixed',
         operator: unlike
         stack: |
           _fn ([eval]:24:14)
-          Test._run (./index.js:555:13)
+          Test._run (./index.js:576:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
       ok 22 - should not deep equal
@@ -706,7 +736,7 @@ await tester('passing and failing mixed',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:27:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       ok 25 - should resolve
       not ok 26 - should resolve
@@ -717,7 +747,7 @@ await tester('passing and failing mixed',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:29:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       ok 27 - should return
       not ok 28 - should return
@@ -728,7 +758,7 @@ await tester('passing and failing mixed',
         stack: |
           _fn ([eval]:31:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       not ok 29 - should reject
         ---
@@ -738,7 +768,7 @@ await tester('passing and failing mixed',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:32:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       ok 30 - should reject
       not ok 31 - should reject
@@ -749,7 +779,7 @@ await tester('passing and failing mixed',
         stack: |
           processTicksAndRejections (node:internal/process/task_queues:96:5)
           async _fn ([eval]:34:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       ok 32 - should reject
       not ok 33 - should throw
@@ -760,7 +790,7 @@ await tester('passing and failing mixed',
         stack: |
           _fn ([eval]:36:7)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
-          async Test._run (./index.js:555:7)
+          async Test._run (./index.js:576:7)
         ...
       ok 34 - should throw
   not ok 1 - passing and failing mixed # time = 10.946447ms
