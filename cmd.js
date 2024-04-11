@@ -89,6 +89,10 @@ async function start () {
 
   brittle.pause()
 
+  if (files.length === 0) {
+    throw new Error('No test files were specified')
+  }
+
   for (const f of files) {
     await import('file://' + path.resolve(f))
   }
