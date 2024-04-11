@@ -18,5 +18,8 @@ not ok 1 - fails on a test without any assertions # time = 1.300587ms
 # time = 17.131802ms
 
 # not ok  `,
-  { exitCode: 1, stderr: '' }
+  {
+    exitCode: 1,
+    stderr: { includes: 'Error: No assertions were tested during the run' }
+  }
 )

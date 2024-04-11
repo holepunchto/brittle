@@ -177,8 +177,9 @@ class Runner {
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
-    else this.log('# not ok')
+    if (this.assertions.count === 0) {
+      throw new Error('No assertions were tested during the run')
+    }
   }
 
   assert (indent, ok, number, message, explanation) {
