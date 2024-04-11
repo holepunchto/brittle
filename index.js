@@ -675,8 +675,14 @@ class Test {
     const ok = (this.fails === 0)
 
     if (this.isMain && !err) {
+      const testPassed = ok && this.assertions > 0
+      const explanation = this.assertions > 0
+        ? null
+        : 'No assertions were tested'
+
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this.runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
+
+      this.runner.assert(false, testPassed, this._track(true, ok), '- ' + (this.name || '') + time, explanation)
     }
 
     this.isResolved = true
