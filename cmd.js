@@ -19,6 +19,11 @@ const argv = minimist(args, {
 const files = []
 for (const g of argv._) files.push(...glob.sync(g))
 
+if (files.length === 0) {
+  console.error('Error: No test files were specified')
+  process.exit(1)
+}
+
 const { solo, bail, cov } = argv
 
 process.title = 'brittle'
@@ -88,10 +93,6 @@ async function start () {
   }
 
   brittle.pause()
-
-  if (files.length === 0) {
-    throw new Error('No test files were specified')
-  }
 
   for (const f of files) {
     await import('file://' + path.resolve(f))
