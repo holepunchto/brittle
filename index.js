@@ -177,8 +177,9 @@ class Runner {
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
-    else this.log('# not ok')
+    if (this.tests.count === 0) {
+      throw new Error('No tests were defined during the run')
+    }
   }
 
   assert (indent, ok, number, message, explanation) {
@@ -675,8 +676,14 @@ class Test {
     const ok = (this.fails === 0)
 
     if (this.isMain && !err) {
+      const testPassed = ok && this.assertions > 0
+      const explanation = this.assertions > 0
+        ? null
+        : 'No assertions were called'
+
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this.runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
+
+      this.runner.assert(false, testPassed, this._track(true, ok), '- ' + (this.name || '') + time, explanation)
     }
 
     this.isResolved = true
