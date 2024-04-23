@@ -9,7 +9,7 @@ TAP version 13
 # fails on a test without any assertions
 not ok 1 - fails on a test without any assertions # time = 1.300587ms
       ---
-      No assertions were tested
+      No assertions were called
       ...
 
 1..1

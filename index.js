@@ -679,7 +679,7 @@ class Test {
       const testPassed = ok && this.assertions > 0
       const explanation = this.assertions > 0
         ? null
-        : 'No assertions were tested'
+        : 'No assertions were called'
 
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
 
