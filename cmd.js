@@ -17,7 +17,20 @@ const argv = minimist(args, {
 })
 
 const files = []
-for (const g of argv._) files.push(...glob.sync(g))
+for (const g of argv._) {
+  const matches = glob.sync(g)
+  if (matches.length === 0) {
+    console.error(`Error: no files found when resolving ${g}`)
+    process.exit(1)
+  }
+
+  files.push(...matches)
+}
+
+if (files.length === 0) {
+  console.error('Error: No test files were specified')
+  process.exit(1)
+}
 
 const { solo, bail, cov } = argv
 
