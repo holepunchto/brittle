@@ -115,7 +115,7 @@ class Runner {
   }
 
   _shouldTest (test) {
-    return !this.skipAll && (this.solos.size === 0 || this.solos.has(test))
+    return test.isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
   }
 
   async _autoExit (test) {
@@ -216,6 +216,7 @@ class Test {
 
     this.isEnded = false
     this.isDone = false
+    this.isHook = false
     this.isSolo = false
     this.isSkip = false
     this.isTodo = false
@@ -695,6 +696,7 @@ exports = module.exports = test
 
 exports.Test = Test
 exports.test = test
+exports.hook = hook
 exports.solo = solo
 exports.skip = skip
 exports.todo = todo
@@ -746,6 +748,7 @@ function test (name, opts, fn, defaults) {
 
   opts = { ...defaults, ...opts }
 
+  if (opts.hook) t.isHook = true
   if (opts.solo) t.isSolo = true
   if (opts.skip) t.isSkip = true
   if (opts.todo) t.isTodo = true
@@ -763,6 +766,10 @@ function test (name, opts, fn, defaults) {
   t._onstart(opts)
 
   return t
+}
+
+function hook (name, opts, fn) {
+  return test(name, opts, fn, { hook: true })
 }
 
 function solo (name, opts, fn) {
