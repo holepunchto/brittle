@@ -3,6 +3,7 @@
 const path = require('path')
 const glob = require('glob')
 const minimist = require('minimist')
+const fs = require('fs')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const argv = minimist(args, {
@@ -80,12 +81,17 @@ if (argv.runner) {
 }
 
 if (cov && process.env.BRITTLE_COVERAGE !== 'false') {
-  const c8pkg = require('c8/package.json')
-  const bin = c8pkg.bin ? path.join(path.dirname(require.resolve('c8/package.json')), c8pkg.bin) : null
-  process.env.BRITTLE = (process.env.BRITTLE || '') + ' --no-coverage'
-  process.argv.unshift(bin)
-  process.argv.unshift(process.execPath)
-  require(bin)
+  const { Transformer, runWithCoverage } = require('bare-cov')
+  runWithCoverage(async () => {
+    await start()
+    await new Promise((resolve) => process.once('beforeExit', resolve))
+  }).then(async (v8Report) => {
+    const transformer = new Transformer()
+    const coverageMap = await transformer.transformToCoverageMap([v8Report])
+
+    if (!fs.existsSync('coverage')) fs.mkdirSync('coverage')
+    fs.writeFileSync(path.join('coverage', 'coverage.json'), JSON.stringify(coverageMap.toJSON()))
+  })
 } else {
   start().catch(err => {
     console.error(err.stack)
