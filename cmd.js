@@ -80,24 +80,12 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (cov && process.env.BRITTLE_COVERAGE !== 'false') {
-  const { Transformer, runWithCoverage } = require('bare-cov')
-  runWithCoverage(async () => {
-    await start()
-    await new Promise((resolve) => process.once('beforeExit', resolve))
-  }).then(async (v8Report) => {
-    const transformer = new Transformer()
-    const coverageMap = await transformer.transformToCoverageMap([v8Report])
+if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')()
 
-    if (!fs.existsSync('coverage')) fs.mkdirSync('coverage')
-    fs.writeFileSync(path.join('coverage', 'coverage.json'), JSON.stringify(coverageMap.toJSON()))
-  })
-} else {
-  start().catch(err => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+start().catch(err => {
+  console.error(err.stack)
+  process.exit(1)
+})
 
 async function start () {
   const brittle = require('./')
