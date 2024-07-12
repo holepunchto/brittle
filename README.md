@@ -580,11 +580,11 @@ Force disable coverage with an environment variable:
 BRITTLE_COVERAGE=false brittle test.js
 ```
 ### Coverage
-If the coverage flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--coverage-dir`).
+If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--coverage-dir`).
 
-The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage-{pid}-{timestamp}.json` file which contains the raw v8 coverage data.
+The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
 
-You can use `istanbul` to convert the istanbul json report into other formats. e.g.:
+Istanbul can be used to convert the istanbul json report into other formats. e.g.:
 ```
 npx istanbul report html
 ```
