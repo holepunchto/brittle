@@ -552,6 +552,7 @@ brittle [flags] [<files>]
 
 Flags:
   -cov, --coverage              Turn on coverage
+  --cov-dir <dir>               Configure coverage output directory (default: ./coverage)
   --bail                        Bail out on first assert failure
   --solo                        Engage solo mode
   -r, --runner <out> <targets>  Generates an out file that contains all target tests
@@ -577,6 +578,15 @@ BRITTLE="--coverage --bail" brittle test.js
 Force disable coverage with an environment variable:
 ```shell
 BRITTLE_COVERAGE=false brittle test.js
+```
+### Coverage
+If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
+
+The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
+
+Istanbul can be used to convert the istanbul json report into other formats. e.g.:
+```
+npx istanbul report html
 ```
 
 ## License
