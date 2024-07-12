@@ -11,12 +11,10 @@ const argv = minimist(args, {
     bail: 'b',
     coverage: 'cov',
     cov: 'c',
-    'coverage-dir': 'covdir',
-    covdir: 'cd',
     runner: 'r'
   },
   boolean: ['solo', 'bail', 'coverage'],
-  string: ['coverage-dir']
+  string: ['cov-dir']
 })
 
 const files = []
@@ -35,7 +33,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, cov, covdir } = argv
+const { solo, bail, cov } = argv
 
 process.title = 'brittle'
 
@@ -82,7 +80,7 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covdir })
+if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: argv['cov-dir'] })
 
 start().catch(err => {
   console.error(err.stack)

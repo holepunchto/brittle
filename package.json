@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "b4a": "^1.6.0",
-    "bare-cov": "github:holepunchto/bare-cov",
+    "bare-cov": "file:../bare-cov",
     "error-stack-parser": "^2.1.4",
     "glob": "^8.0.3",
     "minimist": "^1.2.6",
