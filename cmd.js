@@ -1,8 +1,26 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const glob = require('glob')
+const picomatch = require('picomatch')
 const minimist = require('minimist')
+const fs = require('fs')
+
+class Glob {
+  constructor (pattern) {
+    this._isMatch = picomatch(pattern)
+  }
+
+  match (dir = '.') {
+    const matches = []
+    for (const f of fs.readdirSync(dir)) {
+      const p = path.join(dir, f)
+      if (fs.statSync(p).isDirectory()) matches.push(...this.match(p))
+      else if (this._isMatch(p)) matches.push(p)
+    }
+
+    return matches
+  }
+}
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const argv = minimist(args, {
@@ -19,7 +37,9 @@ const argv = minimist(args, {
 
 const files = []
 for (const g of argv._) {
-  const matches = glob.sync(g)
+  const glob = new Glob(g)
+  const matches = glob.match()
+
   if (matches.length === 0) {
     console.error(`Error: no files found when resolving ${g}`)
     process.exit(1)
