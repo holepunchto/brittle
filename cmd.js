@@ -83,7 +83,7 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ reportsDirectory: covdir })
+if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covdir })
 
 start().catch(err => {
   console.error(err.stack)
