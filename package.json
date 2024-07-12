@@ -18,7 +18,6 @@
     "lib/**.js"
   ],
   "dependencies": {
-    "@folder/readdir": "^3.1.0",
     "b4a": "^1.6.0",
     "bare-cov": "^1.0.0",
     "error-stack-parser": "^2.1.4",
