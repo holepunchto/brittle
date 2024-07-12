@@ -10,7 +10,7 @@ class Glob {
     this._isMatch = picomatch(pattern)
   }
 
-  match (dir) {
+  match (dir = '.') {
     const matches = []
     for (const f of fs.readdirSync(dir)) {
       const p = path.join(dir, f)
@@ -37,7 +37,8 @@ const argv = minimist(args, {
 
 const files = []
 for (const g of argv._) {
-  const matches = new Glob(g).match('.')
+  const glob = new Glob(g)
+  const matches = glob.match()
 
   if (matches.length === 0) {
     console.error(`Error: no files found when resolving ${g}`)
