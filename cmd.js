@@ -3,7 +3,6 @@
 const path = require('path')
 const glob = require('glob')
 const minimist = require('minimist')
-const fs = require('fs')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const argv = minimist(args, {
