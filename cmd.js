@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const glob = require('glob')
+const picomatch = require('picomatch')
+const readdir = require('@folder/readdir')
 const minimist = require('minimist')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
@@ -19,7 +20,8 @@ const argv = minimist(args, {
 
 const files = []
 for (const g of argv._) {
-  const matches = glob.sync(g)
+  const isMatch = picomatch(g)
+  const matches = readdir.sync('.', { depth: Infinity, isMatch: ({ relative }) => isMatch(relative) })
   if (matches.length === 0) {
     console.error(`Error: no files found when resolving ${g}`)
     process.exit(1)
