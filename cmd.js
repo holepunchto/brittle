@@ -20,25 +20,18 @@ const argv = minimist(args, {
 
 const files = []
 for (const g of argv._) {
-  const cwd = process.cwd()
   function listFiles (dir, isMatch) {
     const matches = []
     for (const f of fs.readdirSync(dir)) {
       const p = path.join(dir, f)
-      if (fs.statSync(p).isDirectory()) {
-        matches.push(...listFiles(p, isMatch))
-      } else {
-        const relative = path.relative(cwd, p)
-        if (isMatch(relative)) matches.push(relative)
-      }
+      if (fs.statSync(p).isDirectory()) matches.push(...listFiles(p, isMatch))
+      else if (isMatch(p)) matches.push(p)
     }
 
     return matches
   }
 
-  const matches = listFiles(cwd, picomatch(g))
-
-  console.log('matches', matches)
+  const matches = listFiles('.', picomatch(g))
 
   if (matches.length === 0) {
     console.error(`Error: no files found when resolving ${g}`)
