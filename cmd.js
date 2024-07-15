@@ -7,7 +7,7 @@ const fs = require('fs')
 
 class Glob {
   constructor (pattern) {
-    this._isMatch = picomatch(pattern)
+    this._isMatch = picomatch(pattern, { windows: process.platform === 'win32' })
   }
 
   match (dir = '.') {
