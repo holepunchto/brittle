@@ -90,7 +90,7 @@ Check the API but also all the [assertions here](#assertions) and [utilities her
 ## API
 
 ```js
-import { test, solo, skip, todo, configure } from 'brittle'
+import { test, solo, skip, hook, todo, configure } from 'brittle'
 ```
 
 #### `test([name], [options], callback)`
@@ -100,6 +100,7 @@ Create a classic test with an optional `name`.
 #### Available `options` for any test creation:
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
  * `solo` (`false`) - Skip all other tests except the `solo()` ones.
+ * `hook` (`false`) - always execute this test, even if another test is marked as `solo`.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
 
@@ -311,6 +312,28 @@ test.skip('another skipped test', function (t) {
 ```
 
 Only the `middle test` will be executed.
+
+#### `hook([name], [options], callback)`
+
+Always execute a test, even if another test is marked as `solo`:
+
+```js
+import { test, solo, hook } from 'brittle'
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+test('middle test', function (t) {
+  t.pass()
+})
+
+hook('hook test', function (t) {
+  t.pass()
+})
+```
+
+The `solo test` and `hook test` will be executed.
 
 #### `configure([options])`
 
