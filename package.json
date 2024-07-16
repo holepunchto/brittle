@@ -19,9 +19,9 @@
   ],
   "dependencies": {
     "b4a": "^1.6.0",
-    "bare-cov": "^1.0.0",
+    "bare-cov": "^1.0.1",
     "error-stack-parser": "^2.1.4",
-    "globbie": "github:holepunchto/globbie",
+    "globbie": "^1.0.0",
     "minimist": "^1.2.6",
     "same-object": "^1.0.2",
     "tmatch": "^5.0.0"
