@@ -1,94 +1,178 @@
 import { spawner } from './helpers/index.js'
 
 await spawner(
-  function ({ test, hook, solo }) {
-    test('skip this one', function (t) {
-      t.pass()
+  function ({ test, hook }) {
+    const resource = {}
+
+    test('check resource', function (t) {
+      t.is(resource.hooked, undefined)
     })
 
-    hook('this is a hook', function (t) {
-      t.pass()
+    hook('setup resource', function () {
+      resource.hooked = true
     })
 
-    test('skip this other one', function (t) {
-      t.pass()
+    test('check resource', function (t) {
+      t.is(resource.hooked, true)
     })
 
-    solo('this solo is ran', function (t) {
-      t.pass()
+    hook('teardown resource', function () {
+      resource.hooked = undefined
     })
 
-    hook('this is another hook', function (t) {
-      t.pass()
+    test('check resource', function (t) {
+      t.is(resource.hooked, undefined)
     })
   },
-  `
-  TAP version 13
+`
+TAP version 13
 
-  # this is a hook
-    ok 1 - passed
-  ok 1 - this is a hook # time = 0.761623ms
+# check resource
+  ok 1 - should be equal
+ok 1 - check resource # time = 0.761623ms
 
-  # this solo is ran
-      ok 1 - passed
-  ok 2 - this solo is ran # time = 0.06351ms
+# setup resource
+ok 2 - setup resource # time = 0.06351ms
 
-  # this is another hook
-      ok 1 - passed
-  ok 3 - this is another hook # time = 0.116902ms
+# check resource
+    ok 1 - should be equal
+ok 3 - check resource # time = 0.116902ms
 
-  1..3
-  # tests = 3/3 pass
-  # asserts = 3/3 pass
-  # time = 4.934907ms
+# teardown resource
+ok 4 - teardown resource # time = 0.06351ms
 
-  # ok
-  `,
-  { exitCode: 0, stderr: '' }
+# check resource
+    ok 1 - should be equal
+ok 5 - check resource # time = 0.116902ms
+
+1..5
+# tests = 5/5 pass
+# asserts = 3/3 pass
+# time = 4.934907ms
+
+# ok
+`,
+{ exitCode: 0, stderr: '' }
 )
 
 await spawner(
-  function ({ test, hook, skip }) {
-    test('run this one', function (t) {
-      t.pass()
+  function ({ solo, hook }) {
+    const resource = {}
+
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, undefined)
     })
 
-    hook('this is a hook', function (t) {
-      t.pass()
+    hook('setup resource', function () {
+      resource.hooked = true
     })
 
-    skip('skip this other one', function (t) {
-      t.pass()
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, true)
     })
 
-    hook('this is another hook', function (t) {
-      t.pass()
+    hook('teardown resource', function () {
+      resource.hooked = undefined
+    })
+
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, undefined)
     })
   },
-  `
-  TAP version 13
+`
+TAP version 13
 
-  # run this one
-    ok 1 - passed
-  ok 1 - run this one # time = 0.761623ms
+# solo check resource
+  ok 1 - should be equal
+ok 1 - solo check resource # time = 0.761623ms
 
-  # this is a hook
-      ok 1 - passed
-  ok 2 - this is a hook # time = 0.06351ms
+# setup resource
+ok 2 - setup resource # time = 0.06351ms
 
-  # skip this other one
-  ok 3 - skip this other one # SKIP
+# solo check resource
+    ok 1 - should be equal
+ok 3 - solo check resource # time = 0.116902ms
 
-  # this is another hook
-      ok 1 - passed
-  ok 4 - this is another hook # time = 0.116902ms
+# teardown resource
+ok 4 - teardown resource # time = 0.06351ms
 
-  1..4
-  # tests = 4/4 pass
-  # asserts = 4/4 pass
-  # time = 4.934907ms
+# solo check resource
+    ok 1 - should be equal
+ok 5 - solo check resource # time = 0.116902ms
 
-  # ok
-  `,
-  { exitCode: 0, stderr: '' }
+1..5
+# tests = 5/5 pass
+# asserts = 3/3 pass
+# time = 4.934907ms
+
+# ok
+`,
+{ exitCode: 0, stderr: '' }
+)
+
+await spawner(
+  function ({ test, solo, hook }) {
+    const resource = {}
+
+    test('test check resource', function (t) {
+      t.fail()
+    })
+
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, undefined)
+    })
+
+    hook('setup resource', function () {
+      resource.hooked = true
+    })
+
+    test('test check resource', function (t) {
+      t.fail()
+    })
+
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, true)
+    })
+
+    hook('teardown resource', function () {
+      resource.hooked = undefined
+    })
+
+    test('test check resource', function (t) {
+      t.fail()
+    })
+
+    solo('solo check resource', function (t) {
+      t.is(resource.hooked, undefined)
+    })
+  },
+`
+TAP version 13
+
+# solo check resource
+  ok 1 - should be equal
+ok 1 - solo check resource # time = 0.761623ms
+
+# setup resource
+ok 2 - setup resource # time = 0.06351ms
+
+# solo check resource
+    ok 1 - should be equal
+ok 3 - solo check resource # time = 0.116902ms
+
+# teardown resource
+ok 4 - teardown resource # time = 0.06351ms
+
+# solo check resource
+    ok 1 - should be equal
+ok 5 - solo check resource # time = 0.116902ms
+
+1..5
+# tests = 5/5 pass
+# asserts = 3/3 pass
+# time = 4.934907ms
+
+# ok
+`,
+{ exitCode: 0, stderr: '' }
 )

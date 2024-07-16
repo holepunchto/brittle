@@ -100,7 +100,7 @@ Create a classic test with an optional `name`.
 #### Available `options` for any test creation:
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
  * `solo` (`false`) - Skip all other tests except the `solo()` ones.
- * `hook` (`false`) - run the same way as test except always executes regardless of `solo` usage.
+ * `hook` (`false`) - setup and teardown resources.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
 
@@ -315,7 +315,7 @@ Only the `middle test` will be executed.
 
 #### `hook([name], [options], callback)`
 
-Use before tests for setting up and after tests for tear down. Runs the same way as test except always executes regardless of `solo` usage. 
+Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage. 
 
 ```js
 import { test, solo, hook } from 'brittle'
@@ -332,12 +332,12 @@ test('middle test', function (t) {
   t.pass()
 })
 
-hook('teardown hook', function (t) {
-  // teardown resouces
+hook('tear down hook', function (t) {
+  // tear down resouces
 })
 ```
 
-The `setup hook`, `solo test` and `teardown hook` will be executed.
+The `setup hook`, `solo test` and `tear down hook` will be executed.
 
 #### `configure([options])`
 
