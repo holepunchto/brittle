@@ -332,12 +332,12 @@ test('middle test', function (t) {
   t.pass()
 })
 
-hook('tear down hook', function (t) {
-  // tear down resouces
+hook('teardown hook', function (t) {
+  // teardown resouces
 })
 ```
 
-The `setup hook`, `solo test` and `tear down hook` will be executed.
+The `setup hook`, `solo test` and `teardown hook` will be executed.
 
 #### `configure([options])`
 
