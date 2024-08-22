@@ -333,7 +333,7 @@ test('middle test', function (t) {
 })
 
 hook('teardown hook', function (t) {
-  // teardown resouces
+  // teardown resources
 })
 ```
 
