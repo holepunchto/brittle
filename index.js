@@ -281,6 +281,10 @@ class Test {
     return this._hasPlan && this._planned === 0
   }
 
+  eventFlush () {
+    return eventFlush()
+  }
+
   then (...args) {
     return this.promise.then(...args)
   }
@@ -706,6 +710,7 @@ exports.resume = resume
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
+exports.eventFlush = eventFlush
 
 function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, source = true } = {}) {
   const runner = getRunner()
@@ -853,4 +858,8 @@ function prematureEnd (t, message) {
     : ''
 
   return new Error(message + details)
+}
+
+function eventFlush () {
+  return new Promise(resolve => setImmediate(resolve))
 }
