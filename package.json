@@ -20,6 +20,7 @@
   "dependencies": {
     "b4a": "^1.6.0",
     "bare-cov": "^1.0.1",
+    "bare-env": "^3.0.0",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.0",
     "minimist": "^1.2.6",
