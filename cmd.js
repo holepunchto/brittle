@@ -93,7 +93,7 @@ async function start () {
   const brittle = require('./')
 
   if (bail || solo || timeout) {
-    brittle.configure({ bail, solo, timeout })
+    brittle.configure({ bail, solo, timeout: +timeout })
   }
 
   brittle.pause()
