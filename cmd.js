@@ -1,24 +1,22 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const minimist = require('minimist')
-const Globbie = require('globbie')
+const { command, flag, rest } = require('paparam')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
-const argv = minimist(args, {
-  alias: {
-    solo: 's',
-    bail: 'b',
-    coverage: 'cov',
-    cov: 'c',
-    runner: 'r'
-  },
-  boolean: ['solo', 'bail', 'coverage'],
-  string: ['cov-dir', 'timeout']
-})
+const cmd = command('brittle',
+  flag('--solo, -s'),
+  flag('--bail, -b'),
+  flag('--coverage, -cov, -c'),
+  flag('--cov-dir <dir>'),
+  flag('--timeout, -t <timeout>'),
+  flag('--runner, -r <runner>'),
+  rest('<...files>')
+).parse(args)
+const argv = cmd.flags
 
 const files = []
-for (const g of argv._) {
+for (const g of cmd.rest) {
   const glob = new Globbie(g, { sync: true })
   const matches = glob.match()
 
