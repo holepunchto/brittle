@@ -6,14 +6,16 @@ const Globbie = require('globbie')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const cmd = command('brittle',
-  flag('--solo, -s'),
-  flag('--bail, -b'),
-  flag('--coverage, -cov, -c'),
-  flag('--cov-dir <dir>'),
-  flag('--timeout, -t <timeout>'),
-  flag('--runner, -r <runner>'),
-  rest('<...files>')
+  flag('--solo, -s', 'Engage solo mode'),
+  flag('--bail, -b', 'Bail out on first assert failure'),
+  flag('--coverage, -cov, -c', 'Turn on coverage'),
+  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
+  flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
+  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
+  rest('<files>')
 ).parse(args)
+if (!cmd) process.exit(0)
+
 const argv = cmd.flags
 
 const files = []
