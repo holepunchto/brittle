@@ -14,7 +14,7 @@ const argv = minimist(args, {
     runner: 'r'
   },
   boolean: ['solo', 'bail', 'coverage'],
-  string: ['cov-dir']
+  string: ['cov-dir', 'timeout']
 })
 
 const files = []
@@ -35,7 +35,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, cov } = argv
+const { solo, bail, timeout, cov } = argv
 
 process.title = 'brittle'
 
@@ -54,8 +54,8 @@ if (argv.runner) {
 
   s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
 
-  if (bail || solo) {
-    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ' })\n'
+  if (bail || solo || timeout) {
+    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ', timeout: ' + timeout + ' })\n'
   }
 
   s += '  test.pause()\n\n'
@@ -92,8 +92,8 @@ start().catch(err => {
 async function start () {
   const brittle = require('./')
 
-  if (bail || solo) {
-    brittle.configure({ bail, solo })
+  if (bail || solo || timeout) {
+    brittle.configure({ bail, solo, timeout })
   }
 
   brittle.pause()
