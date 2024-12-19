@@ -1,24 +1,25 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const minimist = require('minimist')
+const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
-const argv = minimist(args, {
-  alias: {
-    solo: 's',
-    bail: 'b',
-    coverage: 'cov',
-    cov: 'c',
-    runner: 'r'
-  },
-  boolean: ['solo', 'bail', 'coverage'],
-  string: ['cov-dir']
-})
+const cmd = command('brittle',
+  flag('--solo, -s', 'Engage solo mode'),
+  flag('--bail, -b', 'Bail out on first assert failure'),
+  flag('--coverage, -cov, -c', 'Turn on coverage'),
+  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
+  flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
+  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
+  rest('<files>')
+).parse(args)
+if (!cmd) process.exit(0)
+
+const argv = cmd.flags
 
 const files = []
-for (const g of argv._) {
+for (const g of cmd.rest) {
   const glob = new Globbie(g, { sync: true })
   const matches = glob.match()
 
@@ -35,7 +36,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, cov } = argv
+const { solo, bail, timeout, cov } = argv
 
 process.title = 'brittle'
 
@@ -54,8 +55,8 @@ if (argv.runner) {
 
   s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
 
-  if (bail || solo) {
-    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ' })\n'
+  if (bail || solo || timeout) {
+    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ', timeout: ' + timeout + ' })\n'
   }
 
   s += '  test.pause()\n\n'
@@ -92,8 +93,8 @@ start().catch(err => {
 async function start () {
   const brittle = require('./')
 
-  if (bail || solo) {
-    brittle.configure({ bail, solo })
+  if (bail || solo || timeout) {
+    brittle.configure({ bail, solo, timeout: timeout ? Number(timeout) : undefined })
   }
 
   brittle.pause()

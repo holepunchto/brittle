@@ -22,7 +22,7 @@
     "bare-cov": "^1.0.1",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.0",
-    "minimist": "^1.2.6",
+    "paparam": "^1.6.2",
     "same-object": "^1.0.2",
     "tmatch": "^5.0.0"
   },
