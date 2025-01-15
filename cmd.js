@@ -50,6 +50,7 @@ if (trace && !mine) {
     if (!code) return
     console.error()
     console.error('Printing tracing info since the tests failed:')
+    console.error()
     TracingPromise.print()
   })
 }
