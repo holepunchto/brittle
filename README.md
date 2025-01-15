@@ -571,7 +571,7 @@ The following would run all `.js` files in the test folder:
 ## CLI
 
 ```sh
-npm install -g brittle@next
+npm install -g brittle
 ```
 
 ```shell
