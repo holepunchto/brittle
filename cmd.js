@@ -87,7 +87,7 @@ if (argv.runner) {
 
 if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: argv['cov-dir'] })
 
-if (argv.mine) startMining().catch()
+if (mine) startMining().catch()
 else start().catch(onerror)
 
 function onerror (err) {
