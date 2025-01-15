@@ -20,6 +20,7 @@
   "dependencies": {
     "b4a": "^1.6.0",
     "bare-cov": "^1.0.1",
+    "bare-subprocess": "^2.0.3",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.0",
     "paparam": "^1.6.2",
@@ -27,7 +28,6 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "bare-subprocess": "^2.0.3",
     "chalk": "^4.1.2",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"

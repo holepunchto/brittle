@@ -3,6 +3,7 @@
 const path = require('path')
 const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
+const { spawn } = require('child_process')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const cmd = command('brittle',
@@ -12,6 +13,7 @@ const cmd = command('brittle',
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
+  flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -36,7 +38,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, cov } = argv
+const { solo, bail, timeout, cov, mine } = argv
 
 process.title = 'brittle'
 
@@ -85,10 +87,13 @@ if (argv.runner) {
 
 if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: argv['cov-dir'] })
 
-start().catch(err => {
+if (argv.mine) startMining().catch()
+else start().catch(onerror)
+
+function onerror (err) {
   console.error(err.stack)
   process.exit(1)
-})
+}
 
 async function start () {
   const brittle = require('./')
@@ -104,4 +109,92 @@ async function start () {
   }
 
   brittle.resume()
+}
+
+async function startMining () {
+  const running = new Set()
+  const max = Number(argv.mine) || 1
+
+  let runs = 0
+  let bailed = false
+  let newline = false
+
+  const interval = setInterval(function () {
+    console.log('Still mining... Total runs: ' + runs)
+    newline = true
+  }, 1000)
+
+  bump()
+
+  process.once('SIGINT', bail)
+  process.once('SIGTERM', bail)
+
+  function bail () {
+    bailed = true
+    clearInterval(interval)
+    for (const r of running) r.kill()
+  }
+
+  async function bump () {
+    if (running.size >= max || bailed) return
+
+    const r = run()
+    running.add(r)
+
+    const { exit, output } = await r.promise
+    running.delete(r)
+    runs++
+
+    if (bailed) return
+
+    if (!exit) {
+      bump()
+      bump()
+      return
+    }
+
+    bailed = true
+
+    clearInterval(interval)
+
+    if (newline) console.log()
+    console.log('Runner failed with exit code ' + exit + '!')
+    console.log('Shutting down the rest and printing output...')
+
+    for (const r of running) {
+      r.kill()
+      await r.promise
+    }
+
+    console.log('Done! The tests took ' + runs + ' runs to fail.')
+    console.log()
+
+    process.stdout.write(output)
+    process.exit(exit)
+  }
+
+  function run () {
+    const p = spawn(process.execPath, files)
+
+    let output = ''
+
+    p.stdout.setEncoding('utf-8')
+    p.stdout.on('data', (data) => (output += data))
+    p.stderr.setEncoding('utf-8')
+    p.stderr.on('data', (data) => (output += data))
+
+    const promise = new Promise((resolve) => {
+      p.on('close', (exit) => {
+        resolve({
+          exit,
+          output
+        })
+      })
+    })
+
+    return {
+      promise,
+      kill: () => p.kill()
+    }
+  }
 }
