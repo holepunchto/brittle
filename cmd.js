@@ -28,6 +28,7 @@ for (const g of cmd.rest) {
   const matches = glob.match()
 
   if (matches.length === 0) {
+    if (g[0] === '-') continue
     console.error(`Error: no files found when resolving ${g}`)
     process.exit(1)
   }
