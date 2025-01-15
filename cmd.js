@@ -112,6 +112,12 @@ async function start () {
 }
 
 async function startMining () {
+  const args = [__filename]
+    .concat(solo ? ['--solo'] : [])
+    .concat(bail ? ['--bail'] : [])
+    .concat(timeout ? ['--timeout', timeout + ''] : [])
+    .concat(files)
+
   const running = new Set()
   const max = Number(argv.mine) || 1
 
@@ -141,13 +147,13 @@ async function startMining () {
     const r = run()
     running.add(r)
 
-    const { exit, output } = await r.promise
+    const { exitCode, output } = await r.promise
     running.delete(r)
     runs++
 
     if (bailed) return
 
-    if (!exit) {
+    if (!exitCode) {
       bump()
       bump()
       return
@@ -158,7 +164,7 @@ async function startMining () {
     clearInterval(interval)
 
     if (newline) console.log()
-    console.log('Runner failed with exit code ' + exit + '!')
+    console.log('Runner failed with exit code ' + exitCode + '!')
     console.log('Shutting down the rest and printing output...')
 
     for (const r of running) {
@@ -169,24 +175,26 @@ async function startMining () {
     console.log('Done! The tests took ' + runs + ' runs to fail.')
     console.log()
 
-    process.stdout.write(output)
-    process.exit(exit)
+    for (const { stdout, data } of output) {
+      if (stdout) process.stdout.write(data)
+      else process.stderr.write(data)
+    }
+
+    process.exit(exitCode)
   }
 
   function run () {
-    const p = spawn(process.execPath, files)
+    const p = spawn(process.execPath, args)
 
-    let output = ''
+    const output = []
 
-    p.stdout.setEncoding('utf-8')
-    p.stdout.on('data', (data) => (output += data))
-    p.stderr.setEncoding('utf-8')
-    p.stderr.on('data', (data) => (output += data))
+    p.stdout.on('data', (data) => output.push({ stdout: true, data }))
+    p.stderr.on('data', (data) => output.push({ stdout: false, data }))
 
     const promise = new Promise((resolve) => {
-      p.on('close', (exit) => {
+      p.on('close', (exitCode) => {
         resolve({
-          exit,
+          exitCode,
           output
         })
       })
