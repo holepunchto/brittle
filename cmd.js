@@ -4,6 +4,7 @@ const path = require('path')
 const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
 const { spawn } = require('child_process')
+const TracingPromise = require('./lib/tracing-promise')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
 const cmd = command('brittle',
@@ -11,6 +12,7 @@ const cmd = command('brittle',
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -cov, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
+  flag('--trace', 'Trace all active promises and print them if the test fails'),
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
@@ -38,9 +40,20 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, cov, mine } = argv
+const { solo, bail, timeout, cov, mine, trace } = argv
 
 process.title = 'brittle'
+
+if (trace && !mine) {
+  TracingPromise.enable()
+  process.on('exit', function (code) {
+    if (!code) return
+    console.error()
+    console.error('Printing tracing info since the tests failed:')
+    console.error()
+    TracingPromise.print()
+  })
+}
 
 if (argv.runner) {
   const fs = require('fs')
@@ -115,6 +128,7 @@ async function startMining () {
   const args = [__filename]
     .concat(solo ? ['--solo'] : [])
     .concat(bail ? ['--bail'] : [])
+    .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(files)
 
