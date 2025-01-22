@@ -478,9 +478,9 @@ Creates a temporary folder and returns the path to it. Once a test either succee
 
 **Options:**
 
- * `order` (`0`) - set position priority among teardowns for the tmp folder to be cleaned
  * `dir` (`<tmp>`) - path for tmp folder, defaults to system tmp
- * `name` (`<random>`) - suffix appended to the tmp folder name 
+ * `name` (`<random>`) - suffix appended to the tmp folder name
+ * `order` (`0`) - set position priority among teardowns for the tmp folder to be cleaned
 
 #### `t.teardown(function|async function, [options])`
 
