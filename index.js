@@ -444,9 +444,9 @@ class Test {
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
 
-  _teardown (fn, opts) {
+  _teardown (fn, opts = {}) {
     if (this.isDone) throw new Error('Can\'t add teardown after end')
-    this._teardowns.push([(opts && opts.order) || 0, fn])
+    this._teardowns.push([opts.order || 0, !!opts.force, fn])
   }
 
   async _exception (natives, functionOrPromise, expectedError, message) {
@@ -579,7 +579,7 @@ class Test {
       await fn(this)
     } catch (err) {
       this._wait = false
-      this._onend(err)
+      await this._runTeardown(err)
       throw err
     }
 
@@ -612,7 +612,7 @@ class Test {
 
     if (this._teardowns.length) {
       this._teardowns.sort(cmp)
-      this._teardownAndEnd()
+      this._runTeardown(null)
     } else {
       this._onend(null)
     }
@@ -627,8 +627,9 @@ class Test {
     }
   }
 
-  async _teardownAndEnd () {
-    let error = null
+  async _runTeardown (error) {
+    const forced = !!error
+
     let fired = false
 
     const t = setTimeout(() => {
@@ -640,9 +641,9 @@ class Test {
 
     const time = highDefTimer()
 
-    for (const [, teardown] of this._teardowns) {
+    for (const [, force, teardown] of this._teardowns) {
       try {
-        await teardown()
+        if (force || !forced) await teardown()
       } catch (err) {
         if (!error) error = err
       }
