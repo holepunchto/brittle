@@ -304,7 +304,7 @@ class Test {
     this.runner.comment(this.name || 'test')
   }
 
-  tmp ({ dir, name, order }) { return tmp(this) }
+  tmp () { return tmp(this) }
 
   _planDoneOrEnd () {
     return this.isEnded || (this._hasPlan && this._planned === 0)

@@ -472,15 +472,9 @@ using `!=`.
 
 Constrain a test to an explicit amount of assertions.
 
-#### `t.tmp([options]) -> <String>`
+#### `t.tmp() -> <String>`
 
 Creates a temporary folder and returns the path to it. Once a test either succeeds or fails, the temporary folder is removed.
-
-**Options:**
-
- * `dir` (`<tmp>`) - path for tmp folder, defaults to system tmp
- * `name` (`<random>`) - suffix appended to the tmp folder name
- * `order` (`0`) - set position priority among teardowns for the tmp folder to be cleaned
 
 #### `t.teardown(function|async function, [options])`
 
