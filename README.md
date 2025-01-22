@@ -472,7 +472,7 @@ using `!=`.
 
 Constrain a test to an explicit amount of assertions.
 
-#### `t.tmp(options) -> <String>`
+#### `t.tmp([options]) -> <String>`
 
 Creates a temporary folder and returns the path to it. Once a test either succeeds or fails, the temporary folder is removed.
 
