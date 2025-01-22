@@ -472,10 +472,16 @@ using `!=`.
 
 Constrain a test to an explicit amount of assertions.
 
+#### `t.tmp() -> <Promise<String>>`
+
+Creates a temporary folder and returns a promise that resolves its path. Once a test either succeeds or fails, the temporary folder is removed.
+
 #### `t.teardown(function|async function, [options])`
 
-#### Available `options` for teardowns:
+**Options:**
+
  * `order` (`0`) - set the ascending position priority for a teardown to be executed.
+ * `force` (`false`) - run the teardown on failure as well as success
 
 The function passed to `teardown` is called right after a test ends:
 
@@ -533,7 +539,7 @@ The `A` teardown is executed first, then `B`, and finally `C` due to the `order`
 
 #### `t.timeout(ms)`
 
-Fail the test after a given timeout.  
+Fail the test after a given timeout.
 
 #### `t.comment(message)`
 
