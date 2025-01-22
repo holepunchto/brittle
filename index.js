@@ -1,4 +1,5 @@
 const sameObject = require('same-object')
+const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
@@ -302,6 +303,8 @@ class Test {
     this.runner.padding()
     this.runner.comment(this.name || 'test')
   }
+
+  tmp ({ dir, name, order }) { return tmp(this) }
 
   _planDoneOrEnd () {
     return this.isEnded || (this._hasPlan && this._planned === 0)
