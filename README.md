@@ -472,9 +472,9 @@ using `!=`.
 
 Constrain a test to an explicit amount of assertions.
 
-#### `t.tmp() -> <String>`
+#### `t.tmp() -> <Promise<String>>`
 
-Creates a temporary folder and returns the path to it. Once a test either succeeds or fails, the temporary folder is removed.
+Creates a temporary folder and returns a promise that resolves its path. Once a test either succeeds or fails, the temporary folder is removed.
 
 #### `t.teardown(function|async function, [options])`
 
