@@ -23,7 +23,7 @@ if (!cmd) process.exit(0)
 const argv = cmd.flags
 
 const files = []
-for (const g of cmd.rest) {
+for (const g of cmd.rest ?? []) {
   const glob = new Globbie(g, { sync: true })
   const matches = glob.match()
 
