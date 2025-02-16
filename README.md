@@ -589,6 +589,7 @@ Flags:
   --bail                        Bail out on first assert failure
   --solo                        Engage solo mode
   -r, --runner <out> <targets>  Generates an out file that contains all target tests
+  -m, --mine <miners>           Keep running the tests in <miners> processes until they fail.
 ```
 
 Note globbing is supported:
