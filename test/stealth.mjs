@@ -146,6 +146,40 @@ await tester('stealth method',
   { exitCode: 0, stderr: '' }
 )
 
+await tester('inverted stealth method',
+  function (t) {
+    t.plan(3)
+    t.pass('not stealth before')
+
+    const child = t.stealth('child')
+    child.plan(3)
+    child.is(1, 1, 'this is stealth')
+    child.isStealth = false
+    child.pass('this is not stealth')
+    child.isStealth = true
+    child.pass('this is stealth')
+
+    t.pass('not stealth after')
+  },
+  `
+  TAP version 13
+
+  # inverted stealth method
+      ok 1 - not stealth before
+      ok 3 - (child) - this is not stealth
+      ok 5 - not stealth after
+  ok 1 - inverted stealth method # time = 0.423731ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 5/5 pass
+  # time = 3.609011ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
+
 await tester('stealth test execution',
   async function (t) {
     t.plan(4)
