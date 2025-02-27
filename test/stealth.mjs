@@ -1,4 +1,4 @@
-import { tester } from './helpers/index.js'
+import { spawner, tester } from './helpers/index.js'
 
 await tester('classic plan',
   function (t) {
@@ -252,6 +252,88 @@ await tester('stealth test with error',
   # tests = 0/1 pass
   # asserts = 4/5 pass
   # time = 6.115739ms
+
+  # not ok
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  function ({ stealth, test }) {
+    stealth('top-level stealth', function (t) {
+      t.pass('should not print')
+    })
+
+    test('top-level non-stealth', function (t) {
+      t.pass('should print')
+    })
+
+    stealth('another top-level stealth', function (t) {
+      t.pass('should not print')
+    })
+  },
+  `
+  TAP version 13
+
+  # top-level stealth
+  ok 1 - top-level stealth # time = 0.209724ms
+
+  # top-level non-stealth
+      ok 1 - should print
+  ok 2 - top-level non-stealth # time = 0.086718ms
+
+  # another top-level stealth
+  ok 3 - another top-level stealth # time = 0.021209ms
+
+  1..3
+  # tests = 3/3 pass
+  # asserts = 3/3 pass
+  # time = 3.324178ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
+
+await spawner(
+  function ({ stealth, test }) {
+    stealth('top-level stealth fails', function (t) {
+      t.fail('stealth here but fails so it prints')
+    })
+
+    test('top-level non-stealth', function (t) {
+      t.pass('should print')
+    })
+
+    stealth('another top-level stealth', function (t) {
+      t.pass('should not print')
+    })
+  },
+  `
+  TAP version 13
+
+  # top-level stealth fails
+      not ok 1 - stealth here but fails so it prints
+        ---
+        operator: fail
+        stack: |
+          [eval]:5:9
+          Test._run (./index.js:593:13)
+          process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        ...
+  not ok 1 - top-level stealth fails # time = 2.513549ms
+
+  # top-level non-stealth
+      ok 1 - should print
+  ok 2 - top-level non-stealth # time = 0.205535ms
+
+  # another top-level stealth
+  ok 3 - another top-level stealth # time = 0.02893ms
+
+  1..3
+  # tests = 2/3 pass
+  # asserts = 2/3 pass
+  # time = 6.324247ms
 
   # not ok
   `,
