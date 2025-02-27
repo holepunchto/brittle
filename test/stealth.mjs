@@ -11,9 +11,9 @@ await tester('simple stealth',
   `
   TAP version 13
 
-  # classic plan
+  # simple stealth
     ok 2 - passed
-  ok 1 - classic plan # time = 0.615191ms
+  ok 1 - simple stealth # time = 0.615191ms
 
   1..1
   # tests = 1/1 pass
