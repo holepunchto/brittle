@@ -192,10 +192,8 @@ class Runner {
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
-      if (!stealth) {
-        this.log(ind + 'not ok ' + number, message)
-        if (explanation) this.log(lazy.errors.stringify(explanation))
-      }
+      this.log(ind + 'not ok ' + number, message)
+      if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
     }
   }
@@ -537,7 +535,7 @@ class Test {
     if (typeof name === 'function') return this.stealth(null, null, name)
     if (typeof opts === 'function') return this.stealth(name, null, opts)
 
-    return () => this.test(name, { stealth: true, ...opts }, fn)
+    return this.test(name, { stealth: true, ...opts }, fn)
   }
 
   _snapshot (actual, message = 'should match snapshot') {
