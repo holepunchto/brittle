@@ -1,9 +1,9 @@
 import { spawner, tester } from './helpers/index.js'
 
-await tester('classic plan',
+await tester('simple stealth',
   function (t) {
     t.isStealth = true
-    t.plan(2, 'comment')
+    t.plan(2)
     t.is(1, 1, '1 is 1')
     t.isStealth = false
     t.pass()
