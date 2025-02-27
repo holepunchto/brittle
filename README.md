@@ -208,7 +208,7 @@ const isOk = await t
 Create a stealth test.\
 This will provide a new sub-assert object that does not print out ok assertions.
 
-All `options` are the same as `test()` which are [listed here](#available-options-for-any-test-creation).
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `t.test([name], [options], callback)`
 #### `t.test([name], [options]) => assert`
@@ -271,7 +271,7 @@ test('basic', async function (t) {
 Create a stealth sub-test.\
 This will provide a new sub-assert object that does not print out ok assertions.
 
-All `options` are the same as `test()` which are [listed here](#available-options-for-any-test-creation).
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
 #### `solo([name], [options]) => assert`
