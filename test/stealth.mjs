@@ -331,11 +331,21 @@ await tester('stealth test with error',
 )
 
 await spawner(
-  function ({ stealth }) {
+  function ({ stealth, test }) {
     stealth('top-level stealth bails on first failure', function (t) {
       t.fail('stealth here but fails so it prints')
       t.pass('should not reach this')
       t.fail('this fail should not print')
+    })
+
+    test('nested stealth bails on first failure', function (t) {
+      t.pass('prints here')
+      t.stealth('child', function (t) {
+        t.fail('stealth here but fails so it prints')
+        t.pass('should not reach this')
+        t.fail('this fail should not print')
+      })
+      t.pass('also prints here')
     })
 
     stealth('another top-level stealth', function (t) {
@@ -354,15 +364,33 @@ await spawner(
           Test._run (./index.js:595:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
-  not ok 1 - top-level stealth bails on first failure # time = 2.529058ms
+  not ok 1 - top-level stealth bails on first failure # time = 2.567648ms
+
+  # nested stealth bails on first failure
+      ok 1 - prints here
+      not ok 2 - (child) - stealth here but fails so it prints
+        ---
+        operator: fail
+        stack: |
+          [eval]:13:11
+          Test._run (./index.js:595:13)
+          Test._test (./index.js:581:19)
+          Test._stealth (./index.js:540:17)
+          Test._stealth (./index.js:538:49)
+          [eval]:12:9
+          Test._run (./index.js:595:13)
+          process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        ...
+      ok 3 - also prints here
+  not ok 2 - nested stealth bails on first failure # time = 0.600648ms
 
   # another top-level stealth
-  ok 2 - another top-level stealth # time = 0.030419ms
+  ok 3 - another top-level stealth # time = 0.030269ms
 
-  1..2
-  # tests = 1/2 pass
-  # asserts = 1/2 pass
-  # time = 5.948498ms
+  1..3
+  # tests = 1/3 pass
+  # asserts = 3/5 pass
+  # time = 6.686187ms
 
   # not ok
   `,
