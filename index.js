@@ -196,6 +196,7 @@ class Runner {
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
+      if (!this.unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
     }
   }
 }
@@ -593,9 +594,11 @@ class Test {
     try {
       await fn(this)
     } catch (err) {
-      this._wait = false
-      await this._runTeardown(err)
-      throw err
+      if (!(err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed')) {
+        this._wait = false
+        await this._runTeardown(err)
+        throw err
+      }
     }
 
     if (!this._hasPlan) this.end()

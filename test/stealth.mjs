@@ -311,19 +311,58 @@ await tester('stealth test with error',
         operator: fail
         stack: |
           [eval]:9:9
-          Test._run (./index.js:594:13)
-          Test._test (./index.js:580:19)
+          Test._run (./index.js:595:13)
+          Test._test (./index.js:581:19)
           _fn ([eval]:6:7)
-          Test._run (./index.js:594:13)
+          Test._run (./index.js:595:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
       ok 4 - not stealth after
-  not ok 1 - stealth test with error # time = 2.686349ms
+  not ok 1 - stealth test with error # time = 2.747684ms
 
   1..1
   # tests = 0/1 pass
   # asserts = 3/4 pass
-  # time = 5.975036ms
+  # time = 6.010867ms
+
+  # not ok
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  function ({ stealth }) {
+    stealth('top-level stealth bails on first failure', function (t) {
+      t.fail('stealth here but fails so it prints')
+      t.pass('should not reach this')
+      t.fail('this fail should not print')
+    })
+
+    stealth('another top-level stealth', function (t) {
+      t.pass('should not print')
+    })
+  },
+  `
+  TAP version 13
+
+  # top-level stealth bails on first failure
+      not ok 1 - stealth here but fails so it prints
+        ---
+        operator: fail
+        stack: |
+          [eval]:5:9
+          Test._run (./index.js:595:13)
+          process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        ...
+  not ok 1 - top-level stealth bails on first failure # time = 2.529058ms
+
+  # another top-level stealth
+  ok 2 - another top-level stealth # time = 0.030419ms
+
+  1..2
+  # tests = 1/2 pass
+  # asserts = 1/2 pass
+  # time = 5.948498ms
 
   # not ok
   `,
