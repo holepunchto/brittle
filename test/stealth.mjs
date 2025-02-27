@@ -83,10 +83,43 @@ await spawner(
 )
 
 await spawner(
+  function ({ stealth, test, configure }) {
+    configure({ unstealth: true })
+
+    stealth('another top-level stealth', function (t) {
+      t.pass('should print due to unstealth')
+
+      t.test('child', function (t) {
+        t.plan(2)
+        t.is(1, 1, 'should also print due to unstealth')
+        t.pass('should also print due to unstealth')
+      })
+    })
+  },
+  `
+  TAP version 13
+
+  # another top-level stealth
+      ok 1 - should print due to unstealth
+      ok 2 - (child) - should also print due to unstealth
+      ok 3 - (child) - should also print due to unstealth
+  ok 1 - another top-level stealth # time = 0.358672ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 3/3 pass
+  # time = 2.999305ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
+
+await spawner(
   function ({ stealth }) {
     stealth('nested stealth inheritance', function (t) {
       t.test('child', function (t) {
-        t.plan(2, 'comment')
+        t.plan(2)
         t.is(1, 1, '1 is 1')
         t.pass()
       })
@@ -115,7 +148,7 @@ await spawner(
       t.test('child1', function (t) {
         t.pass('in child1')
         t.test('child2', function (t) {
-          t.plan(2, 'comment')
+          t.plan(2)
           t.is(1, 1, '1 is 1')
           t.pass('in child2')
         })
@@ -278,19 +311,19 @@ await tester('stealth test with error',
         operator: fail
         stack: |
           [eval]:9:9
-          Test._run (./index.js:593:13)
-          Test._test (./index.js:579:19)
+          Test._run (./index.js:594:13)
+          Test._test (./index.js:580:19)
           _fn ([eval]:6:7)
-          Test._run (./index.js:593:13)
+          Test._run (./index.js:594:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
       ok 4 - not stealth after
-  not ok 1 - stealth test with error # time = 2.740292ms
+  not ok 1 - stealth test with error # time = 2.686349ms
 
   1..1
   # tests = 0/1 pass
   # asserts = 3/4 pass
-  # time = 5.998595ms
+  # time = 5.975036ms
 
   # not ok
   `,
