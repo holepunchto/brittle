@@ -103,6 +103,7 @@ Create a classic test with an optional `name`.
  * `hook` (`false`) - setup and teardown resources.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
+ * `stealth` (`false`) - do not print out ok assertions for this test.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
@@ -201,6 +202,13 @@ t.pass()
 const isOk = await t
 ```
 
+#### `stealth([name], [options], callback)`
+#### `stealth([name], [options]) => assert`
+An alias for creating a stealth test.\
+This will provide a new sub-assert object that does not print out ok assertions.
+
+All `options` are the same with tests which are [listed here](#available-options-for-any-test-creation).
+
 #### `t.test([name], [options], callback)`
 #### `t.test([name], [options]) => assert`
 
@@ -255,6 +263,14 @@ test('basic', async function (t) {
   console.log(isOk)
 })
 ```
+
+#### `t.stealth([name], [options], callback)`
+#### `t.stealth([name], [options]) => assert`
+
+An alias for creating a stealth subtest.\
+This will provide a new sub-assert object that does not print out ok assertions.
+
+All `options` are the same as with subtests which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
 #### `solo([name], [options]) => assert`
