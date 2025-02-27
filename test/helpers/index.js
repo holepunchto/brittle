@@ -47,7 +47,7 @@ async function executeTap (script, expectedOut, more = {}) {
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.add('TAP_MISMATCH', 'TAP output does not matches the expected output', stdout, expectedOut)
+      errors.add('TAP_MISMATCH', 'TAP output does not match the expected output', stdout, expectedOut)
     }
   }
 
