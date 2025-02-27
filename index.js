@@ -184,16 +184,18 @@ class Runner {
     else this.log('# not ok')
   }
 
-  assert (indent, ok, number, message, explanation) {
+  assert (indent, ok, number, message, explanation, stealth) {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      this.log(ind + 'ok ' + number, message)
+      if (!stealth) this.log(ind + 'ok ' + number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
-      this.log(ind + 'not ok ' + number, message)
-      if (explanation) this.log(lazy.errors.stringify(explanation))
+      if (!stealth) {
+        this.log(ind + 'not ok ' + number, message)
+        if (explanation) this.log(lazy.errors.stringify(explanation))
+      }
       if (this.bail && !this.skipAll) this.skipAll = true
     }
   }
@@ -226,6 +228,7 @@ class Test {
     this.isResolved = false
     this.isQueued = false
     this.isMain = this.main === this
+    this.isStealth = parent?.isStealth || false
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
@@ -256,6 +259,8 @@ class Test {
     this.exception.all = this._exception.bind(this, true)
 
     this.execution = this._execution.bind(this)
+
+    this.stealth = this._stealth.bind(this)
 
     this.snapshot = this._snapshot.bind(this)
 
@@ -386,8 +391,8 @@ class Test {
     return this.main.assertions
   }
 
-  _assertion (ok, message, explanation, caller, top) {
-    this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation)
+  _assertion (ok, message, explanation, caller, top, isStealth = this.isStealth) {
+    this.runner.assert(!this.main.isResolved, ok, this._track(false, ok), this._message(message), explanation, isStealth)
 
     if (this.isEnded || this.isDone) {
       throw new AssertionError({ message: 'Assertion after end' })
@@ -528,6 +533,13 @@ class Test {
     return elapsed
   }
 
+  _stealth (name, opts, fn) {
+    if (typeof name === 'function') return this.stealth(null, null, name)
+    if (typeof opts === 'function') return this.stealth(name, null, opts)
+
+    return () => this.test(name, { stealth: true, ...opts }, fn)
+  }
+
   _snapshot (actual, message = 'should match snapshot') {
     const top = originFrame(this._snapshot)
 
@@ -561,6 +573,7 @@ class Test {
     if (typeof opts === 'function') return this.test(name, null, opts)
 
     const t = new Test(name, this)
+    if (opts?.stealth) t.isStealth = true
 
     if (this._hasPlan) this._planned--
     this._active++
@@ -709,6 +722,7 @@ exports.todo = todo
 exports.configure = configure
 exports.pause = pause
 exports.resume = resume
+exports.stealth = stealth
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
@@ -758,6 +772,7 @@ function test (name, opts, fn, defaults) {
   if (opts.solo) t.isSolo = true
   if (opts.skip) t.isSkip = true
   if (opts.todo) t.isTodo = true
+  if (opts.stealth) t.isStealth = true
 
   if (fn) return t._run(fn, opts)
   if (t.isTodo) return t._run(() => {}, opts)
@@ -859,4 +874,11 @@ function prematureEnd (t, message) {
     : ''
 
   return new Error(message + details)
+}
+
+function stealth (name, opts, fn, defaults) {
+  if (typeof name === 'function') return stealth(null, null, name, defaults)
+  if (typeof opts === 'function') return stealth(name, null, opts, defaults)
+
+  return test(name, { stealth: true, ...opts }, fn, defaults)
 }
