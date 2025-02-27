@@ -34,6 +34,7 @@ class Runner {
     this.started = false
     this.defaultTimeout = DEFAULT_TIMEOUT
     this.bail = false
+    this.unstealth = false
     this.skipAll = false
     this.explicitSolo = false
     this.source = true
@@ -188,7 +189,7 @@ class Runner {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      if (!stealth) this.log(ind + 'ok ' + number, message)
+      if (!stealth || this.unstealth) this.log(ind + 'ok ' + number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
@@ -725,7 +726,7 @@ exports.stealth = stealth
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, source = true } = {}) {
+function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true } = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
@@ -735,6 +736,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, sou
   runner.defaultTimeout = timeout
   runner.bail = bail
   runner.explicitSolo = solo
+  runner.unstealth = unstealth
   runner.source = source
 }
 
