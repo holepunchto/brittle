@@ -204,6 +204,7 @@ const isOk = await t
 
 #### `stealth([name], [options], callback)`
 #### `stealth([name], [options]) => assert`
+
 An alias for creating a stealth test.\
 This will provide a new sub-assert object that does not print out ok assertions.
 
