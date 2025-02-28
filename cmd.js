@@ -16,6 +16,7 @@ const cmd = command('brittle',
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
+  flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -41,7 +42,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, cov, mine, trace } = argv
+const { solo, bail, timeout, cov, mine, trace, unstealth } = argv
 
 process.title = 'brittle'
 
@@ -71,8 +72,8 @@ if (argv.runner) {
 
   s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
 
-  if (bail || solo || timeout) {
-    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ', timeout: ' + timeout + ' })\n'
+  if (bail || solo || unstealth || timeout) {
+    s += `  test.configure({ bail: ${!!bail}, solo: ${!!solo}, unstealth: ${!!unstealth}, timeout: ${timeout} })\n`
   }
 
   s += '  test.pause()\n\n'
@@ -112,8 +113,8 @@ function onerror (err) {
 async function start () {
   const brittle = require('./')
 
-  if (bail || solo || timeout) {
-    brittle.configure({ bail, solo, timeout: timeout ? Number(timeout) : undefined })
+  if (bail || solo || unstealth || timeout) {
+    brittle.configure({ bail, solo, unstealth, timeout: timeout ? Number(timeout) : undefined })
   }
 
   brittle.pause()
@@ -129,6 +130,7 @@ async function startMining () {
   const args = [__filename]
     .concat(solo ? ['--solo'] : [])
     .concat(bail ? ['--bail'] : [])
+    .concat(unstealth ? ['--unstealth'] : [])
     .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(files)

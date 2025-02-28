@@ -103,6 +103,7 @@ Create a classic test with an optional `name`.
  * `hook` (`false`) - setup and teardown resources.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
+ * `stealth` (`false`) - only print test summary.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
@@ -201,6 +202,14 @@ t.pass()
 const isOk = await t
 ```
 
+#### `stealth([name], [options], callback)`
+#### `stealth([name], [options]) => assert`
+
+Create a stealth test.\
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
+
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
+
 #### `t.test([name], [options], callback)`
 #### `t.test([name], [options]) => assert`
 
@@ -255,6 +264,14 @@ test('basic', async function (t) {
   console.log(isOk)
 })
 ```
+
+#### `t.stealth([name], [options], callback)`
+#### `t.stealth([name], [options]) => assert`
+
+Create a stealth sub-test.\
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
+
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
 #### `solo([name], [options]) => assert`
@@ -350,6 +367,7 @@ It must be executed before any tests.
  * `bail` (`false`) - exit the process on first test failure
  * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
+ * `unstealth` (`false`) - show assertions even if `stealth` is used
 
 ```js
 import { configure } from 'brittle'
@@ -592,6 +610,7 @@ Flags:
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --runner, -r <runner>     Generates an out file that contains all target tests
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
+  --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```
 
