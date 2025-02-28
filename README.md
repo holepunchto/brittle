@@ -103,7 +103,7 @@ Create a classic test with an optional `name`.
  * `hook` (`false`) - setup and teardown resources.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
- * `stealth` (`false`) - do not print out ok assertions for this test.
+ * `stealth` (`false`) - only print test summary.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
