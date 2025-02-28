@@ -206,7 +206,7 @@ const isOk = await t
 #### `stealth([name], [options]) => assert`
 
 Create a stealth test.\
-This will provide a new sub-assert object that does not print out ok assertions and ends the current test upon a failed assertion.
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
 
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
@@ -269,7 +269,7 @@ test('basic', async function (t) {
 #### `t.stealth([name], [options]) => assert`
 
 Create a stealth sub-test.\
-This will provide a new sub-assert object that does not print out ok assertions and ends the current test upon a failed assertion.
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
 
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
@@ -367,7 +367,7 @@ It must be executed before any tests.
  * `bail` (`false`) - exit the process on first test failure
  * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
- * `unstealth` (`false`) - show ok assertions even if `stealth` is used
+ * `unstealth` (`false`) - show assertions even if `stealth` is used
 
 ```js
 import { configure } from 'brittle'
@@ -610,7 +610,7 @@ Flags:
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --runner, -r <runner>     Generates an out file that contains all target tests
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
-  --unstealth, -u           Show ok assertions even if stealth is used
+  --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```
 

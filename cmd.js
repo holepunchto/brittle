@@ -16,7 +16,7 @@ const cmd = command('brittle',
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
-  flag('--unstealth, -u', 'Show ok assertions even if stealth is used'),
+  flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
