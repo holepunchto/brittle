@@ -484,6 +484,20 @@ Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
 
+### Fields
+
+#### `t.name`
+The name of the test.
+
+#### `t.passes`
+The number of assertions that passed within the test.
+
+#### `t.fails`
+The number of assertions that failed within the test.
+
+#### `t.assertions`
+The number of assertions that were executed within the test.
+
 ### Utilities
 
 #### `t.plan(n)`
