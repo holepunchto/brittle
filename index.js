@@ -99,7 +99,7 @@ class Runner {
       }
 
       this._next = test
-      test.header()
+      test._header()
 
       if (!IS_NODE && !IS_BARE) this._autoExit(test)
 
@@ -111,7 +111,7 @@ class Runner {
 
   _skip (reason, test) {
     if (this._shouldTest(test)) {
-      test.header()
+      test._header()
       this._tests.pass++
       this._tests.count++
       this.assert(false, true, this._tests.count, '- ' + test._name + ' # ' + reason, null)
@@ -301,7 +301,7 @@ class Test {
     return this._promise.finally(...args)
   }
 
-  header () {
+  _header () {
     if (this._headerLogged) return
     this._headerLogged = true
     this._runner.start()
@@ -682,7 +682,7 @@ class Test {
         if (this._runner._next) throw new Error('Only run test can be running at the same time')
         this._runner._next = this
       }
-      this.header()
+      this._header()
       this._timer = highDefTimer()
     }
 
