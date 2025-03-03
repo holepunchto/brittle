@@ -155,7 +155,7 @@ class Runner {
 
   end () {
     if (this._next) {
-      if (!this._next._isEnded && !this._next._fulfilledPlan) {
+      if (!this._next._isEnded && !(this._next._hasPlan && this._next._planned === 0)) {
         this._next._onend(prematureEnd(this._next, 'Test did not end (' + this._next._name + ')'))
         return
       }
@@ -283,10 +283,6 @@ class Test {
       this._parents.push(parent)
       parent = parent._parent
     }
-  }
-
-  get _fulfilledPlan () {
-    return this._hasPlan && this._planned === 0
   }
 
   then (...args) {
