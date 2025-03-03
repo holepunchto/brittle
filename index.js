@@ -114,7 +114,7 @@ class Runner {
       test._header()
       this._tests.pass++
       this._tests.count++
-      this.assert(false, true, this._tests.count, '- ' + test._name + ' # ' + reason, null)
+      this.assert(false, true, this._tests.count, '- ' + test.name + ' # ' + reason, null)
     }
   }
 
@@ -156,7 +156,7 @@ class Runner {
   end () {
     if (this._next) {
       if (!this._next._isEnded && !(this._next._hasPlan && this._next._planned === 0)) {
-        this._next._onend(prematureEnd(this._next, 'Test did not end (' + this._next._name + ')'))
+        this._next._onend(prematureEnd(this._next, 'Test did not end (' + this._next.name + ')'))
         return
       }
 
@@ -214,10 +214,10 @@ class Test {
     this._parents = []
     this._main = parent ? parent._main : this
     this._runner = getRunner()
-    this._name = name
-    this._passes = 0
-    this._fails = 0
-    this._assertions = 0
+    this.name = name
+    this.passes = 0
+    this.fails = 0
+    this.assertions = 0
 
     this._isEnded = false
     this._isDone = false
@@ -302,7 +302,7 @@ class Test {
     this._headerLogged = true
     this._runner.start()
     this._runner.padding()
-    this._runner.comment(this._name || 'test')
+    this._runner.comment(this.name || 'test')
   }
 
   tmp () { return tmp(this) }
@@ -351,8 +351,8 @@ class Test {
         if (!p.name) continue
         m += '(' + p.name + ') - '
       }
-      if (this._name) {
-        m += '(' + this._name + ') - '
+      if (this.name) {
+        m += '(' + this.name + ') - '
       }
     }
 
@@ -364,9 +364,9 @@ class Test {
   }
 
   _tick (ok) {
-    if (ok) this._passes++
-    else this._fails++
-    this._assertions++
+    if (ok) this.passes++
+    else this.fails++
+    this.assertions++
   }
 
   _track (topLevel, ok) {
@@ -384,7 +384,7 @@ class Test {
     this._runner._assertions.count++
     if (ok) this._runner._assertions.pass++
 
-    return this._main._assertions
+    return this._main.assertions
   }
 
   _assertion (ok, message, explanation, caller, top, isStealth = this._isStealth) {
@@ -549,7 +549,7 @@ class Test {
     }
 
     const filename = top.getFileName()
-    const key = (this._name || '') + ' ' + this._message(message)
+    const key = (this.name || '') + ' ' + this._message(message)
     const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
 
     const ok = sameObject(actual, expected, { strict: true })
@@ -690,11 +690,11 @@ class Test {
 
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
-    const ok = (this._fails === 0)
+    const ok = (this.fails === 0)
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this._runner.assert(false, ok, this._track(true, ok), '- ' + (this._name || '') + time, null)
+      this._runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
     }
 
     this._isResolved = true
@@ -869,7 +869,7 @@ function getRunner () {
 
 function prematureEnd (t, message) {
   const details = t._hasPlan
-    ? ' [assertion count (' + t._assertions + ') did not reach plan (' + (t._assertions + t._planned) + ')]'
+    ? ' [assertion count (' + t.assertions + ') did not reach plan (' + (t.assertions + t._planned) + ')]'
     : ''
 
   return new Error(message + details)
