@@ -484,7 +484,7 @@ Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
 
-### Fields
+### Readable Properties
 
 #### `t.name`
 The name of the test.
