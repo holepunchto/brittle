@@ -25,19 +25,19 @@ const lazy = {
 
 class Runner {
   constructor () {
-    this._tests = { count: 0, pass: 0 }
-    this._assertions = { count: 0, pass: 0 }
+    this.tests = { count: 0, pass: 0 }
+    this.assertions = { count: 0, pass: 0 }
 
-    this._next = null
-    this._solos = new Set()
-    this._padded = true
-    this._started = false
-    this._defaultTimeout = DEFAULT_TIMEOUT
-    this._bail = false
-    this._unstealth = false
-    this._skipAll = false
-    this._explicitSolo = false
-    this._source = true
+    this.next = null
+    this.solos = new Set()
+    this.padded = true
+    this.started = false
+    this.defaultTimeout = DEFAULT_TIMEOUT
+    this.bail = false
+    this.unstealth = false
+    this.skipAll = false
+    this.explicitSolo = false
+    this.source = true
 
     this._timer = highDefTimer()
     this._log = console.log.bind(console)
@@ -68,20 +68,20 @@ class Runner {
     this.start()
 
     if (test._isSolo) {
-      this._solos.add(test)
+      this.solos.add(test)
     }
 
     await this._wait()
 
-    if (this._explicitSolo && !test._isSolo) {
+    if (this.explicitSolo && !test._isSolo) {
       return false
     }
 
     if (this._shouldTest(test)) {
-      while (this._next !== null) {
-        const next = this._next
+      while (this.next !== null) {
+        const next = this.next
         await next
-        if (next === this._next) this._next = null
+        if (next === this.next) this.next = null
       }
 
       if (test._isSkip) {
@@ -98,7 +98,7 @@ class Runner {
         return false
       }
 
-      this._next = test
+      this.next = test
       test._header()
 
       if (!IS_NODE && !IS_BARE) this._autoExit(test)
@@ -112,21 +112,21 @@ class Runner {
   _skip (reason, test) {
     if (this._shouldTest(test)) {
       test._header()
-      this._tests.pass++
-      this._tests.count++
-      this.assert(false, true, this._tests.count, '- ' + test.name + ' # ' + reason, null)
+      this.tests.pass++
+      this.tests.count++
+      this.assert(false, true, this.tests.count, '- ' + test.name + ' # ' + reason, null)
     }
   }
 
   _shouldTest (test) {
-    return test._isHook || (!this._skipAll && (this._solos.size === 0 || this._solos.has(test)))
+    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
   }
 
   async _autoExit (test) {
     try {
       await test
       await wait(10) // wait 10 ticks...
-      if (this._next === test) {
+      if (this.next === test) {
         this.end()
       }
     } catch {}
@@ -134,18 +134,18 @@ class Runner {
 
   log (...message) {
     this._log(...message)
-    this._padded = false
+    this.padded = false
   }
 
   padding () {
-    if (this._padded) return
-    this._padded = true
+    if (this.padded) return
+    this.padded = true
     this.log()
   }
 
   start () {
-    if (this._started) return
-    this._started = true
+    if (this.started) return
+    this.started = true
     this.log('TAP version 13')
   }
 
@@ -154,34 +154,34 @@ class Runner {
   }
 
   end () {
-    if (this._next) {
-      if (!this._next._isEnded && !(this._next._hasPlan && this._next._planned === 0)) {
-        this._next._onend(prematureEnd(this._next, 'Test did not end (' + this._next.name + ')'))
+    if (this.next) {
+      if (!this.next._isEnded && !(this.next._hasPlan && this.next._planned === 0)) {
+        this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
         return
       }
 
-      if (!this._next._isResolved) {
-        if (this._next._isDone) {
-          this._next._onend(new Error('Teardown did not end (unresolved promise)'))
+      if (!this.next._isResolved) {
+        if (this.next._isDone) {
+          this.next._onend(new Error('Teardown did not end (unresolved promise)'))
           return
         }
-        this._next._onend(new Error('Test appears deadlocked (unresolved promise)'))
+        this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
     }
 
-    if (this._bail && this._skipAll) {
+    if (this.bail && this.skipAll) {
       this.log('Bail out!')
     }
 
     this.padding()
-    this.log('1..' + this._tests.count)
-    this.log('# tests = ' + this._tests.pass + '/' + this._tests.count + ' pass')
-    this.log('# asserts = ' + this._assertions.pass + '/' + this._assertions.count + ' pass')
+    this.log('1..' + this.tests.count)
+    this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
+    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this._tests.count === this._tests.pass && this._assertions.count === this._assertions.pass) this.log('# ok')
+    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
     else this.log('# not ok')
   }
 
@@ -189,14 +189,14 @@ class Runner {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      if (!stealth || this._unstealth) this.log(ind + 'ok ' + number, message)
+      if (!stealth || this.unstealth) this.log(ind + 'ok ' + number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
-      if (this._bail && !this._skipAll) this._skipAll = true
-      if (!this._unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
+      if (this.bail && !this.skipAll) this.skipAll = true
+      if (!this.unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
     }
   }
 }
@@ -371,9 +371,9 @@ class Test {
 
   _track (topLevel, ok) {
     if (topLevel) {
-      this._runner._tests.count++
-      if (ok) this._runner._tests.pass++
-      return this._runner._tests.count
+      this._runner.tests.count++
+      if (ok) this._runner.tests.pass++
+      return this._runner.tests.count
     }
 
     if (this._hasPlan) this._planned--
@@ -381,8 +381,8 @@ class Test {
 
     if (!this._isMain) this._main._tick(ok)
 
-    this._runner._assertions.count++
-    if (ok) this._runner._assertions.pass++
+    this._runner.assertions.count++
+    if (ok) this._runner.assertions.pass++
 
     return this._main.assertions
   }
@@ -670,13 +670,13 @@ class Test {
 
   _onstart (opts) {
     const to = this._isMain
-      ? (opts && opts.timeout !== undefined) ? opts.timeout : this._runner._defaultTimeout // main tests need a default timeout, unless opt-out
+      ? (opts && opts.timeout !== undefined) ? opts.timeout : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
       : opts && opts.timeout // non main ones do not
 
     if (this._isMain) {
       if (!this._isQueued) {
-        if (this._runner._next) throw new Error('Only run test can be running at the same time')
-        this._runner._next = this
+        if (this._runner.next) throw new Error('Only run test can be running at the same time')
+        this._runner.next = this
       }
       this._header()
       this._timer = highDefTimer()
@@ -700,8 +700,8 @@ class Test {
     this._isResolved = true
     this._isDone = true
 
-    if (this._isMain && this._runner._next === this) {
-      this._runner._next = null
+    if (this._isMain && this._runner.next === this) {
+      this._runner.next = null
     }
 
     if (err) this._reject(err)
@@ -728,15 +728,15 @@ exports.createTypedArray = createTypedArray
 function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true } = {}) {
   const runner = getRunner()
 
-  if (runner._tests.count > 0 || runner._assertions.count > 0) {
+  if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  runner._defaultTimeout = timeout
-  runner._bail = bail
-  runner._explicitSolo = solo
-  runner._unstealth = unstealth
-  runner._source = source
+  runner.defaultTimeout = timeout
+  runner.bail = bail
+  runner.explicitSolo = solo
+  runner.unstealth = unstealth
+  runner.source = source
 }
 
 function highDefTimerNode () {
@@ -832,7 +832,7 @@ function tickish (fn) {
 
 function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
   const runner = getRunner()
-  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner._source ? top : null, extra)
+  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.source ? top : null, extra)
 }
 
 function originFrame (stackStartFunction) {
