@@ -176,7 +176,7 @@ function standardizeTap (stdout) {
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/\n[^\n]*node:(?:internal|vm)[^\n]*/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(\[eval\])[^\n]*/g, '\n') // strip internal node stacks
-    .replace(/\n[^\n]*(Test\._run) \((.*):[\d]+:[\d]+\)[^\n]*\n/g, '\n$1 ($2:13:37)\n') // static line numbers for "Test._run"
+    .replace(/\n[^\n]*(Test\._(run|test|stealth)) \((.*):[\d]+:[\d]+\)[^\n]*/g, '\n$1 ($2:13:37)') // static line numbers for "Test._run/stealth/test"
     .replace(/[/\\]/g, '/')
     .split('\n')
     .map(n => n.trim())

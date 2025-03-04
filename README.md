@@ -484,6 +484,7 @@ Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
 
+
 ### Utilities
 
 #### `t.plan(n)`
@@ -568,6 +569,21 @@ Inject a TAP comment into the output.
 Force end a test.\
 `end` is determined by `assert` resolution or when a containing async function completes.\
 In case of inverted tests, they're required to be explicitly called.
+
+
+### Readable Properties
+
+#### `t.name`
+The name of the test.
+
+#### `t.passes`
+The number of assertions that passed within the test.
+
+#### `t.fails`
+The number of assertions that failed within the test.
+
+#### `t.assertions`
+The number of assertions that were executed within the test.
 
 ## Runner
 
