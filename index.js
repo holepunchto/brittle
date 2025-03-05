@@ -202,7 +202,7 @@ class Runner {
 }
 
 class Test {
-  constructor (name, parent) {
+  constructor (name, parent, opts = {}) {
     this._resolve = null
     this._reject = null
 
@@ -221,14 +221,14 @@ class Test {
 
     this._isEnded = false
     this._isDone = false
-    this._isHook = false
-    this._isSolo = false
-    this._isSkip = false
-    this._isTodo = false
+    this._isHook = opts?.hook || false
+    this._isSolo = opts?.solo || false
+    this._isSkip = opts?.skip || false
+    this._isTodo = opts?.todo || false
     this._isResolved = false
     this._isQueued = false
     this._isMain = this._main === this
-    this._isStealth = parent?._isStealth || false
+    this._isStealth = opts?.stealth || parent?._isStealth || false
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
@@ -568,8 +568,7 @@ class Test {
     if (typeof name === 'function') return this.test(null, null, name)
     if (typeof opts === 'function') return this.test(name, null, opts)
 
-    const t = new Test(name, this)
-    if (opts?.stealth) t._isStealth = true
+    const t = new Test(name, this, opts)
 
     if (this._hasPlan) this._planned--
     this._active++
@@ -763,15 +762,9 @@ function test (name, opts, fn, defaults) {
   if (typeof name === 'function') return test(null, null, name, defaults)
   if (typeof opts === 'function') return test(name, null, opts, defaults)
 
-  const t = new Test(name, null)
-
   opts = { ...defaults, ...opts }
 
-  if (opts.hook) t._isHook = true
-  if (opts.solo) t._isSolo = true
-  if (opts.skip) t._isSkip = true
-  if (opts.todo) t._isTodo = true
-  if (opts.stealth) t._isStealth = true
+  const t = new Test(name, null, opts)
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
