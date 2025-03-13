@@ -210,13 +210,19 @@ await tester('stealth test child',
 
 await tester('stealth method',
   function (t) {
-    t.plan(3)
+    t.plan(4)
     t.pass('not stealth before')
+
     t.stealth('child', function (t) {
       t.plan(2)
       t.is(1, 1, 'this is stealth')
       t.pass('this is stealth')
     })
+
+    t.stealth('redundant stealth option is ignored', { stealth: false }, function (t) {
+      t.pass('this is stealth')
+    })
+
     t.pass('not stealth after')
   },
   `
@@ -224,13 +230,13 @@ await tester('stealth method',
 
   # stealth method
       ok 1 - not stealth before
-      ok 4 - not stealth after
-  ok 1 - stealth method # time = 0.422483ms
+      ok 5 - not stealth after
+  ok 1 - stealth method # time = 0.353113ms
 
   1..1
   # tests = 1/1 pass
-  # asserts = 4/4 pass
-  # time = 3.48198ms
+  # asserts = 5/5 pass
+  # time = 2.875219ms
 
   # ok
   `,
