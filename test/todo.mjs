@@ -17,6 +17,10 @@ await spawner(
     todo('todo this other one', function (t) {
       t.pass()
     })
+
+    todo('redundant todo option is ignored', { todo: false }, function (t) {
+      t.pass()
+    })
   },
   `
   TAP version 13
@@ -35,10 +39,13 @@ await spawner(
   # todo this other one
   ok 4 - todo this other one # TODO
 
-  1..4
-  # tests = 4/4 pass
+  # redundant todo option is ignored
+  ok 5 - redundant todo option is ignored # TODO
+
+  1..5
+  # tests = 5/5 pass
   # asserts = 2/2 pass
-  # time = 4.354851ms
+  # time = 3.31017ms
 
   # ok
   `,
@@ -48,17 +55,22 @@ await spawner(
 await spawner(
   function ({ todo }) {
     todo('inverted todo')
+
+    todo('inverted todo with ignored opts')
   },
   `
   TAP version 13
 
   # inverted todo
   ok 1 - inverted todo # TODO
+  
+  # inverted todo with ignored opts
+  ok 2 - inverted todo with ignored opts # TODO
 
-  1..1
-  # tests = 1/1 pass
+  1..2
+  # tests = 2/2 pass
   # asserts = 0/0 pass
-  # time = 1.743833ms
+  # time = 3.318685ms
 
   # ok
   `,
