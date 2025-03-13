@@ -61,3 +61,13 @@ await spawner(
   '',
   { exitCode: 1, stderr: { includes: 'An inverted test cannot be skipped' } }
 )
+
+await spawner(
+  function ({ skip }) {
+    const t = skip('inverted skip with ignored opts', { skip: false })
+    t.pass()
+    t.end()
+  },
+  '',
+  { exitCode: 1, stderr: { includes: 'An inverted test cannot be skipped' } }
+)
