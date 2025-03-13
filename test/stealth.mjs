@@ -13,6 +13,10 @@ await spawner(
     stealth('another top-level stealth', function (t) {
       t.pass('should not print')
     })
+
+    stealth('redundant stealth option is ignored', { stealth: false }, function (t) {
+      t.pass('should not print')
+    })
   },
   `
   TAP version 13
@@ -25,12 +29,15 @@ await spawner(
   ok 2 - top-level non-stealth # time = 0.086718ms
 
   # another top-level stealth
-  ok 3 - another top-level stealth # time = 0.021209ms
+  ok 3 - another top-level stealth # time = 0.02353ms
 
-  1..3
-  # tests = 3/3 pass
-  # asserts = 3/3 pass
-  # time = 3.324178ms
+  # redundant stealth option is ignored
+  ok 4 - redundant stealth option is ignored # time = 0.013899ms
+
+  1..4
+  # tests = 4/4 pass
+  # asserts = 4/4 pass
+  # time = 3.358469ms
 
   # ok
   `,

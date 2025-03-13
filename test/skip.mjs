@@ -17,6 +17,10 @@ await spawner(
     skip('skip this other one', function (t) {
       t.pass()
     })
+
+    skip('redundant skip option is ignored', { skip: false }, function (t) {
+      t.pass()
+    })
   },
   `
   TAP version 13
@@ -35,10 +39,13 @@ await spawner(
   # skip this other one
   ok 4 - skip this other one # SKIP
 
-  1..4
-  # tests = 4/4 pass
+  # redundant skip option is ignored
+  ok 5 - redundant skip option is ignored # SKIP
+
+  1..5
+  # tests = 5/5 pass
   # asserts = 2/2 pass
-  # time = 3.983213ms
+  # time = 3.388168ms
 
   # ok
   `,
