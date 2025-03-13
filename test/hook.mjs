@@ -134,7 +134,7 @@ await spawner(
       t.is(resource.hooked, true)
     })
 
-    hook('teardown resource', function () {
+    hook('redundant hook option is ignored', { hook: false }, function () {
       resource.hooked = undefined
     })
 
@@ -160,8 +160,8 @@ ok 2 - setup resource # time = 0.06351ms
     ok 1 - should be equal
 ok 3 - solo check resource # time = 0.116902ms
 
-# teardown resource
-ok 4 - teardown resource # time = 0.06351ms
+# redundant hook option is ignored
+ok 4 - redundant hook option is ignored # time = 0.06351ms
 
 # solo check resource
     ok 1 - should be equal

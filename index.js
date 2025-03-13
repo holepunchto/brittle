@@ -533,7 +533,7 @@ class Test {
     if (typeof name === 'function') return this.stealth(null, null, name)
     if (typeof opts === 'function') return this.stealth(name, null, opts)
 
-    return this.test(name, { stealth: true, ...opts }, fn)
+    return this.test(name, { ...opts, stealth: true }, fn)
   }
 
   _snapshot (actual, message = 'should match snapshot') {
@@ -758,11 +758,11 @@ function cmp (a, b) {
   return a[0] - b[0]
 }
 
-function test (name, opts, fn, defaults) {
-  if (typeof name === 'function') return test(null, null, name, defaults)
-  if (typeof opts === 'function') return test(name, null, opts, defaults)
+function test (name, opts, fn, overrides) {
+  if (typeof name === 'function') return test(null, null, name, overrides)
+  if (typeof opts === 'function') return test(name, null, opts, overrides)
 
-  opts = { ...defaults, ...opts }
+  opts = { ...opts, ...overrides }
 
   const t = new Test(name, null, opts)
 
@@ -868,9 +868,6 @@ function prematureEnd (t, message) {
   return new Error(message + details)
 }
 
-function stealth (name, opts, fn, defaults) {
-  if (typeof name === 'function') return stealth(null, null, name, defaults)
-  if (typeof opts === 'function') return stealth(name, null, opts, defaults)
-
-  return test(name, { stealth: true, ...opts }, fn, defaults)
+function stealth (name, opts, fn) {
+  return test(name, opts, fn, { stealth: true })
 }
