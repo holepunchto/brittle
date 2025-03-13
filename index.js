@@ -533,7 +533,7 @@ class Test {
     if (typeof name === 'function') return this.stealth(null, null, name)
     if (typeof opts === 'function') return this.stealth(name, null, opts)
 
-    return this.test(name, { stealth: true, ...opts }, fn)
+    return this.test(name, { ...opts, stealth: true }, fn)
   }
 
   _snapshot (actual, message = 'should match snapshot') {
