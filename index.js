@@ -47,6 +47,8 @@ class Runner {
     const target = IS_NODE ? process : global.Bare
     const ondeadlock = () => {
       target.off('beforeExit', ondeadlock)
+      if (target.listenerCount('beforeExit') > 0) return
+
       // defer a tick
       queueMicrotask(() => {
         // if user added a listener, assume they know what they are doing
