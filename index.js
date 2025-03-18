@@ -712,6 +712,9 @@ class Test {
 
     if (err) this._reject(err)
     else this._resolve(ok)
+
+    // if test is running without deadlock detection, trigger "io" to rerun it in case idle now
+    if (this._checkDeadlock === false) setImmediate(() => {})
   }
 }
 
