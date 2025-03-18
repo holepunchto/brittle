@@ -44,8 +44,15 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    if (IS_NODE) process.once('beforeExit', () => this.end())
-    if (IS_BARE) global.Bare.once('beforeExit', () => this.end())
+    const target = IS_NODE ? process : global.Bare
+    const ondeadlock = () => {
+      target.off('beforeExit', ondeadlock)
+      // if user added a listener, assume they know what they are doing
+      if (target.listenerCount('beforeExit') > 0) return
+      this.end()
+    }
+
+    target.on('beforeExit', ondeadlock)
   }
 
   resume () {
