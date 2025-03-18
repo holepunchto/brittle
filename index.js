@@ -44,8 +44,14 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    if (IS_NODE) process.once('beforeExit', () => this.end())
-    if (IS_BARE) global.Bare.once('beforeExit', () => this.end())
+    const target = IS_NODE ? process : global.Bare
+    const ondeadlock = () => {
+      if (this.next && this.next._checkDeadlock === false) return
+      target.off('beforeExit', ondeadlock)
+      this.end()
+    }
+
+    target.on('beforeExit', ondeadlock)
   }
 
   resume () {
@@ -229,6 +235,7 @@ class Test {
     this._isQueued = false
     this._isMain = this._main === this
     this._isStealth = opts?.stealth || parent?._isStealth || false
+    this._checkDeadlock = opts?.deadlock !== false
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
