@@ -46,15 +46,9 @@ class Runner {
 
     const target = IS_NODE ? process : global.Bare
     const ondeadlock = () => {
+      if (this.next && this.next._checkDeadlock === false) return
       target.off('beforeExit', ondeadlock)
-      if (target.listenerCount('beforeExit') > 0) return
-
-      // defer a tick
-      queueMicrotask(() => {
-        // if user added a listener, assume they know what they are doing
-        if (target.listenerCount('beforeExit') > 0) return
-        this.end()
-      })
+      this.end()
     }
 
     target.on('beforeExit', ondeadlock)
@@ -241,6 +235,7 @@ class Test {
     this._isQueued = false
     this._isMain = this._main === this
     this._isStealth = opts?.stealth || parent?._isStealth || false
+    this._checkDeadlock = opts?.deadlock !== false
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
