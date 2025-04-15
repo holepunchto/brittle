@@ -29,7 +29,6 @@ await spawner(
         operator: fail
         stack: |
           [eval]:11:9
-          Test._run (./index.js:555:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
   not ok 2 - fail # time = 3.498153ms
