@@ -138,21 +138,21 @@ await tester('failing (default messages)',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 2 - expected truthy value
         ---
         operator: ok
         stack: |
           _fn ([eval]:5:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 3 - expected falsy value
         ---
         operator: absent
         stack: |
           _fn ([eval]:6:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 4 - should be equal
         ---
@@ -161,7 +161,7 @@ await tester('failing (default messages)',
         operator: is
         stack: |
           _fn ([eval]:7:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 5 - should be equal
         ---
@@ -170,7 +170,7 @@ await tester('failing (default messages)',
         operator: is
         stack: |
           _fn ([eval]:8:10)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 6 - should not be equal
         ---
@@ -179,7 +179,7 @@ await tester('failing (default messages)',
         operator: not
         stack: |
           _fn ([eval]:9:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 7 - should not be equal
         ---
@@ -188,7 +188,7 @@ await tester('failing (default messages)',
         operator: not
         stack: |
           _fn ([eval]:10:11)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 8 - should deep equal
         ---
@@ -199,7 +199,7 @@ await tester('failing (default messages)',
         operator: alike
         stack: |
           _fn ([eval]:11:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 9 - should deep equal
         ---
@@ -210,7 +210,7 @@ await tester('failing (default messages)',
         operator: alike
         stack: |
           _fn ([eval]:12:13)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 10 - should not deep equal
         ---
@@ -221,7 +221,7 @@ await tester('failing (default messages)',
         operator: unlike
         stack: |
           _fn ([eval]:13:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 11 - should not deep equal
         ---
@@ -232,7 +232,7 @@ await tester('failing (default messages)',
         operator: unlike
         stack: |
           _fn ([eval]:14:14)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 12 - should deep equal
         ---
@@ -245,7 +245,7 @@ await tester('failing (default messages)',
         operator: alike
         stack: |
           _fn ([eval]:15:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 13 - should not deep equal
         ---
@@ -258,34 +258,34 @@ await tester('failing (default messages)',
         operator: unlike
         stack: |
           _fn ([eval]:16:14)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 14 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:17:5)
         ...
       not ok 15 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:18:5)
         ...
       not ok 16 - should return
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
           _fn ([eval]:19:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 17 - should reject
         ---
@@ -293,16 +293,16 @@ await tester('failing (default messages)',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:20:5)
         ...
       not ok 18 - should reject
         ---
-        actual: 
-        expected: 
+        actual: Error: n
+        expected: /y/
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:21:5)
         ...
       not ok 19 - should reject
@@ -311,7 +311,7 @@ await tester('failing (default messages)',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:22:5)
         ...
       not ok 20 - should throw
@@ -321,7 +321,7 @@ await tester('failing (default messages)',
         operator: exception
         stack: |
           _fn ([eval]:23:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
   not ok 1 - failing (default messages) # time = 10.34778ms
 
@@ -364,21 +364,21 @@ await tester('failing (custom messages)',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 2 - brittle
         ---
         operator: ok
         stack: |
           _fn ([eval]:5:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 3 - is
         ---
         operator: absent
         stack: |
           _fn ([eval]:6:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 4 - an
         ---
@@ -387,7 +387,7 @@ await tester('failing (custom messages)',
         operator: is
         stack: |
           _fn ([eval]:7:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 5 - often
         ---
@@ -396,7 +396,7 @@ await tester('failing (custom messages)',
         operator: is
         stack: |
           _fn ([eval]:8:10)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 6 - overlooked
         ---
@@ -405,7 +405,7 @@ await tester('failing (custom messages)',
         operator: not
         stack: |
           _fn ([eval]:9:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 7 - tasty
         ---
@@ -414,7 +414,7 @@ await tester('failing (custom messages)',
         operator: not
         stack: |
           _fn ([eval]:10:11)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 8 - treat
         ---
@@ -425,7 +425,7 @@ await tester('failing (custom messages)',
         operator: alike
         stack: |
           _fn ([eval]:11:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 9 - you should
         ---
@@ -436,7 +436,7 @@ await tester('failing (custom messages)',
         operator: alike
         stack: |
           _fn ([eval]:12:13)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 10 - try it
         ---
@@ -447,7 +447,7 @@ await tester('failing (custom messages)',
         operator: unlike
         stack: |
           _fn ([eval]:13:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 11 - sometime
         ---
@@ -458,34 +458,34 @@ await tester('failing (custom messages)',
         operator: unlike
         stack: |
           _fn ([eval]:14:14)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 12 - but
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:15:5)
         ...
       not ok 13 - not really
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:16:5)
         ...
       not ok 14 - personally
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
           _fn ([eval]:17:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 15 - I have not had it
         ---
@@ -493,7 +493,7 @@ await tester('failing (custom messages)',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:18:5)
         ...
       not ok 16 - in a long
@@ -502,7 +502,7 @@ await tester('failing (custom messages)',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:19:5)
         ...
       not ok 17 - long time
@@ -512,7 +512,7 @@ await tester('failing (custom messages)',
         operator: exception
         stack: |
           _fn ([eval]:20:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
   not ok 1 - failing (custom messages) # time = 10.129451ms
 
@@ -572,7 +572,7 @@ await tester('passing and failing mixed',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 2 - passed
       not ok 3 - expected truthy value
@@ -580,7 +580,7 @@ await tester('passing and failing mixed',
         operator: ok
         stack: |
           _fn ([eval]:6:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 4 - expected truthy value
       not ok 5 - expected falsy value
@@ -588,7 +588,7 @@ await tester('passing and failing mixed',
         operator: absent
         stack: |
           _fn ([eval]:8:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 6 - expected falsy value
       not ok 7 - should be equal
@@ -598,7 +598,7 @@ await tester('passing and failing mixed',
         operator: is
         stack: |
           _fn ([eval]:10:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 8 - should be equal
       not ok 9 - should be equal
@@ -608,7 +608,7 @@ await tester('passing and failing mixed',
         operator: is
         stack: |
           _fn ([eval]:12:10)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 10 - should be equal
       not ok 11 - should not be equal
@@ -618,7 +618,7 @@ await tester('passing and failing mixed',
         operator: not
         stack: |
           _fn ([eval]:14:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 12 - should not be equal
       not ok 13 - should not be equal
@@ -628,7 +628,7 @@ await tester('passing and failing mixed',
         operator: not
         stack: |
           _fn ([eval]:16:11)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 14 - should not be equal
       not ok 15 - should deep equal
@@ -640,7 +640,7 @@ await tester('passing and failing mixed',
         operator: alike
         stack: |
           _fn ([eval]:18:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 16 - should deep equal
       not ok 17 - should deep equal
@@ -652,7 +652,7 @@ await tester('passing and failing mixed',
         operator: alike
         stack: |
           _fn ([eval]:20:13)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 18 - should deep equal
       not ok 19 - should not deep equal
@@ -664,7 +664,7 @@ await tester('passing and failing mixed',
         operator: unlike
         stack: |
           _fn ([eval]:22:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 20 - should not deep equal
       not ok 21 - should not deep equal
@@ -676,38 +676,38 @@ await tester('passing and failing mixed',
         operator: unlike
         stack: |
           _fn ([eval]:24:14)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 22 - should not deep equal
       ok 23 - should resolve
       not ok 24 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:27:5)
         ...
       ok 25 - should resolve
       not ok 26 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:29:5)
         ...
       ok 27 - should return
       not ok 28 - should return
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
           _fn ([eval]:31:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 29 - should reject
         ---
@@ -715,7 +715,7 @@ await tester('passing and failing mixed',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:32:5)
         ...
       ok 30 - should reject
@@ -725,7 +725,7 @@ await tester('passing and failing mixed',
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:34:5)
         ...
       ok 32 - should reject
@@ -736,7 +736,7 @@ await tester('passing and failing mixed',
         operator: exception
         stack: |
           _fn ([eval]:36:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       ok 34 - should throw
   not ok 1 - passing and failing mixed # time = 10.946447ms
@@ -894,12 +894,12 @@ await spawner(
         stack: |
           _fn ([eval]:5:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 2 - expected truthy value
         ---
@@ -907,12 +907,12 @@ await spawner(
         stack: |
           _fn ([eval]:6:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 3 - expected falsy value
         ---
@@ -920,12 +920,12 @@ await spawner(
         stack: |
           _fn ([eval]:7:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 4 - should be equal
         ---
@@ -935,12 +935,12 @@ await spawner(
         stack: |
           _fn ([eval]:8:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 5 - should be equal
         ---
@@ -950,12 +950,12 @@ await spawner(
         stack: |
           _fn ([eval]:9:10)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 6 - should not be equal
         ---
@@ -965,12 +965,12 @@ await spawner(
         stack: |
           _fn ([eval]:10:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 7 - should not be equal
         ---
@@ -980,12 +980,12 @@ await spawner(
         stack: |
           _fn ([eval]:11:11)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 8 - should deep equal
         ---
@@ -997,12 +997,12 @@ await spawner(
         stack: |
           _fn ([eval]:12:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 9 - should deep equal
         ---
@@ -1014,12 +1014,12 @@ await spawner(
         stack: |
           _fn ([eval]:13:13)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 10 - should not deep equal
         ---
@@ -1031,12 +1031,12 @@ await spawner(
         stack: |
           _fn ([eval]:14:7)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 11 - should not deep equal
         ---
@@ -1048,39 +1048,39 @@ await spawner(
         stack: |
           _fn ([eval]:15:14)
           [eval]:26:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 12 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:16:5)
         ...
       not ok 13 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:17:5)
         ...
       not ok 14 - should return
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
           _fn ([eval]:18:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 15 - should reject
         ---
@@ -1088,16 +1088,16 @@ await spawner(
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:19:5)
         ...
       not ok 16 - should reject
         ---
-        actual: 
-        expected: 
+        actual: Error: n
+        expected: /y/
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:20:5)
         ...
       not ok 17 - should reject
@@ -1106,7 +1106,7 @@ await spawner(
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:21:5)
         ...
       not ok 18 - should throw
@@ -1116,7 +1116,7 @@ await spawner(
         operator: exception
         stack: |
           _fn ([eval]:22:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
   not ok 1 - inverted failing (default messages) # time = 11.076319ms
 
@@ -1162,12 +1162,12 @@ await spawner(
         stack: |
           _fn ([eval]:5:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 2 - brittle
         ---
@@ -1175,12 +1175,12 @@ await spawner(
         stack: |
           _fn ([eval]:6:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 3 - is
         ---
@@ -1188,12 +1188,12 @@ await spawner(
         stack: |
           _fn ([eval]:7:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 4 - an
         ---
@@ -1203,12 +1203,12 @@ await spawner(
         stack: |
           _fn ([eval]:8:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 5 - often
         ---
@@ -1218,12 +1218,12 @@ await spawner(
         stack: |
           _fn ([eval]:9:10)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 6 - overlooked
         ---
@@ -1233,12 +1233,12 @@ await spawner(
         stack: |
           _fn ([eval]:10:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 7 - tasty
         ---
@@ -1248,12 +1248,12 @@ await spawner(
         stack: |
           _fn ([eval]:11:11)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 8 - treat
         ---
@@ -1265,12 +1265,12 @@ await spawner(
         stack: |
           _fn ([eval]:12:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 9 - you should
         ---
@@ -1282,12 +1282,12 @@ await spawner(
         stack: |
           _fn ([eval]:13:13)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 10 - try it
         ---
@@ -1299,12 +1299,12 @@ await spawner(
         stack: |
           _fn ([eval]:14:7)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 11 - sometime
         ---
@@ -1316,39 +1316,39 @@ await spawner(
         stack: |
           _fn ([eval]:15:14)
           [eval]:25:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       not ok 12 - but
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:16:5)
         ...
       not ok 13 - not really
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:17:5)
         ...
       not ok 14 - personally
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
           _fn ([eval]:18:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
       not ok 15 - I have not had it
         ---
@@ -1356,7 +1356,7 @@ await spawner(
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:19:5)
         ...
       not ok 16 - in a long
@@ -1365,7 +1365,7 @@ await spawner(
         expected: undefined
         operator: exception
         stack: |
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
           async _fn ([eval]:20:5)
         ...
       not ok 17 - long time
@@ -1375,7 +1375,7 @@ await spawner(
         operator: exception
         stack: |
           _fn ([eval]:21:7)
-          processTicksAndRejections (node:internal/process/task_queues:96:5)
+          process.processTicksAndRejections (node:internal/process/task_queues:95:5)
         ...
   not ok 1 - inverted failing (custom messages) # time = 10.618919ms
 
@@ -1438,12 +1438,12 @@ await spawner(
         stack: |
           _fn ([eval]:5:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 2 - passed
       not ok 3 - expected truthy value
@@ -1452,12 +1452,12 @@ await spawner(
         stack: |
           _fn ([eval]:7:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 4 - expected truthy value
       not ok 5 - expected falsy value
@@ -1466,12 +1466,12 @@ await spawner(
         stack: |
           _fn ([eval]:9:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 6 - expected falsy value
       not ok 7 - should be equal
@@ -1482,12 +1482,12 @@ await spawner(
         stack: |
           _fn ([eval]:11:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 8 - should be equal
       not ok 9 - should be equal
@@ -1498,12 +1498,12 @@ await spawner(
         stack: |
           _fn ([eval]:13:10)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 10 - should be equal
       not ok 11 - should not be equal
@@ -1514,12 +1514,12 @@ await spawner(
         stack: |
           _fn ([eval]:15:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 12 - should not be equal
       not ok 13 - should not be equal
@@ -1530,90 +1530,90 @@ await spawner(
         stack: |
           _fn ([eval]:17:11)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 14 - should not be equal
       not ok 15 - should deep equal
         ---
-        actual: 
+        actual:
           a: 1
-        expected: 
+        expected:
           a: 2
         operator: alike
         stack: |
           _fn ([eval]:19:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 16 - should deep equal
       not ok 17 - should deep equal
         ---
-        actual: 
+        actual:
           a: 1
-        expected: 
+        expected:
           a: 2
         operator: alike
         stack: |
           _fn ([eval]:21:13)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 18 - should deep equal
       not ok 19 - should not deep equal
         ---
-        actual: 
+        actual:
           a: 2
-        expected: 
+        expected:
           a: 2
         operator: unlike
         stack: |
           _fn ([eval]:23:7)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 20 - should not deep equal
       not ok 21 - should not deep equal
         ---
-        actual: 
+        actual:
           a: 2
-        expected: 
+        expected:
           a: 2
         operator: unlike
         stack: |
           _fn ([eval]:25:14)
           [eval]:42:1
-          Script.runInThisContext (node:vm:129:12)
-          Object.runInThisContext (node:vm:305:38)
-          node:internal/process/execution:76:19
-          [eval]-wrapper:6:22
-          evalScript (node:internal/process/execution:75:60)
-          node:internal/main/eval_string:27:3
+          runScriptInThisContext (node:internal/vm:143:10)
+          node:internal/process/execution:100:14
+          [eval]-wrapper:6:24
+          runScript (node:internal/process/execution:83:62)
+          evalScript (node:internal/process/execution:114:10)
+          node:internal/main/eval_string:30:3
         ...
       ok 22 - should not deep equal
       ok 23 - should resolve
       not ok 24 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
@@ -1623,7 +1623,7 @@ await spawner(
       ok 25 - should resolve
       not ok 26 - should resolve
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
@@ -1633,7 +1633,7 @@ await spawner(
       ok 27 - should return
       not ok 28 - should return
         ---
-        actual: 
+        actual: Error: n
         expected: null
         operator: execution
         stack: |
