@@ -67,7 +67,6 @@ await spawner(
         operator: fail
         stack: |
           [eval]:5:9
-          Test._run (./index.js:593:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
   not ok 1 - top-level stealth fails # time = 2.513549ms
@@ -324,10 +323,7 @@ await tester('stealth test with error',
         operator: fail
         stack: |
           [eval]:9:9
-          Test._run (./index.js:595:13)
-          Test._test (./index.js:581:19)
           _fn ([eval]:6:7)
-          Test._run (./index.js:595:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
       ok 4 - not stealth after
@@ -374,7 +370,6 @@ await spawner(
         operator: fail
         stack: |
           [eval]:5:9
-          Test._run (./index.js:595:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
   not ok 1 - top-level stealth bails on first failure # time = 2.567648ms
@@ -386,12 +381,7 @@ await spawner(
         operator: fail
         stack: |
           [eval]:13:11
-          Test._run (./index.js:595:13)
-          Test._test (./index.js:581:19)
-          Test._stealth (./index.js:540:17)
-          Test._stealth (./index.js:538:49)
           [eval]:12:9
-          Test._run (./index.js:595:13)
           process.processTicksAndRejections (node:internal/process/task_queues:105:5)
         ...
       ok 3 - also prints here

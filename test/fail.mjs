@@ -13,7 +13,6 @@ await tester('classic no plan',
         operator: fail
         stack: |
           _fn ([eval]:4:7)
-          Test._run (./index.js:555:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
   not ok 1 - classic no plan # time = 4.160992ms
@@ -42,7 +41,6 @@ await tester('classic with plan',
         operator: fail
         stack: |
           _fn ([eval]:5:7)
-          Test._run (./index.js:529:13)
           processTicksAndRejections (node:internal/process/task_queues:96:5)
         ...
   not ok 1 - classic with plan # time = 3.890772ms
