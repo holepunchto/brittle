@@ -620,7 +620,7 @@ brittle [flags] <files>
 Flags:
   --solo, -s                Engage solo mode
   --bail, -b                Bail out on first assert failure
-  --coverage, -cov, -c      Turn on coverage
+  --coverage, -c            Turn on coverage
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
   --trace                   Trace all active promises and print them if the test fails
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
