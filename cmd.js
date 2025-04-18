@@ -10,7 +10,7 @@ const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|
 const cmd = command('brittle',
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
-  flag('--coverage, -cov, -c', 'Turn on coverage'),
+  flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
   flag('--trace', 'Trace all active promises and print them if the test fails'),
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
