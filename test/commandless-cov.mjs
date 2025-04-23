@@ -4,7 +4,7 @@ await spawner(
   function ({ configure, test }) {
     configure({ coverage: true })
 
-    test('nested stealth bails on first failure', function (t) {
+    test('commandless cov should print coverage', function (t) {
       t.pass('prints here')
       t.pass('also prints here')
     })
@@ -12,10 +12,10 @@ await spawner(
   `
   TAP version 13
 
-  # nested stealth bails on first failure
+  # commandless cov should print coverage
       ok 1 - prints here
       ok 2 - also prints here
-  ok 1 - nested stealth bails on first failure # time = 0.295115ms
+  ok 1 - commandless cov should print coverage # time = 0.295115ms
 
   1..1
   # tests = 1/1 pass
