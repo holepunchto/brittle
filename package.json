@@ -26,6 +26,7 @@
     "bare-path": "^3.0.0",
     "bare-process": "^4.2.1",
     "bare-subprocess": "^5.0.0",
+    "bare-which": "^2.0.0",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.0",
     "paparam": "^1.6.2",
@@ -39,9 +40,15 @@
     "standard": "^17.0.0"
   },
   "imports": {
-    "child_process": { "bare": "bare-subprocess" },
-    "path": { "bare": "bare-path" },
-    "process": { "bare": "bare-process" }
+    "child_process": {
+      "bare": "bare-subprocess"
+    },
+    "path": {
+      "bare": "bare-path"
+    },
+    "process": {
+      "bare": "bare-process"
+    }
   },
   "repository": {
     "type": "git",
