@@ -368,6 +368,7 @@ It must be executed before any tests.
  * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
  * `unstealth` (`false`) - show assertions even if `stealth` is used
+ * `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 
 ```js
 import { configure } from 'brittle'
