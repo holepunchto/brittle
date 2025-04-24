@@ -4,6 +4,7 @@ const path = require('path')
 const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
 const { spawn } = require('child_process')
+const process = require('process')
 const TracingPromise = require('./lib/tracing-promise')
 
 const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
