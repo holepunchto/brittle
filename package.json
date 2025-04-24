@@ -6,7 +6,8 @@
   "bin": {
     "brittle": "./bin/brittle-node.js",
     "brittle-node": "./bin/brittle-node.js",
-    "brittle-bare": "./bin/brittle-bare.js"
+    "brittle-bare": "./bin/brittle-bare.js",
+    "brittle-pear": "./bin/brittle-pear.js"
   },
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
