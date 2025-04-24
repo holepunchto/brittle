@@ -28,7 +28,7 @@
     "bare-subprocess": "^5.0.0",
     "bare-which": "^2.0.0",
     "error-stack-parser": "^2.1.4",
-    "globbie": "^1.0.0",
+    "globbie": "^1.0.2",
     "paparam": "^1.6.2",
     "same-object": "^1.0.2",
     "test-tmp": "^1.4.0",
