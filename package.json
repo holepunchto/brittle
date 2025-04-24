@@ -4,7 +4,9 @@
   "description": "A TAP test runner built for modern times",
   "main": "index.js",
   "bin": {
-    "brittle": "./cmd.js"
+    "brittle": "./bin/brittle-node.js",
+    "brittle-node": "./bin/brittle-node.js",
+    "brittle-bare": "./bin/brittle-bare.js"
   },
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
@@ -15,7 +17,8 @@
   "files": [
     "index.js",
     "cmd.js",
-    "lib/**.js"
+    "lib/**.js",
+    "bin/**.js"
   ],
   "dependencies": {
     "b4a": "^1.6.0",
