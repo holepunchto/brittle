@@ -8,4 +8,4 @@ if (!global.Pear && global.process) {
 
 if (!Pear.run) throw new Error('Incompatible with current Pear version (must be v2+)')
 
-require('../cmd.js')
+require('../brittle/cmd.js')
