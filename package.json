@@ -39,9 +39,15 @@
     "standard": "^17.0.0"
   },
   "imports": {
-    "child_process": { "bare": "bare-subprocess" },
-    "path": { "bare": "bare-path" },
-    "process": { "bare": "bare-process" }
+    "child_process": {
+      "bare": "bare-subprocess"
+    },
+    "path": {
+      "bare": "bare-path"
+    },
+    "process": {
+      "bare": "bare-process"
+    }
   },
   "repository": {
     "type": "git",
