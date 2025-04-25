@@ -90,8 +90,8 @@ Check the API but also all the [assertions here](#assertions) and [utilities her
 ## Test Runtimes
 When installed as a dependency or globally, the following runtime executables are available:
 * `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
-* `brittle-bare` - Runs tests using [Bare](https://github.com/holepunchto/bare).
-* `brittle-pear` - Runs tests using [Pear](https://github.com/holepunchto/pear).
+* `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
+* `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
 
 ## API
 
