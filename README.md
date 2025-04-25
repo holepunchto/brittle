@@ -87,6 +87,12 @@ Every assertion can have a message, i.e. `t.pass('msg')`, `t.ok(false, 'should b
 There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
+## Test Runtimes
+When installed as a dependency or globally, the following runtime executables are available:
+* `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
+* `brittle-bare` - Runs tests using [Bare](https://github.com/holepunchto/bare).
+* `brittle-pear` - Runs tests using [Pear](https://github.com/holepunchto/pear).
+
 ## API
 
 ```js
