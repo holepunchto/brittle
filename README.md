@@ -88,7 +88,7 @@ There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
 ## Test Runtimes
-When installed as a dependency or globally, the following runtime executables are available:
+When installed as a dependency or globally, the following commands for using different runtimes are available:
 * `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
 * `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
 * `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
