@@ -608,7 +608,7 @@ class Test {
     this._wait = false
     this._checkEnd()
 
-    await this
+    return await this
   }
 
   _end () {
