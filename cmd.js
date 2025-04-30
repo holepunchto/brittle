@@ -43,7 +43,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, cov, mine, trace, unstealth } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth } = argv
 
 process.title = 'brittle'
 
@@ -101,7 +101,7 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (cov && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: argv['cov-dir'] })
+if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
 
 if (mine) startMining().catch()
 else start().catch(onerror)
