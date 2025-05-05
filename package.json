@@ -27,6 +27,7 @@
     "bare-path": "^3.0.0",
     "bare-process": "^4.2.1",
     "bare-subprocess": "^5.0.0",
+    "bare-utils": "^1.2.0",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.2",
     "paparam": "^1.6.2",
