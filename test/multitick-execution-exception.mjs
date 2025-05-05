@@ -41,9 +41,7 @@ await tester('multi-tick execution (promise reject)',
         actual: 
         expected: null
         operator: execution
-        stack: |
-          async _fn ([eval]:5:5)
-          async Test._run (./index.js:565:7)
+        stack: async _fn ([eval]:5:5)
         ...
       ok 3 - second
   not ok 1 - multi-tick execution (promise reject) # time = 118.550599ms
@@ -74,9 +72,7 @@ await tester('multi-tick exception (promise resolve)',
         actual: false
         expected: undefined
         operator: exception
-        stack: |
-          async _fn ([eval]:5:5)
-          async Test._run (./index.js:565:7)
+        stack: async _fn ([eval]:5:5)
         ...
       ok 3 - second
   not ok 1 - multi-tick exception (promise resolve) # time = 120.87336ms
