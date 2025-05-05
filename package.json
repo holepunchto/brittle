@@ -26,7 +26,8 @@
     "paparam": "^1.6.2",
     "same-object": "^1.0.2",
     "test-tmp": "^1.4.0",
-    "tmatch": "^5.0.0"
+    "tmatch": "^5.0.0",
+    "which-runtime": "^1.2.1"
   },
   "devDependencies": {
     "chalk": "^4.1.2",
