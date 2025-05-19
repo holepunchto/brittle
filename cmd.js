@@ -11,8 +11,6 @@ const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filte
 const cmd = command('brittle',
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
-  flag('--coverage, -c', 'Turn on coverage'),
-  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
   flag('--trace', 'Trace all active promises and print them if the test fails'),
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
@@ -43,7 +41,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth } = argv
+const { solo, bail, timeout, mine, trace, unstealth } = argv
 
 process.title = 'brittle'
 
@@ -101,7 +99,10 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
+if (process.env.BARE_V8_COVERAGE !== 'false') {
+  const covDir = ['false', '0', ''].includes(process.env.BARE_V8_COVERAGE) ? undefined : process.env.BARE_V8_COVERAGE
+  require('./lib/coverage')(covDir || 'coverage')
+}
 
 if (mine) startMining().catch()
 else start().catch(onerror)
