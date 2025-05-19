@@ -7,7 +7,7 @@ const { spawn } = require('child_process')
 const process = require('process')
 const TracingPromise = require('./lib/tracing-promise')
 
-const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
+const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
 const cmd = command('brittle',
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
