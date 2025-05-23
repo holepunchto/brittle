@@ -433,7 +433,7 @@ await t.exception(Promise.reject(Error('an err')), /an err/)
 ```
 
 If the error is an instance of any of the following native error constructors,
-then this will still result in failure since native errors often tend to be unintentational.
+then this will still result in failure since native errors often tend to be unintentional.
 
 * `SyntaxError`
 * `ReferenceError`
