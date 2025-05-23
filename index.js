@@ -734,14 +734,12 @@ exports.stealth = stealth
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true, coverage = false } = {}) {
+function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true } = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
-
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
 
   runner.defaultTimeout = timeout
   runner.bail = bail
