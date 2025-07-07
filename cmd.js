@@ -84,7 +84,7 @@ if (argv.runner) {
     if (t === out) continue
 
     let r = path.relative(dir, t).replace(/\\/g, '/')
-    if (r[0] !== '.') r = '.' + path.sep + r
+    if (r[0] !== '.') r = './' + r
     s += '  await import(\'' + r + '\')\n'
   }
 
