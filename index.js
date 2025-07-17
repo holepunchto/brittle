@@ -155,12 +155,16 @@ class Runner {
     this.log('TAP version 13')
 
     this._handleRejection = (err) => {
+      if (target.listeners('unhandledRejection').length > 1) return
+
       console.error('Brittle aborted due to an unhandled rejection:', err)
       target.exit(1)
     }
     target.on('unhandledRejection', this._handleRejection)
 
     this._handleException = (err) => {
+      if (target.listeners('uncaughtException').length > 1) return
+
       console.error('Brittle aborted due to an uncaught exception:', err)
       target.exit(1)
     }
