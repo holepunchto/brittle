@@ -5,6 +5,7 @@ const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
+const process = require('process')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -153,6 +154,18 @@ class Runner {
     if (this.started) return
     this.started = true
     this.log('TAP version 13')
+
+    this._handleRejection = (err) => {
+      console.error('Brittle aborted due to an unhandled rejection:', err)
+      process.exit(1)
+    }
+    process.on('unhandledRejection', this._handleRejection)
+
+    this._handleException = (err) => {
+      console.error('Brittle aborted due to an uncaught exception:', err)
+      process.exit(1)
+    }
+    process.on('uncaughtException', this._handleException)
   }
 
   comment (...message) {
@@ -174,6 +187,16 @@ class Runner {
         this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
+    }
+
+    if (this._handleRejection) {
+      process.removeListener('unhandledRejection', this._handleRejection)
+      this._handleRejection = null
+    }
+
+    if (this._handleException) {
+      process.removeListener('uncaughtException', this._handleException)
+      this._handleException = null
     }
 
     if (this.bail && this.skipAll) {
