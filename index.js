@@ -5,10 +5,10 @@ const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
-const process = require('process')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
+const target = IS_NODE ? process : global.Bare
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -45,7 +45,6 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    const target = IS_NODE ? process : global.Bare
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       target.off('beforeExit', ondeadlock)
@@ -157,15 +156,15 @@ class Runner {
 
     this._handleRejection = (err) => {
       console.error('Brittle aborted due to an unhandled rejection:', err)
-      process.exit(1)
+      target.exit(1)
     }
-    process.on('unhandledRejection', this._handleRejection)
+    target.on('unhandledRejection', this._handleRejection)
 
     this._handleException = (err) => {
       console.error('Brittle aborted due to an uncaught exception:', err)
-      process.exit(1)
+      target.exit(1)
     }
-    process.on('uncaughtException', this._handleException)
+    target.on('uncaughtException', this._handleException)
   }
 
   comment (...message) {
@@ -190,12 +189,12 @@ class Runner {
     }
 
     if (this._handleRejection) {
-      process.removeListener('unhandledRejection', this._handleRejection)
+      target.removeListener('unhandledRejection', this._handleRejection)
       this._handleRejection = null
     }
 
     if (this._handleException) {
-      process.removeListener('uncaughtException', this._handleException)
+      target.removeListener('uncaughtException', this._handleException)
       this._handleException = null
     }
 
