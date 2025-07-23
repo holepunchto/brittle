@@ -8,6 +8,7 @@ const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
+const program = IS_NODE ? process : global.Bare
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -44,14 +45,13 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    const target = IS_NODE ? process : global.Bare
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
-      target.off('beforeExit', ondeadlock)
+      program.off('beforeExit', ondeadlock)
       this.end()
     }
 
-    target.on('beforeExit', ondeadlock)
+    program.on('beforeExit', ondeadlock)
   }
 
   resume () {
@@ -153,6 +153,22 @@ class Runner {
     if (this.started) return
     this.started = true
     this.log('TAP version 13')
+
+    this._handleRejection = (err) => {
+      if (program.listeners('unhandledRejection').length > 1) return
+
+      console.error('Brittle aborted due to an unhandled rejection:', err)
+      program.exit(1)
+    }
+    program.on('unhandledRejection', this._handleRejection)
+
+    this._handleException = (err) => {
+      if (program.listeners('uncaughtException').length > 1) return
+
+      console.error('Brittle aborted due to an uncaught exception:', err)
+      program.exit(1)
+    }
+    program.on('uncaughtException', this._handleException)
   }
 
   comment (...message) {
@@ -174,6 +190,16 @@ class Runner {
         this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
+    }
+
+    if (this._handleRejection) {
+      program.removeListener('unhandledRejection', this._handleRejection)
+      this._handleRejection = null
+    }
+
+    if (this._handleException) {
+      program.removeListener('uncaughtException', this._handleException)
+      this._handleException = null
     }
 
     if (this.bail && this.skipAll) {
