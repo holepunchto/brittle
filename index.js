@@ -8,7 +8,7 @@ const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
-const target = IS_NODE ? process : global.Bare
+const program = IS_NODE ? process : global.Bare
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -47,11 +47,11 @@ class Runner {
 
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
-      target.off('beforeExit', ondeadlock)
+      program.off('beforeExit', ondeadlock)
       this.end()
     }
 
-    target.on('beforeExit', ondeadlock)
+    program.on('beforeExit', ondeadlock)
   }
 
   resume () {
@@ -155,20 +155,20 @@ class Runner {
     this.log('TAP version 13')
 
     this._handleRejection = (err) => {
-      if (target.listeners('unhandledRejection').length > 1) return
+      if (program.listeners('unhandledRejection').length > 1) return
 
       console.error('Brittle aborted due to an unhandled rejection:', err)
-      target.exit(1)
+      program.exit(1)
     }
-    target.on('unhandledRejection', this._handleRejection)
+    program.on('unhandledRejection', this._handleRejection)
 
     this._handleException = (err) => {
-      if (target.listeners('uncaughtException').length > 1) return
+      if (program.listeners('uncaughtException').length > 1) return
 
       console.error('Brittle aborted due to an uncaught exception:', err)
-      target.exit(1)
+      program.exit(1)
     }
-    target.on('uncaughtException', this._handleException)
+    program.on('uncaughtException', this._handleException)
   }
 
   comment (...message) {
@@ -193,12 +193,12 @@ class Runner {
     }
 
     if (this._handleRejection) {
-      target.removeListener('unhandledRejection', this._handleRejection)
+      program.removeListener('unhandledRejection', this._handleRejection)
       this._handleRejection = null
     }
 
     if (this._handleException) {
-      target.removeListener('uncaughtException', this._handleException)
+      program.removeListener('uncaughtException', this._handleException)
       this._handleException = null
     }
 

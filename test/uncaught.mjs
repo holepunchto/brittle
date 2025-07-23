@@ -4,13 +4,13 @@ await tester('uncaught exception calls process.exit when only brittle handler ex
   async function (t) {
     t.plan(2)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
-    const originalExit = target.exit
+    const originalExit = program.exit
     let exitCode
 
-    target.exit = (code) => { exitCode = code }
-    t.teardown(() => { target.exit = originalExit })
+    program.exit = (code) => { exitCode = code }
+    t.teardown(() => { program.exit = originalExit })
 
     setImmediate(() => { throw new Error('test uncaught exception') })
     await new Promise(resolve => setImmediate(resolve))
@@ -40,13 +40,13 @@ await tester('unhandled rejection calls process.exit when only brittle handler e
   async function (t) {
     t.plan(2)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
-    const originalExit = target.exit
+    const originalExit = program.exit
     let exitCode
 
-    target.exit = (code) => { exitCode = code }
-    t.teardown(() => { target.exit = originalExit })
+    program.exit = (code) => { exitCode = code }
+    t.teardown(() => { program.exit = originalExit })
 
     setImmediate(() => { Promise.reject(new Error('test unhandled rejection')) })
     await new Promise(resolve => setImmediate(resolve))
@@ -76,14 +76,14 @@ await tester('uncaught exception does not call process.exit when other handlers 
   async function (t) {
     t.plan(3)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
-    const originalExit = target.exit
+    const originalExit = program.exit
     let exitCode
     let customHandlerError
 
-    target.exit = (code) => { exitCode = code }
-    t.teardown(() => { target.exit = originalExit })
+    program.exit = (code) => { exitCode = code }
+    t.teardown(() => { program.exit = originalExit })
 
     const customHandler = (err) => { customHandlerError = err }
     process.on('uncaughtException', customHandler)
@@ -119,14 +119,14 @@ await tester('unhandled rejection does not call process.exit when other handlers
   async function (t) {
     t.plan(3)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
-    const originalExit = target.exit
+    const originalExit = program.exit
     let exitCode
     let customHandlerError
 
-    target.exit = (code) => { exitCode = code }
-    t.teardown(() => { target.exit = originalExit })
+    program.exit = (code) => { exitCode = code }
+    t.teardown(() => { program.exit = originalExit })
 
     const customHandler = (err) => { customHandlerError = err }
     process.on('unhandledRejection', customHandler)
@@ -162,13 +162,13 @@ await tester('uncaught exception handler is unregistered when runner ends',
   function (t) {
     t.plan(1)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
     const listeners = process.listeners('uncaughtException')
     const brittleHandlers = listeners.filter(l => l.toString().includes('Brittle aborted'))
     t.is(brittleHandlers.length, 1, 'brittle uncaught exception handler should be registered during test')
 
-    target.on('beforeExit', () => {
+    program.on('beforeExit', () => {
       const listenersAtExit = process.listeners('uncaughtException')
       const brittleHandlersAtExit = listenersAtExit.filter(l => l.toString().includes('Brittle aborted'))
       console.log('uncaughtException handlers at exit:', brittleHandlersAtExit.length)
@@ -198,13 +198,13 @@ await tester('unhandled rejection handler is unregistered when runner ends',
   function (t) {
     t.plan(1)
 
-    const target = global.Bare ?? process
+    const program = global.Bare ?? process
 
     const listeners = process.listeners('unhandledRejection')
     const brittleHandlers = listeners.filter(l => l.toString().includes('Brittle aborted'))
     t.is(brittleHandlers.length, 1, 'brittle unhandled rejection handler should be registered during test')
 
-    target.on('beforeExit', () => {
+    program.on('beforeExit', () => {
       const listenersAtExit = process.listeners('unhandledRejection')
       const brittleHandlersAtExit = listenersAtExit.filter(l => l.toString().includes('Brittle aborted'))
       console.log('unhandledRejection handlers at exit:', brittleHandlersAtExit.length)
