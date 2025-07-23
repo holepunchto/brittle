@@ -1,10 +1,10 @@
 import { tester } from './helpers/index.js'
 
-const target = global.Bare ?? process
-
 await tester('uncaught exception calls process.exit when only brittle handler exists',
   async function (t) {
     t.plan(2)
+
+    const target = global.Bare ?? process
 
     const originalExit = target.exit
     let exitCode
@@ -40,6 +40,8 @@ await tester('unhandled rejection calls process.exit when only brittle handler e
   async function (t) {
     t.plan(2)
 
+    const target = global.Bare ?? process
+
     const originalExit = target.exit
     let exitCode
 
@@ -73,6 +75,8 @@ await tester('unhandled rejection calls process.exit when only brittle handler e
 await tester('uncaught exception does not call process.exit when other handlers exist',
   async function (t) {
     t.plan(3)
+
+    const target = global.Bare ?? process
 
     const originalExit = target.exit
     let exitCode
@@ -115,6 +119,8 @@ await tester('unhandled rejection does not call process.exit when other handlers
   async function (t) {
     t.plan(3)
 
+    const target = global.Bare ?? process
+
     const originalExit = target.exit
     let exitCode
     let customHandlerError
@@ -156,6 +162,8 @@ await tester('uncaught exception handler is unregistered when runner ends',
   function (t) {
     t.plan(1)
 
+    const target = global.Bare ?? process
+
     const listeners = process.listeners('uncaughtException')
     const brittleHandlers = listeners.filter(l => l.toString().includes('Brittle aborted'))
     t.is(brittleHandlers.length, 1, 'brittle uncaught exception handler should be registered during test')
@@ -189,6 +197,8 @@ await tester('uncaught exception handler is unregistered when runner ends',
 await tester('unhandled rejection handler is unregistered when runner ends',
   function (t) {
     t.plan(1)
+
+    const target = global.Bare ?? process
 
     const listeners = process.listeners('unhandledRejection')
     const brittleHandlers = listeners.filter(l => l.toString().includes('Brittle aborted'))
