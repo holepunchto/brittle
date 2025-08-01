@@ -1,4 +1,4 @@
-name: Test with Node
+name: Test with Bare
 
 on:
   push:
@@ -31,8 +31,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
+      - name: Setup bare
+        run: npm i -g bare-runtime
+
       - name: Install dependencies
         run: npm i
 
       - name: Run tests
-        run: npm run test
+        run: npm run test:bare
