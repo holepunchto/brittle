@@ -13,7 +13,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "standard && node test/all.mjs",
-    "test-bare": "bare test/bare-test.mjs"
+    "test:bare": "standard && bare test/all.mjs"
   },
   "files": [
     "index.js",
