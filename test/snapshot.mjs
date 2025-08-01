@@ -243,7 +243,7 @@ await tester('buffer conversion to uint8array',
 
   # ok
   `,
-  { exitCode: 0, stderr: '', env: { UPDATE_SNAPSHOTS: 'true' } },
+  { exitCode: 0, stderr: '' },
   { scriptFile }
 )
 
@@ -314,7 +314,7 @@ await tester('buffer conversion to uint8array',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '', env: { UPDATE_SNAPSHOTS: 'false' } },
+  { exitCode: 1, stderr: '' },
   { scriptFile }
 )
 
