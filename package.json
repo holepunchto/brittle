@@ -36,7 +36,7 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "chalk": "^4.1.2",
+    "ansi-colors": "^4.1.3",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
   },
