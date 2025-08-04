@@ -112,13 +112,21 @@ rmSync(snapshotFile, { force: true })
 // Initialize snapshots: typed array snapshots
 await tester('typed array snapshots',
   function (t) {
+    // Patch the require in the snapshot to use the local index.js instead of the brittle package
+    const fs = require('fs')
+    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
+    const patchBrittle = () => fs.writeFileSync(snapshotPath, fs.readFileSync(snapshotPath, 'utf-8').replaceAll('require(\'brittle\')', 'require(\'../../index.js\')'), 'utf-8')
+
     const uint8 = new Uint8Array([1, 2, 3, 4, 5])
     const uint16 = new Uint16Array([256, 512, 1024])
     const float32 = new Float32Array([1.5, 2.5, 3.14159])
 
     t.snapshot(uint8)
+    patchBrittle()
     t.snapshot(uint16)
+    patchBrittle()
     t.snapshot(float32)
+    patchBrittle()
   },
   `
   TAP version 13
@@ -190,11 +198,11 @@ await tester('typed array snapshots',
       ok 2 - should match snapshot
       not ok 3 - should match snapshot
         ---
-        actual: 
+        actual:
           0: 1.600000023841858
           1: 2.5
           2: 3.141590118408203
-        expected: 
+        expected:
           0: 1.5
           1: 2.5
           2: 3.141590118408203
@@ -226,8 +234,14 @@ rmSync(snapshotFile, { force: true })
 // Initialize snapshots: buffer conversion to uint8array
 await tester('buffer conversion to uint8array',
   function (t) {
+    // Patch the require in the snapshot to use the local index.js instead of the brittle package
+    const fs = require('fs')
+    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
+    const patchBrittle = () => fs.writeFileSync(snapshotPath, fs.readFileSync(snapshotPath, 'utf-8').replaceAll('require(\'brittle\')', 'require(\'../../index.js\')'), 'utf-8')
+
     const buffer = Buffer.from([1, 2, 3, 4, 5])
     t.snapshot(buffer) // Should be converted to Uint8Array internally
+    patchBrittle()
   },
   `
   TAP version 13
@@ -283,13 +297,13 @@ await tester('buffer conversion to uint8array',
   # buffer conversion to uint8array
       not ok 1 - should match snapshot
         ---
-        actual: 
+        actual:
           0: 1
           1: 2
           2: 3
           3: 4
           4: 6
-        expected: 
+        expected:
           0: 1
           1: 2
           2: 3
