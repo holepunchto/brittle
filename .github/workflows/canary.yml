@@ -1,11 +1,10 @@
 name: Trigger canary
 on:
   push:
-    tags: # To trigger the canary
+    tags:
       - '*'
 jobs:
   trigger_canary:
-    if: startsWith(github.ref, 'refs/tags/') # Only run when a new package is published (detects when a new tag is pushed)
     runs-on: ubuntu-latest
     steps:
       - name: trigger canary
