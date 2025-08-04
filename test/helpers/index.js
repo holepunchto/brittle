@@ -152,7 +152,7 @@ function executeCode (script, scriptFile = null) {
     let stderr = ''
 
     child.on('exit', function (code) {
-      if (scriptFile) fs.rmSync(scriptFile, { force: true, maxRetries: 3 })
+      if (scriptFile) fs.rmSync(scriptFile, { force: true })
       exitCode = code
     })
 
