@@ -374,7 +374,6 @@ It must be executed before any tests.
  * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
  * `unstealth` (`false`) - show assertions even if `stealth` is used
- * `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 
 ```js
 import { configure } from 'brittle'
@@ -434,7 +433,7 @@ await t.exception(Promise.reject(Error('an err')), /an err/)
 ```
 
 If the error is an instance of any of the following native error constructors,
-then this will still result in failure since native errors often tend to be unintentational.
+then this will still result in failure since native errors often tend to be unintentional.
 
 * `SyntaxError`
 * `ReferenceError`
@@ -627,8 +626,6 @@ brittle [flags] <files>
 Flags:
   --solo, -s                Engage solo mode
   --bail, -b                Bail out on first assert failure
-  --coverage, -c            Turn on coverage
-  --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
   --trace                   Trace all active promises and print them if the test fails
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --runner, -r <runner>     Generates an out file that contains all target tests
@@ -639,7 +636,7 @@ Flags:
 
 Note globbing is supported:
 ```sh
-brittle --coverage path/to/test/*.js
+brittle test/*.js
 ```
 
 Auto generate a single file containing "all tests":
@@ -651,19 +648,22 @@ node test/all.js
 
 You can use an environment variable to also set flags:
 ```shell
-BRITTLE="--coverage --bail" brittle test.js
+BRITTLE="--bail" brittle test.js
 ```
 
-Force disable coverage with an environment variable:
-```shell
-BRITTLE_COVERAGE=false brittle test.js
-```
 ### Coverage
-If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
 
-The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
+Coverage is no longer built into the brittle CLI.  
+To generate coverage reports, use [bcov](https://github.com/holepunchto/bare-cov):
 
-Istanbul can be used to convert the istanbul json report into other formats. e.g.:
+```sh
+bcov brittle test/all.js
+```
+
+This will run your tests with coverage enabled, output a summary, and save the v8 and istanbul reports in the `coverage` directory.
+
+You can then use Istanbul to convert the report into other formats, for example:
+
 ```
 npx istanbul report html
 ```
