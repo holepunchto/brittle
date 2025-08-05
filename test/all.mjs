@@ -1,7 +1,8 @@
 import path from 'path'
 import fs from 'fs/promises'
 import { fileURLToPath } from 'url'
-import chalk from 'chalk'
+import colors from 'ansi-colors'
+import process from 'process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -13,12 +14,12 @@ for (const file of files) {
   if (file.name === 'all.mjs') continue
   const filepath = path.join(__dirname, file.name)
 
-  console.log(chalk.green.bold('Running'), filepath)
+  console.log(colors.green.bold('Running'), filepath)
   await import('file://' + filepath)
 }
 
 if (process.exitCode) {
-  console.log(chalk.red.bold('Tests failed'))
+  console.log(colors.red.bold('Tests failed'))
 } else {
-  console.log(chalk.green.bold('Tests passed'))
+  console.log(colors.green.bold('Tests passed'))
 }
