@@ -148,21 +148,16 @@ function executeCode (script, scriptFile = null) {
     const opts = { timeout: 30000, cwd: path.join(__dirname, '../..') }
     const child = spawn(process.execPath, args, opts)
 
-    let exitCode
     let stdout = ''
     let stderr = ''
 
-    child.on('exit', function (code) {
+    child.on('exit', function (exitCode) {
       if (scriptFile) fs.rmSync(scriptFile, { force: true })
-      exitCode = code
-    })
-
-    child.on('close', function () {
       resolve({ exitCode, stdout, stderr })
     })
 
     child.on('error', function (error) {
-      resolve({ exitCode, error, stdout, stderr })
+      resolve({ error, stdout, stderr })
     })
 
     child.stdout.setEncoding('utf-8')
