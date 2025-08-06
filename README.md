@@ -360,7 +360,7 @@ unhook('teardown hook', function (t) {
 })
 ```
 
-A hook will not run if a solo test is running beyond their range:
+A hook will not run if a solo test is running beyond its range:
 ```js
 // this hook/unhook will not run because it has been unhooked before the solo test
 const unhook = hook('setup hook', function (t) { t.pass() })
