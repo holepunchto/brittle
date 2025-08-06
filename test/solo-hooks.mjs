@@ -42,8 +42,8 @@ await spawner(
     const unhook = hook('setup', function () { state.values.push('first') })
 
     solo('should execute hooks and cleanup', function (t) {
-      t.is(state.values[0], 'first', 'setup hook should execute')
       t.is(state.values.length, 1, 'only one hook should execute')
+      t.is(state.values[0], 'first', 'setup hook should execute')
     })
 
     unhook('unhook cleanup', function () {
@@ -60,8 +60,8 @@ await spawner(
   ok 1 - setup # time = 0.143737ms
 
   # should execute hooks and cleanup
-      ok 1 - setup hook should execute
-      ok 2 - only one hook should execute
+      ok 1 - only one hook should execute
+      ok 2 - setup hook should execute
   ok 2 - should execute hooks and cleanup # time = 0.223815ms
 
   # unhook cleanup
