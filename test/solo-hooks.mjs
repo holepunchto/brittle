@@ -250,3 +250,41 @@ await spawner(
   `,
   { exitCode: 0, stderr: '' }
 )
+
+await spawner(
+  function ({ test, hook }) {
+    const unhook = hook('first hook', function () {
+      console.log('first hook should run')
+    })
+
+    test('should run hooks without solo', function (t) {
+      t.pass()
+    })
+
+    unhook('unhook first hook', function () {
+      console.log('unhook first hook should run')
+    })
+  },
+  `
+  TAP version 13
+  
+  # first hook
+  first hook should run
+  ok 1 - first hook # time = 0.123456ms
+  
+  # should run hooks without solo
+      ok 1 - passed
+  ok 2 - should run hooks without solo # time = 0.234567ms
+  
+  # unhook first hook
+  unhook first hook should run
+  ok 3 - unhook first hook # time = 0.345678ms
+  
+  1..3
+  # tests = 2/2 pass
+  # asserts = 1/1 pass
+  # time = 5.678901ms
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
