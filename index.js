@@ -840,11 +840,13 @@ function test (name, opts, fn, overrides) {
       }
     }
 
-    const run = t._run(fn, opts)
+    if (fn) {
+      const run = t._run(fn, opts)
 
-    unhook.then = run.then.bind(run)
-    unhook.catch = run.catch.bind(run)
-    unhook.finally = run.finally.bind(run)
+      unhook.then = run.then.bind(run)
+      unhook.catch = run.catch.bind(run)
+      unhook.finally = run.finally.bind(run)
+    }
 
     return unhook
   }
