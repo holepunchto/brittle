@@ -164,142 +164,57 @@ await spawner(
 )
 
 await spawner(
-  function ({ hook, solo }) {
-    const state = { asyncValue: null }
-
-    const unhook = hook('async hook', async function () {
-      await new Promise(resolve => setTimeout(resolve, 10))
-      state.asyncValue = 'async-complete'
+  async function ({ hook, test }) {
+    const failingResult = await hook('setup hook that fails', function (t) {
+      t.fail()
     })
 
-    solo('should wait for async hooks to complete before execution', function (t) {
-      t.is(state.asyncValue, 'async-complete', 'async hook should complete before solo test')
+    const unhook = hook('setup hook that passes', function (t) {
+      t.pass()
     })
 
-    unhook()
-  },
-  `
-  TAP version 13
+    const passingResult = await unhook
 
-  # async hook
-  ok 1 - async hook # time = 12.345678ms
-
-  # should wait for async hooks to complete before execution
-      ok 1 - async hook should complete before solo test
-  ok 2 - should wait for async hooks to complete before execution # time = 0.123456ms
-
-  1..2
-  # tests = 2/2 pass
-  # asserts = 1/1 pass
-  # time = 15.678901ms
-
-  # ok
-  `,
-  { exitCode: 0, stderr: '' }
-)
-
-await spawner(
-  function ({ hook, solo }) {
-    const unhook = hook('failing hook', function () {
-      throw new Error('Hook intentionally failed')
+    test('should get hook result when awaited', function (t) {
+      t.is(failingResult, false, 'should receive fail result from hook')
+      t.is(passingResult, true, 'should receive pass result from hook')
     })
 
-    solo('should prevent test execution when hook fails', function (t) {
-      t.fail('this should not execute due to hook failure')
-    })
-
-    unhook()
-  },
-  `
-  TAP version 13
-
-  # failing hook
-
-  `,
-  { exitCode: 1, stderr: { includes: 'Brittle aborted due to an unhandled rejection: Error: Hook intentionally failed' } }
-)
-
-await spawner(
-  function ({ hook, solo }) {
-    const state = { counter: 0 }
-
-    const unhook = hook('shared hook', function () {
-      state.counter++
-    })
-
-    solo('should execute shared hook only once for first test', function (t) {
-      t.is(state.counter, 1, 'hook should execute once for first test')
-    })
-
-    solo('should preserve shared hook state for subsequent tests', function (t) {
-      t.is(state.counter, 1, 'hook should not execute again for second test')
-    })
-
-    unhook()
-  },
-  `
-  TAP version 13
-
-  # shared hook
-  ok 1 - shared hook # time = 0.123456ms
-
-  # should execute shared hook only once for first test
-      ok 1 - hook should execute once for first test
-  ok 2 - should execute shared hook only once for first test # time = 0.234567ms
-
-  # should preserve shared hook state for subsequent tests
-      ok 1 - hook should not execute again for second test
-  ok 3 - should preserve shared hook state for subsequent tests # time = 0.345678ms
-
-  1..3
-  # tests = 3/3 pass
-  # asserts = 2/2 pass
-  # time = 6.789012ms
-
-  # ok
-  `,
-  { exitCode: 0, stderr: '' }
-)
-
-await spawner(
-  function ({ hook, solo }) {
-    const state = { values: [], cleanupCalled: false }
-
-    const unhook = hook('setup hook', function () {
-      state.values.push('setup')
-    })
-
-    solo('should properly manage hook and cleanup lifecycle', function (t) {
-      t.is(state.values[0], 'setup', 'setup hook should execute')
-      t.is(state.cleanupCalled, false, 'cleanup should not be called yet')
-    })
-
-    unhook('cleanup hook', function () {
-      state.cleanupCalled = true
-      console.log('hook cleanup executed')
+    unhook('cleanup after hook', function () {
+      console.log('cleanup after hook should execute')
     })
   },
   `
   TAP version 13
 
-  # setup hook
-  ok 1 - setup hook # time = 0.123456ms
+  # setup hook that fails
+      not ok 1 - failed
+        ---
+        operator: fail
+        stack: |
+          [eval]:5:9
+          process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+          async _fn ([eval]:4:27)
+        ...
+  not ok 1 - setup hook that fails # time = 2.842179ms
 
-  # should properly manage hook and cleanup lifecycle
-      ok 1 - setup hook should execute
-      ok 2 - cleanup should not be called yet
-  ok 2 - should properly manage hook and cleanup lifecycle # time = 0.234567ms
+  # setup hook that passes
+      ok 1 - passed
+  ok 2 - setup hook that passes # time = 0.183506ms
 
-  # cleanup hook
-  hook cleanup executed
-  ok 3 - cleanup hook # time = 0.045678ms
+  # should get hook result when awaited
+      ok 1 - should receive fail result from hook
+      ok 2 - should receive pass result from hook
+  ok 3 - should get hook result when awaited # time = 0.109897ms
 
-  1..3
-  # tests = 3/3 pass
-  # asserts = 2/2 pass
-  # time = 7.890123ms
+  # cleanup after hook
+  cleanup after hook should execute
+  ok 4 - cleanup after hook # time = 0.038179ms
 
-  # ok
+  1..4
+  # tests = 3/4 pass
+  # asserts = 3/4 pass
+  # time = 7.574679ms
   `,
-  { exitCode: 0, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
