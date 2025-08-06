@@ -218,3 +218,35 @@ await spawner(
   `,
   { exitCode: 1, stderr: '' }
 )
+
+await spawner(
+  function ({ hook, solo }) {
+    const unhook = hook('hook without function')
+
+    solo('should run unhook without hook function', function (t) {
+      t.pass()
+    })
+
+    unhook('unhook without hook function', function () {
+      console.log('unhook without hook function should execute')
+    })
+  },
+  `
+  TAP version 13
+
+  # should run unhook without hook function
+      ok 1 - passed
+  ok 1 - should run unhook without hook function # time = 0.234567ms
+
+  # unhook without hook function
+  unhook without hook function should execute
+  ok 2 - unhook without hook function # time = 0.081258ms
+
+  1..2
+  # tests = 2/2 pass
+  # asserts = 1/1 pass
+  # time = 4.567890ms
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
