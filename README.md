@@ -336,31 +336,59 @@ test.skip('another skipped test', function (t) {
 
 Only the `middle test` will be executed.
 
-#### `hook([name], [options], callback)`
+#### `hook([name], [options], [callback])`
 
-Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage. 
+Use before tests for setting up and after tests for tearing down. Hooks run the same way as `test` except they can execute when solo tests are within its range.
+
+The `hook` function returns an `unhook` function that can be used to:
+1. Mark the end of the hook's range
+2. Register a cleanup/teardown function
 
 ```js
 import { test, solo, hook } from 'brittle'
 
-hook('setup hook', function (t) {
-  // setup resources
+const unhook = hook('setup hook', function (t) {
+  t.pass()
 })
 
 solo('solo test', function (t) {
   t.pass()
 })
 
-test('middle test', function (t) {
+unhook('teardown hook', function (t) {
   t.pass()
-})
-
-hook('teardown hook', function (t) {
-  // teardown resources
 })
 ```
 
-The `setup hook`, `solo test` and `teardown hook` will be executed.
+A hook will not run if a solo test is running beyond their range:
+```js
+// this hook/unhook will not run because it has been unhooked before the solo test
+const unhook = hook('setup hook', function (t) { t.pass() })
+unhook()
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+// this hook/unhook will not run because it was hooked after the solo test
+const unhook2 = hook('setup hook', function (t) { t.pass() })
+unhook2()
+```
+
+Hooks do not require a test function and can be used to explicitly setup an unhook for teardown:
+```js
+import { hook } from 'brittle'
+
+const unhook = hook('setup hook')
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+unhook('teardown hook', function (t) {
+  t.pass()
+})
+```
 
 #### `configure([options])`
 
