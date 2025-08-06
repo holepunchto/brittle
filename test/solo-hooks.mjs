@@ -257,6 +257,14 @@ await spawner(
       console.log('first hook should run')
     })
 
+    const unhook2 = hook('second hook', function () {
+      console.log('second hook should run')
+    })
+
+    unhook2('unhook second hook', function () {
+      console.log('unhook second hook should run')
+    })
+
     test('should run hooks without solo', function (t) {
       t.pass()
     })
@@ -272,16 +280,24 @@ await spawner(
   first hook should run
   ok 1 - first hook # time = 0.123456ms
   
+  # second hook
+  second hook should run
+  ok 2 - second hook # time = 0.098765ms
+  
+  # unhook second hook
+  unhook second hook should run
+  ok 3 - unhook second hook # time = 0.045678ms
+  
   # should run hooks without solo
       ok 1 - passed
-  ok 2 - should run hooks without solo # time = 0.234567ms
+  ok 4 - should run hooks without solo # time = 0.234567ms
   
   # unhook first hook
   unhook first hook should run
-  ok 3 - unhook first hook # time = 0.345678ms
+  ok 5 - unhook first hook # time = 0.345678ms
   
-  1..3
-  # tests = 2/2 pass
+  1..5
+  # tests = 5/5 pass
   # asserts = 1/1 pass
   # time = 5.678901ms
   # ok
