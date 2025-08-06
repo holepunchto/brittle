@@ -2,15 +2,15 @@ import { spawner } from './helpers/index.js'
 
 await spawner(
   function ({ hook, solo }) {
-    const resource = { value: 0 }
+    const state = { value: 0 }
 
-    const unhook = hook('setup resource', function () { resource.value = 42 })
+    const unhook = hook('setup state', function () { state.value = 42 })
 
-    const unhook2 = hook('setup resource unhooked', function () { resource.value = 24 })
+    const unhook2 = hook('setup state unhooked', function () { state.value = 24 })
     unhook2()
 
     solo('should not execute unhooked hooks', function (t) {
-      t.is(resource.value, 42, 'should not have executed unhooked hook')
+      t.is(state.value, 42, 'should not have executed unhooked hook')
     })
 
     unhook()
@@ -18,8 +18,8 @@ await spawner(
   `
   TAP version 13
 
-  # setup resource
-  ok 1 - setup resource # time = 0.216366ms
+  # setup state
+  ok 1 - setup state # time = 0.216366ms
 
   # should not execute unhooked hooks
       ok 1 - should not have executed unhooked hook
@@ -133,7 +133,7 @@ await spawner(
     const unhook1 = hook('first hook to remove', function () { state.executed.push('removed') })
     const unhook2 = hook('second hook to keep', function () { state.executed.push('stayed') })
 
-    unhook1() // Remove first hook before solo runs
+    unhook1()
 
     solo('should only execute remaining hooks after selective unhook', function (t) {
       t.is(state.executed.length, 1, 'only one hook should execute')
