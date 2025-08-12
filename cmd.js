@@ -210,7 +210,7 @@ async function startMining () {
     p.stderr.on('data', (data) => output.push({ stdout: false, data }))
 
     const promise = new Promise((resolve) => {
-      p.on('close', (exitCode) => {
+      p.on('exit', (exitCode) => {
         resolve({
           exitCode,
           output
