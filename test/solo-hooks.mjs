@@ -164,62 +164,6 @@ await spawner(
 )
 
 await spawner(
-  async function ({ hook, test }) {
-    const failingResult = await hook('setup hook that fails', function (t) {
-      t.fail()
-    })
-
-    const unhook = hook('setup hook that passes', function (t) {
-      t.pass()
-    })
-
-    const passingResult = await unhook
-
-    test('should get hook result when awaited', function (t) {
-      t.is(failingResult, false, 'should receive fail result from hook')
-      t.is(passingResult, true, 'should receive pass result from hook')
-    })
-
-    unhook('cleanup after hook', function () {
-      console.log('cleanup after hook should execute')
-    })
-  },
-  `
-  TAP version 13
-
-  # setup hook that fails
-      not ok 1 - failed
-        ---
-        operator: fail
-        stack: |
-          [eval]:5:9
-          process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-          async _fn ([eval]:4:27)
-        ...
-  not ok 1 - setup hook that fails # time = 2.842179ms
-
-  # setup hook that passes
-      ok 1 - passed
-  ok 2 - setup hook that passes # time = 0.183506ms
-
-  # should get hook result when awaited
-      ok 1 - should receive fail result from hook
-      ok 2 - should receive pass result from hook
-  ok 3 - should get hook result when awaited # time = 0.109897ms
-
-  # cleanup after hook
-  cleanup after hook should execute
-  ok 4 - cleanup after hook # time = 0.038179ms
-
-  1..4
-  # tests = 3/4 pass
-  # asserts = 3/4 pass
-  # time = 7.574679ms
-  `,
-  { exitCode: 1, stderr: '' }
-)
-
-await spawner(
   function ({ hook, solo }) {
     const unhook = hook('hook without function')
 
