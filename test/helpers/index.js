@@ -1,6 +1,7 @@
 const path = require('path')
 const { spawn } = require('child_process')
 const chalk = require('chalk')
+const fs = require('fs')
 
 const PRINT_ENABLED = false
 const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
@@ -10,25 +11,25 @@ const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
 module.exports = { tester, spawner, standardizeTap }
 
-async function tester (name, fn, expectedOut, expectedMore) {
+async function tester (name, fn, expectedOut, expectedMore, opts) {
   log(chalk.yellow.bold('Tester'), name)
   name = JSON.stringify(name)
 
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
-  return executeTap(script, expectedOut, expectedMore)
+  return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function spawner (fn, expectedOut, expectedMore) {
+async function spawner (fn, expectedOut, expectedMore, opts) {
   log(chalk.yellow.bold('Spawner'))
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
-  return executeTap(script, expectedOut, expectedMore)
+  return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function executeTap (script, expectedOut, more = {}) {
+async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: null }) {
   if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
   if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
-  const { exitCode, error, stdout, stderr } = await executeCode(script)
+  const { exitCode, error, stdout, stderr } = await executeCode(script, opts.scriptFile)
   const errors = new Errors()
   let tapout
   let tapexp
@@ -47,7 +48,7 @@ async function executeTap (script, expectedOut, more = {}) {
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.add('TAP_MISMATCH', 'TAP output does not matches the expected output', stdout, expectedOut)
+      errors.add('TAP_MISMATCH', 'TAP output does not match the expected output', stdout, expectedOut)
     }
   }
 
@@ -138,9 +139,11 @@ class Errors {
   }
 }
 
-function executeCode (script) {
+function executeCode (script, scriptFile = null) {
   return new Promise((resolve, reject) => {
-    const args = ['-e', script]
+    if (scriptFile) fs.writeFileSync(scriptFile, script, 'utf-8')
+
+    const args = scriptFile ? [scriptFile] : ['-e', script]
     const opts = { timeout: 30000, cwd: path.join(__dirname, '../..') }
     const child = spawn(process.execPath, args, opts)
 
@@ -149,6 +152,7 @@ function executeCode (script) {
     let stderr = ''
 
     child.on('exit', function (code) {
+      if (scriptFile) fs.rmSync(scriptFile, { force: true })
       exitCode = code
     })
 
@@ -176,8 +180,9 @@ function standardizeTap (stdout) {
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/\n[^\n]*node:(?:internal|vm)[^\n]*/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(\[eval\])[^\n]*/g, '\n') // strip internal node stacks
-    .replace(/\n[^\n]*(Test\._run) \((.*):[\d]+:[\d]+\)[^\n]*\n/g, '\n$1 ($2:13:37)\n') // static line numbers for "Test._run"
+    .replace(/\n[^\n]*(Test\._(run|test|stealth)) \((.*):[\d]+:[\d]+\)[^\n]*/g, '\n$1 ($2:13:37)') // static line numbers for "Test._run/stealth/test"
     .replace(/[/\\]/g, '/')
+    .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
     .split('\n')
     .map(n => n.trim())
     .filter(n => n)

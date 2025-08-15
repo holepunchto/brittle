@@ -1,27 +1,62 @@
 #!/usr/bin/env node
 
 const path = require('path')
-const glob = require('glob')
-const minimist = require('minimist')
+const { command, flag, rest } = require('paparam')
+const Globbie = require('globbie')
+const { spawn } = require('child_process')
+const process = require('process')
+const TracingPromise = require('./lib/tracing-promise')
 
-const args = process.argv.slice(2).concat((process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s))
-const argv = minimist(args, {
-  alias: {
-    solo: 's',
-    bail: 'b',
-    coverage: 'cov',
-    cov: 'c',
-    runner: 'r'
-  },
-  boolean: ['solo', 'bail', 'coverage']
-})
+const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
+const cmd = command('brittle',
+  flag('--solo, -s', 'Engage solo mode'),
+  flag('--bail, -b', 'Bail out on first assert failure'),
+  flag('--coverage, -c', 'Turn on coverage'),
+  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
+  flag('--trace', 'Trace all active promises and print them if the test fails'),
+  flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
+  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
+  flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
+  flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
+  rest('<files>')
+).parse(args)
+if (!cmd) process.exit(0)
+
+const argv = cmd.flags
 
 const files = []
-for (const g of argv._) files.push(...glob.sync(g))
+for (const g of cmd.rest || []) {
+  const glob = new Globbie(g, { sync: true })
+  const matches = glob.match()
 
-const { solo, bail, cov } = argv
+  if (matches.length === 0) {
+    if (g[0] === '-') continue
+    console.error(`Error: no files found when resolving ${g}`)
+    process.exit(1)
+  }
+
+  files.push(...matches)
+}
+
+if (files.length === 0) {
+  console.error('Error: No test files were specified')
+  process.exit(1)
+}
+
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth } = argv
 
 process.title = 'brittle'
+
+if (trace && !mine) {
+  TracingPromise.enable()
+  process.on('exit', function (code) {
+    if (!code) return
+    console.error()
+    console.error('Printing tracing info since the tests failed:')
+    console.error()
+    TracingPromise.print()
+  })
+}
 
 if (argv.runner) {
   const fs = require('fs')
@@ -38,8 +73,8 @@ if (argv.runner) {
 
   s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
 
-  if (bail || solo) {
-    s += '  test.configure({ bail: ' + !!bail + ', solo: ' + !!solo + ' })\n'
+  if (bail || solo || unstealth || timeout) {
+    s += `  test.configure({ bail: ${!!bail}, solo: ${!!solo}, unstealth: ${!!unstealth}, timeout: ${timeout} })\n`
   }
 
   s += '  test.pause()\n\n'
@@ -48,8 +83,8 @@ if (argv.runner) {
     const t = path.resolve(f)
     if (t === out) continue
 
-    let r = path.relative(dir, t)
-    if (r[0] !== '.') r = '.' + path.sep + r
+    let r = path.relative(dir, t).replace(/\\/g, '/')
+    if (r[0] !== '.') r = './' + r
     s += '  await import(\'' + r + '\')\n'
   }
 
@@ -66,25 +101,21 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (cov && process.env.BRITTLE_COVERAGE !== 'false') {
-  const c8pkg = require('c8/package.json')
-  const bin = c8pkg.bin ? path.join(path.dirname(require.resolve('c8/package.json')), c8pkg.bin) : null
-  process.env.BRITTLE = (process.env.BRITTLE || '') + ' --no-coverage'
-  process.argv.unshift(bin)
-  process.argv.unshift(process.execPath)
-  require(bin)
-} else {
-  start().catch(err => {
-    console.error(err.stack)
-    process.exit(1)
-  })
+if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
+
+if (mine) startMining().catch()
+else start().catch(onerror)
+
+function onerror (err) {
+  console.error(err.stack)
+  process.exit(1)
 }
 
 async function start () {
   const brittle = require('./')
 
-  if (bail || solo) {
-    brittle.configure({ bail, solo })
+  if (bail || solo || unstealth || timeout) {
+    brittle.configure({ bail, solo, unstealth, timeout: timeout ? Number(timeout) : undefined })
   }
 
   brittle.pause()
@@ -94,4 +125,102 @@ async function start () {
   }
 
   brittle.resume()
+}
+
+async function startMining () {
+  const args = [__filename]
+    .concat(solo ? ['--solo'] : [])
+    .concat(bail ? ['--bail'] : [])
+    .concat(unstealth ? ['--unstealth'] : [])
+    .concat(trace ? ['--trace'] : [])
+    .concat(timeout ? ['--timeout', timeout + ''] : [])
+    .concat(files)
+
+  const running = new Set()
+  const max = Number(argv.mine) || 1
+
+  let runs = 0
+  let bailed = false
+  let newline = false
+
+  const interval = setInterval(function () {
+    console.log('Still mining... Total runs: ' + runs)
+    newline = true
+  }, 1000)
+
+  bump()
+
+  process.once('SIGINT', bail)
+  process.once('SIGTERM', bail)
+
+  function bail () {
+    bailed = true
+    clearInterval(interval)
+    for (const r of running) r.kill()
+  }
+
+  async function bump () {
+    if (running.size >= max || bailed) return
+
+    const r = run()
+    running.add(r)
+
+    const { exitCode, output } = await r.promise
+    running.delete(r)
+    runs++
+
+    if (bailed) return
+
+    if (!exitCode) {
+      bump()
+      bump()
+      return
+    }
+
+    bailed = true
+
+    clearInterval(interval)
+
+    if (newline) console.log()
+    console.log('Runner failed with exit code ' + exitCode + '!')
+    console.log('Shutting down the rest and printing output...')
+
+    for (const r of running) {
+      r.kill()
+      await r.promise
+    }
+
+    console.log('Done! The tests took ' + runs + ' runs to fail.')
+    console.log()
+
+    for (const { stdout, data } of output) {
+      if (stdout) process.stdout.write(data)
+      else process.stderr.write(data)
+    }
+
+    process.exit(exitCode)
+  }
+
+  function run () {
+    const p = spawn(process.execPath, args)
+
+    const output = []
+
+    p.stdout.on('data', (data) => output.push({ stdout: true, data }))
+    p.stderr.on('data', (data) => output.push({ stdout: false, data }))
+
+    const promise = new Promise((resolve) => {
+      p.on('exit', (exitCode) => {
+        resolve({
+          exitCode,
+          output
+        })
+      })
+    })
+
+    return {
+      promise,
+      kill: () => p.kill()
+    }
+  }
 }

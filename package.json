@@ -1,10 +1,13 @@
 {
   "name": "brittle",
-  "version": "3.5.0",
+  "version": "3.18.0",
   "description": "A TAP test runner built for modern times",
   "main": "index.js",
   "bin": {
-    "brittle": "./cmd.js"
+    "brittle": "bin/node.js",
+    "brittle-node": "bin/node.js",
+    "brittle-bare": "bin/bare.js",
+    "brittle-pear": "bin/pear.js"
   },
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
@@ -15,19 +18,24 @@
   "files": [
     "index.js",
     "cmd.js",
-    "lib/**.js"
+    "lib/**.js",
+    "bin/**.js"
   ],
   "dependencies": {
     "b4a": "^1.6.0",
-    "c8": "^7.11.3",
+    "bare-cov": "^1.1.0",
+    "bare-fs": "^4.1.6",
+    "bare-path": "^3.0.0",
+    "bare-process": "^4.2.1",
+    "bare-subprocess": "^5.0.0",
     "error-stack-parser": "^2.1.4",
-    "glob": "^8.0.3",
-    "minimist": "^1.2.6",
+    "globbie": "^1.0.2",
+    "paparam": "^1.6.2",
     "same-object": "^1.0.2",
+    "test-tmp": "^1.4.0",
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "bare-subprocess": "^2.0.3",
     "chalk": "^4.1.2",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
@@ -35,6 +43,15 @@
   "imports": {
     "child_process": {
       "bare": "bare-subprocess"
+    },
+    "path": {
+      "bare": "bare-path"
+    },
+    "process": {
+      "bare": "bare-process"
+    },
+    "fs": {
+      "bare": "bare-fs"
     }
   },
   "repository": {

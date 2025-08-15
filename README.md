@@ -87,10 +87,16 @@ Every assertion can have a message, i.e. `t.pass('msg')`, `t.ok(false, 'should b
 There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
+## Test Runtimes
+When installed as a dependency or globally, the following commands for using different runtimes are available:
+* `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
+* `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
+* `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
+
 ## API
 
 ```js
-import { test, solo, skip, todo, configure } from 'brittle'
+import { test, solo, skip, hook, todo, configure } from 'brittle'
 ```
 
 #### `test([name], [options], callback)`
@@ -100,8 +106,10 @@ Create a classic test with an optional `name`.
 #### Available `options` for any test creation:
  * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
  * `solo` (`false`) - Skip all other tests except the `solo()` ones.
+ * `hook` (`false`) - setup and teardown resources.
  * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
  * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
+ * `stealth` (`false`) - only print test summary.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
@@ -200,6 +208,14 @@ t.pass()
 const isOk = await t
 ```
 
+#### `stealth([name], [options], callback)`
+#### `stealth([name], [options]) => assert`
+
+Create a stealth test.\
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
+
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
+
 #### `t.test([name], [options], callback)`
 #### `t.test([name], [options]) => assert`
 
@@ -254,6 +270,14 @@ test('basic', async function (t) {
   console.log(isOk)
 })
 ```
+
+#### `t.stealth([name], [options], callback)`
+#### `t.stealth([name], [options]) => assert`
+
+Create a stealth sub-test.\
+This will provide a new sub-assert object that only prints the test summary without assertions and ends the current test upon a failed assertion.
+
+All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
 #### `solo([name], [options]) => assert`
@@ -312,6 +336,32 @@ test.skip('another skipped test', function (t) {
 
 Only the `middle test` will be executed.
 
+#### `hook([name], [options], callback)`
+
+Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage. 
+
+```js
+import { test, solo, hook } from 'brittle'
+
+hook('setup hook', function (t) {
+  // setup resources
+})
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+test('middle test', function (t) {
+  t.pass()
+})
+
+hook('teardown hook', function (t) {
+  // teardown resources
+})
+```
+
+The `setup hook`, `solo test` and `teardown hook` will be executed.
+
 #### `configure([options])`
 
 The `configure` function can be used to set options for all tests (including child tests).\
@@ -323,6 +373,8 @@ It must be executed before any tests.
  * `bail` (`false`) - exit the process on first test failure
  * `solo` (`false`) - skip all other tests except the `solo()` ones
  * `source` (`true`) - shows error `source` information
+ * `unstealth` (`false`) - show assertions even if `stealth` is used
+ * `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 
 ```js
 import { configure } from 'brittle'
@@ -451,10 +503,16 @@ as `t.alike`.
 
 Constrain a test to an explicit amount of assertions.
 
+#### `t.tmp() -> <Promise<String>>`
+
+Creates a temporary folder and returns a promise that resolves its path. Once a test either succeeds or fails, the temporary folder is removed.
+
 #### `t.teardown(function|async function, [options])`
 
-#### Available `options` for teardowns:
+**Options:**
+
  * `order` (`0`) - set the ascending position priority for a teardown to be executed.
+ * `force` (`false`) - run the teardown on failure as well as success
 
 The function passed to `teardown` is called right after a test ends:
 
@@ -512,7 +570,7 @@ The `A` teardown is executed first, then `B`, and finally `C` due to the `order`
 
 #### `t.timeout(ms)`
 
-Fail the test after a given timeout.  
+Fail the test after a given timeout.
 
 #### `t.comment(message)`
 
@@ -523,6 +581,21 @@ Inject a TAP comment into the output.
 Force end a test.\
 `end` is determined by `assert` resolution or when a containing async function completes.\
 In case of inverted tests, they're required to be explicitly called.
+
+
+### Readable Properties
+
+#### `t.name`
+The name of the test.
+
+#### `t.passes`
+The number of assertions that passed within the test.
+
+#### `t.fails`
+The number of assertions that failed within the test.
+
+#### `t.assertions`
+The number of assertions that were executed within the test.
 
 ## Runner
 
@@ -550,17 +623,23 @@ The following would run all `.js` files in the test folder:
 ## CLI
 
 ```sh
-npm install -g brittle@next
+npm install -g brittle
 ```
 
 ```shell
-brittle [flags] [<files>]
+brittle [flags] <files>
 
 Flags:
-  -cov, --coverage              Turn on coverage
-  --bail                        Bail out on first assert failure
-  --solo                        Engage solo mode
-  -r, --runner <out> <targets>  Generates an out file that contains all target tests
+  --solo, -s                Engage solo mode
+  --bail, -b                Bail out on first assert failure
+  --coverage, -c            Turn on coverage
+  --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
+  --trace                   Trace all active promises and print them if the test fails
+  --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
+  --runner, -r <runner>     Generates an out file that contains all target tests
+  --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
+  --unstealth, -u           Show assertions even if stealth is used
+  --help|-h                 Show help
 ```
 
 Note globbing is supported:
@@ -583,6 +662,15 @@ BRITTLE="--coverage --bail" brittle test.js
 Force disable coverage with an environment variable:
 ```shell
 BRITTLE_COVERAGE=false brittle test.js
+```
+### Coverage
+If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
+
+The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
+
+Istanbul can be used to convert the istanbul json report into other formats. e.g.:
+```
+npx istanbul report html
 ```
 
 ## License
