@@ -23,11 +23,13 @@
   ],
   "dependencies": {
     "b4a": "^1.6.0",
+    "bare-assert": "^1.0.2",
     "bare-cov": "^1.1.0",
     "bare-fs": "^4.1.6",
+    "bare-os": "^3.6.1",
     "bare-path": "^3.0.0",
-    "bare-process": "^4.2.1",
     "bare-subprocess": "^5.0.0",
+    "bare-url": "^2.1.6",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.2",
     "paparam": "^1.6.2",
@@ -41,17 +43,23 @@
     "standard": "^17.0.0"
   },
   "imports": {
+    "assert": {
+      "bare": "bare-assert"
+    },
     "child_process": {
       "bare": "bare-subprocess"
+    },
+    "fs": {
+      "bare": "bare-fs"
+    },
+    "os": {
+      "bare": "bare-os"
     },
     "path": {
       "bare": "bare-path"
     },
-    "process": {
-      "bare": "bare-process"
-    },
-    "fs": {
-      "bare": "bare-fs"
+    "url": {
+      "bare": "bare-url"
     }
   },
   "repository": {
