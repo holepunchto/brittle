@@ -178,7 +178,9 @@ function executeCode (script, scriptFile = null) {
 function standardizeTap (stdout) {
   return stdout
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
-    .replace(/stack: \|?(.|\s)*?\.\.\.\n/gm, 'stack: |\n[stack]\n...\n') // strip stack traces
+    .replace(/\n[^\n]*node:(?:internal|vm)[^\n]*/g, '\n') // strip internal node stacks
+    .replace(/\n[^\n]*(\[eval\])[^\n]*/g, '\n') // strip internal node stacks
+    .replace(/\n[^\n]*(Test\._(run|test|stealth)) \((.*):[\d]+:[\d]+\)[^\n]*/g, '\n$1 ($2:13:37)') // static line numbers for "Test._run/stealth/test"
     .replace(/[/\\]/g, '/')
     .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
     .split('\n')
