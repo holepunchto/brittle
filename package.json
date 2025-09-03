@@ -28,6 +28,7 @@
     "bare-fs": "^4.1.6",
     "bare-os": "^3.6.1",
     "bare-path": "^3.0.0",
+    "bare-process": "^4.2.1",
     "bare-subprocess": "^5.0.0",
     "bare-url": "^2.1.6",
     "error-stack-parser": "^2.1.4",
@@ -44,22 +45,32 @@
   },
   "imports": {
     "assert": {
-      "bare": "bare-assert"
+      "bare": "bare-assert",
+      "default": "assert"
     },
     "child_process": {
-      "bare": "bare-subprocess"
+      "bare": "bare-subprocess",
+      "default": "child_process"
     },
     "fs": {
-      "bare": "bare-fs"
+      "bare": "bare-fs",
+      "default": "fs"
     },
     "os": {
-      "bare": "bare-os"
+      "bare": "bare-os",
+      "default": "os"
     },
     "path": {
-      "bare": "bare-path"
+      "bare": "bare-path",
+      "default": "path"
+    },
+    "process": {
+      "bare": "bare-process",
+      "default": "process"
     },
     "url": {
-      "bare": "bare-url"
+      "bare": "bare-url",
+      "default": "url"
     }
   },
   "repository": {
