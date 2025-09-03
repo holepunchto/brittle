@@ -45,25 +45,32 @@
   },
   "imports": {
     "assert": {
-      "bare": "bare-assert"
+      "bare": "bare-assert",
+      "default": "assert"
     },
     "child_process": {
-      "bare": "bare-subprocess"
+      "bare": "bare-subprocess",
+      "default": "child_process"
     },
     "fs": {
-      "bare": "bare-fs"
+      "bare": "bare-fs",
+      "default": "fs"
     },
     "os": {
-      "bare": "bare-os"
+      "bare": "bare-os",
+      "default": "os"
     },
     "path": {
-      "bare": "bare-path"
+      "bare": "bare-path",
+      "default": "path"
     },
     "process": {
-      "bare": "bare-process"
+      "bare": "bare-process",
+      "default": "process"
     },
     "url": {
-      "bare": "bare-url"
+      "bare": "bare-url",
+      "default": "url"
     }
   },
   "repository": {
