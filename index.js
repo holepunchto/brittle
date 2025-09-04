@@ -153,22 +153,6 @@ class Runner {
     if (this.started) return
     this.started = true
     this.log('TAP version 13')
-
-    this._handleRejection = (err) => {
-      if (program.listeners('unhandledRejection').length > 1) return
-
-      console.error('Brittle aborted due to an unhandled rejection:', err)
-      program.exit(1)
-    }
-    program.on('unhandledRejection', this._handleRejection)
-
-    this._handleException = (err) => {
-      if (program.listeners('uncaughtException').length > 1) return
-
-      console.error('Brittle aborted due to an uncaught exception:', err)
-      program.exit(1)
-    }
-    program.on('uncaughtException', this._handleException)
   }
 
   comment (...message) {
@@ -190,16 +174,6 @@ class Runner {
         this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
-    }
-
-    if (this._handleRejection) {
-      program.removeListener('unhandledRejection', this._handleRejection)
-      this._handleRejection = null
-    }
-
-    if (this._handleException) {
-      program.removeListener('uncaughtException', this._handleException)
-      this._handleException = null
     }
 
     if (this.bail && this.skipAll) {
