@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path')
+const os = require('os')
 const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
 const { spawn } = require('child_process')
@@ -49,8 +50,8 @@ process.title = 'brittle'
 
 if (trace && !mine) {
   TracingPromise.enable()
-  process.on('exit', function (code) {
-    if (!code) return
+  process.on('exit', function (code, signal) {
+    if (!code && !signal) return
     console.error()
     console.error('Printing tracing info since the tests failed:')
     console.error()
@@ -165,13 +166,13 @@ async function startMining () {
     const r = run()
     running.add(r)
 
-    const { exitCode, output } = await r.promise
+    const { exitCode, signalCode, output } = await r.promise
     running.delete(r)
     runs++
 
     if (bailed) return
 
-    if (!exitCode) {
+    if (!exitCode && !signalCode) {
       bump()
       bump()
       return
@@ -182,7 +183,9 @@ async function startMining () {
     clearInterval(interval)
 
     if (newline) console.log()
-    console.log('Runner failed with exit code ' + exitCode + '!')
+    if (exitCode) console.log('Runner failed with exit code ' + exitCode + '!')
+    else console.log('Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!')
+
     console.log('Shutting down the rest and printing output...')
 
     for (const r of running) {
@@ -209,10 +212,16 @@ async function startMining () {
     p.stdout.on('data', (data) => output.push({ stdout: true, data }))
     p.stderr.on('data', (data) => output.push({ stdout: false, data }))
 
+    const stdoutClosed = new Promise(resolve => p.stdout.on('close', resolve))
+    const stderrClosed = new Promise(resolve => p.stderr.on('close', resolve))
+
     const promise = new Promise((resolve) => {
-      p.on('exit', (exitCode) => {
+      p.on('exit', async (exitCode, signalCode) => {
+        await stdoutClosed
+        await stderrClosed
         resolve({
           exitCode,
+          signalCode,
           output
         })
       })
@@ -223,4 +232,11 @@ async function startMining () {
       kill: () => p.kill()
     }
   }
+}
+
+function signalToName (code) {
+  for (const [k, v] of Object.entries(os.constants.signals)) {
+    if (v === code) return k
+  }
+  return null
 }
