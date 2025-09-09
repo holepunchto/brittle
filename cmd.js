@@ -201,7 +201,7 @@ async function startMining () {
       else process.stderr.write(data)
     }
 
-    process.exit(exitCode)
+    process.exitCode = exitCode
   }
 
   function run () {
