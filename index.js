@@ -2,7 +2,13 @@ const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const {
+  INDENT,
+  RUNNER,
+  IS_NODE,
+  IS_BARE,
+  DEFAULT_TIMEOUT
+} = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
@@ -62,7 +68,9 @@ class Runner {
 
   pause () {
     if (this._paused) return
-    this._paused = new Promise((resolve) => { this._resume = resolve })
+    this._paused = new Promise((resolve) => {
+      this._resume = resolve
+    })
   }
 
   async _wait () {
@@ -120,12 +128,21 @@ class Runner {
       test._header()
       this.tests.pass++
       this.tests.count++
-      this.assert(false, true, this.tests.count, '- ' + test.name + ' # ' + reason, null)
+      this.assert(
+        false,
+        true,
+        this.tests.count,
+        '- ' + test.name + ' # ' + reason,
+        null
+      )
     }
   }
 
   _shouldTest (test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    return (
+      test._isHook ||
+      (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    )
   }
 
   async _autoExit (test) {
@@ -161,17 +178,26 @@ class Runner {
 
   end () {
     if (this.next) {
-      if (!this.next._isEnded && !(this.next._hasPlan && this.next._planned === 0)) {
-        this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
+      if (
+        !this.next._isEnded &&
+        !(this.next._hasPlan && this.next._planned === 0)
+      ) {
+        this.next._onend(
+          prematureEnd(this.next, 'Test did not end (' + this.next.name + ')')
+        )
         return
       }
 
       if (!this.next._isResolved) {
         if (this.next._isDone) {
-          this.next._onend(new Error('Teardown did not end (unresolved promise)'))
+          this.next._onend(
+            new Error('Teardown did not end (unresolved promise)')
+          )
           return
         }
-        this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
+        this.next._onend(
+          new Error('Test appears deadlocked (unresolved promise)')
+        )
         return
       }
     }
@@ -183,12 +209,22 @@ class Runner {
     this.padding()
     this.log('1..' + this.tests.count)
     this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
+    this.log(
+      '# asserts = ' +
+        this.assertions.pass +
+        '/' +
+        this.assertions.count +
+        ' pass'
+    )
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
-    else this.log('# not ok')
+    if (
+      this.tests.count === this.tests.pass &&
+      this.assertions.count === this.assertions.pass
+    ) {
+      this.log('# ok')
+    } else this.log('# not ok')
   }
 
   assert (indent, ok, number, message, explanation, stealth) {
@@ -202,7 +238,9 @@ class Runner {
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
-      if (!this.unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
+      if (!this.unstealth && stealth) {
+        throw new AssertionError({ message: 'Stealth assertion failed' })
+      }
     }
   }
 }
@@ -231,6 +269,7 @@ class Test {
     this._isSolo = opts?.solo || false
     this._isSkip = opts?.skip || false
     this._isTodo = opts?.todo || false
+    this._isDescribe = opts?.describe || false
     this._isResolved = false
     this._isQueued = false
     this._isMain = this._main === this
@@ -240,8 +279,11 @@ class Test {
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
     this.timeout = this._timeout.bind(this)
+    this.beforeEach = this._beforeEach.bind(this)
+    this.afterEach = this._afterEach.bind(this)
     this.teardown = this._teardown.bind(this)
     this.test = this._test.bind(this)
+    this.describe = this._describe.bind(this)
     this.plan = this._plan.bind(this)
 
     this.pass = this._pass.bind(this)
@@ -274,7 +316,6 @@ class Test {
     this.end = this._end.bind(this)
 
     this._parent = parent
-    this._first = true
     this._wait = false
     this._planned = 0
     this._hasPlan = false
@@ -283,6 +324,8 @@ class Test {
 
     this._headerLogged = false
     this._to = null
+    this._beforeEachs = []
+    this._afterEachs = []
     this._teardowns = []
     this._tickers = new Map()
 
@@ -312,7 +355,9 @@ class Test {
     this._runner.comment(this.name || 'test')
   }
 
-  tmp () { return tmp(this) }
+  tmp () {
+    return tmp(this)
+  }
 
   _planDoneOrEnd () {
     return this._isEnded || (this._hasPlan && this._planned === 0)
@@ -345,7 +390,7 @@ class Test {
   }
 
   _comment (...m) {
-    if (this._isResolved) throw new Error('Can\'t comment after end')
+    if (this._isResolved) throw new Error("Can't comment after end")
     this._runner.log(INDENT + '#', ...m)
   }
 
@@ -394,8 +439,22 @@ class Test {
     return this._main.assertions
   }
 
-  _assertion (ok, message, explanation, caller, top, isStealth = this._isStealth) {
-    this._runner.assert(!this._main._isResolved, ok, this._track(false, ok), this._message(message), explanation, isStealth)
+  _assertion (
+    ok,
+    message,
+    explanation,
+    caller,
+    top,
+    isStealth = this._isStealth
+  ) {
+    this._runner.assert(
+      !this._main._isResolved,
+      ok,
+      this._track(false, ok),
+      this._message(message),
+      explanation,
+      isStealth
+    )
 
     if (this._isEnded || this._isDone) {
       throw new AssertionError({ message: 'Assertion after end' })
@@ -432,31 +491,62 @@ class Test {
   }
 
   _is (strict, actual, expected, message = 'should be equal') {
-    const ok = strict ? actual === expected : actual == expected // eslint-disable-line
+    const ok = strict ? actual === expected : actual == expected; // eslint-disable-line
     const explanation = explain(ok, message, 'is', this._is, actual, expected)
     this._assertion(ok, message, explanation, this._is, undefined)
   }
 
   _not (strict, actual, expected, message = 'should not be equal') {
-    const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
-    const explanation = explain(ok, message, 'not', this._not, actual, expected)
+    const ok = strict ? actual !== expected : actual != expected; // eslint-disable-line
+    const explanation = explain(
+      ok,
+      message,
+      'not',
+      this._not,
+      actual,
+      expected
+    )
     this._assertion(ok, message, explanation, this._not, undefined)
   }
 
   _alike (strict, actual, expected, message = 'should deep equal') {
     const ok = sameObject(actual, expected, { strict })
-    const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'alike',
+      this._alike,
+      actual,
+      expected
+    )
     this._assertion(ok, message, explanation, this._alike, undefined)
   }
 
   _unlike (strict, actual, expected, message = 'should not deep equal') {
     const ok = sameObject(actual, expected, { strict }) === false
-    const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'unlike',
+      this._unlike,
+      actual,
+      expected
+    )
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
 
+  _beforeEach (fn) {
+    if (this._isDone) throw new Error("Can't add beforeEach after end")
+    if (this._isDescribe) this._beforeEachs.push(fn)
+  }
+
+  _afterEach (fn) {
+    if (this._isDone) throw new Error("Can't add afterEach after end")
+    if (this._isDescribe) this._afterEachs.push(fn)
+  }
+
   _teardown (fn, opts = {}) {
-    if (this._isDone) throw new Error('Can\'t add teardown after end')
+    if (this._isDone) throw new Error("Can't add teardown after end")
     this._teardowns.push([opts.order || 0, !!opts.force, fn])
   }
 
@@ -476,7 +566,9 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function') {
+        functionOrPromise = functionOrPromise()
+      }
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should reject'
         await functionOrPromise
@@ -497,7 +589,15 @@ class Test {
       this._active--
     }
 
-    const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
+    const explanation = explain(
+      ok,
+      message,
+      'exception',
+      this._exception,
+      actual,
+      expectedError,
+      top
+    )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
   }
@@ -515,7 +615,9 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function') {
+        functionOrPromise = functionOrPromise()
+      }
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should resolve'
         await functionOrPromise
@@ -529,7 +631,15 @@ class Test {
 
     const elapsed = time()
 
-    const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
+    const explanation = explain(
+      ok,
+      message,
+      'execution',
+      this._execution,
+      error,
+      null,
+      top
+    )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
 
@@ -552,15 +662,30 @@ class Test {
     }
 
     if (b4a.isBuffer(actual)) {
-      actual = new Uint8Array(actual.buffer, actual.byteOffset, actual.byteLength)
+      actual = new Uint8Array(
+        actual.buffer,
+        actual.byteOffset,
+        actual.byteLength
+      )
     }
 
     const filename = top.getFileName()
     const key = (this.name || '') + ' ' + this._message(message)
-    const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
+    const expected = getSnapshot(
+      filename,
+      key + ' - ' + this._getTick(key),
+      actual
+    )
 
     const ok = sameObject(actual, expected, { strict: true })
-    const explanation = explain(ok, message, 'snapshot', this._snapshot, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'snapshot',
+      this._snapshot,
+      actual,
+      expected
+    )
 
     this._assertion(ok, message, explanation, this._snapshot, undefined)
   }
@@ -583,11 +708,27 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
+  _describe (name, opts, fn) {
+    if (typeof name === 'function') return this.describe(null, null, name)
+    if (typeof opts === 'function') return this.describe(name, null, opts)
+
+    const t = new Test(name, this, opts, { describe: true })
+
+    if (this._hasPlan) this._planned--
+    this._active++
+
+    return fn ? t._run(fn, opts || {}) : t
+  }
+
   async _run (fn, opts) {
     this._isQueued = true
 
     if (!this._parent) {
       if (!(await this._runner.queue(this))) return
+    }
+
+    if (!this._isDescribe) {
+      for (let i = this._parents.length - 1; i >= 0; i--) { await this._parents[i]._runBeforeEach() }
     }
 
     this._onstart(opts)
@@ -596,7 +737,12 @@ class Test {
     try {
       await fn(this)
     } catch (err) {
-      if (!(err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed')) {
+      if (
+        !(
+          err instanceof AssertionError &&
+          err.message === 'ERR_ASSERTION: Stealth assertion failed'
+        )
+      ) {
         this._wait = false
         await this._runTeardown(err)
         throw err
@@ -606,6 +752,11 @@ class Test {
     if (!this._hasPlan) this.end()
 
     this._wait = false
+
+    if (!this._isDescribe) {
+      for (let i = 0; i < this._parents.length; i++) { await this._parents[i]._runAfterEach() }
+    }
+
     this._checkEnd()
 
     return await this
@@ -647,6 +798,50 @@ class Test {
     }
   }
 
+  async _runBeforeEach () {
+    if (!this._beforeEachs.length) return
+
+    let fired = false
+
+    const t = setTimeout(() => {
+      fired = true
+      this.comment('...beforeEach still running after 250ms')
+    }, 250)
+
+    if (t.unref) t.unref()
+
+    const time = highDefTimer()
+
+    for (const beforeEach of this._beforeEachs) {
+      await beforeEach()
+    }
+
+    clearTimeout(t)
+    if (fired) this.comment('...beforeEach time ' + time() + 'ms')
+  }
+
+  async _runAfterEach () {
+    if (!this._beforeEachs.length) return
+
+    let fired = false
+
+    const t = setTimeout(() => {
+      fired = true
+      this.comment('...afterEach still running after 250ms')
+    }, 250)
+
+    if (t.unref) t.unref()
+
+    const time = highDefTimer()
+
+    for (const afterEach of this._afterEachs) {
+      await afterEach()
+    }
+
+    clearTimeout(t)
+    if (fired) this.comment('...afterEach time ' + time() + 'ms')
+  }
+
   async _runTeardown (error) {
     const forced = !!error
 
@@ -676,12 +871,16 @@ class Test {
 
   _onstart (opts) {
     const to = this._isMain
-      ? (opts && opts.timeout !== undefined) ? opts.timeout : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
+      ? opts && opts.timeout !== undefined
+        ? opts.timeout
+        : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
       : opts && opts.timeout // non main ones do not
 
     if (this._isMain) {
       if (!this._isQueued) {
-        if (this._runner.next) throw new Error('Only run test can be running at the same time')
+        if (this._runner.next) {
+          throw new Error('Only run test can be running at the same time')
+        }
         this._runner.next = this
       }
       this._header()
@@ -696,11 +895,17 @@ class Test {
 
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
-    const ok = (this.fails === 0)
+    const ok = this.fails === 0
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this._runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
+      this._runner.assert(
+        false,
+        ok,
+        this._track(true, ok),
+        '- ' + (this.name || '') + time,
+        null
+      )
     }
 
     this._isResolved = true
@@ -722,6 +927,7 @@ exports = module.exports = test
 
 exports.Test = Test
 exports.test = test
+exports.describe = describe
 exports.hook = hook
 exports.solo = solo
 exports.skip = skip
@@ -734,14 +940,25 @@ exports.stealth = stealth
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true, coverage = false } = {}) {
+function configure ({
+  timeout = DEFAULT_TIMEOUT,
+  bail = false,
+  solo = false,
+  unstealth = false,
+  source = true,
+  coverage = false
+} = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+  if (coverage) {
+    require('bare-cov')({
+      dir: typeof coverage === 'string' ? coverage : undefined
+    })
+  }
 
   runner.defaultTimeout = timeout
   runner.bail = bail
@@ -793,6 +1010,10 @@ function test (name, opts, fn, overrides) {
   return t
 }
 
+function describe (name, opts, fn) {
+  return test(name, opts, fn, { describe: true })
+}
+
 function hook (name, opts, fn) {
   return test(name, opts, fn, { hook: true })
 }
@@ -819,7 +1040,7 @@ function resume () {
 }
 
 function wait (ticks = 1) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     tickish(function loop () {
       if (--ticks <= 0) return resolve()
       tickish(loop)
@@ -828,16 +1049,37 @@ function wait (ticks = 1) {
 }
 
 function tickish (fn) {
-  if (IS_NODE) { // do both types of tick in node to flush both queues
+  if (IS_NODE) {
+    // do both types of tick in node to flush both queues
     process.nextTick(queueMicrotask, fn)
   } else {
     queueMicrotask(fn)
   }
 }
 
-function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
+function explain (
+  ok,
+  message,
+  assert,
+  stackStartFunction,
+  actual,
+  expected,
+  top = !ok && originFrame(stackStartFunction),
+  extra
+) {
   const runner = getRunner()
-  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.source ? top : null, extra)
+  return ok
+    ? null
+    : lazy.errors.explain(
+      ok,
+      message,
+      assert,
+      stackStartFunction,
+      actual,
+      expected,
+      runner.source ? top : null,
+      extra
+    )
 }
 
 function originFrame (stackStartFunction) {
@@ -860,11 +1102,13 @@ function isPromise (p) {
 }
 
 function isUncaught (err) {
-  return err instanceof SyntaxError ||
+  return (
+    err instanceof SyntaxError ||
     err instanceof ReferenceError ||
     err instanceof TypeError ||
     err instanceof EvalError ||
     err instanceof RangeError
+  )
 }
 
 function getRunner () {
@@ -874,7 +1118,11 @@ function getRunner () {
 
 function prematureEnd (t, message) {
   const details = t._hasPlan
-    ? ' [assertion count (' + t.assertions + ') did not reach plan (' + (t.assertions + t._planned) + ')]'
+    ? ' [assertion count (' +
+      t.assertions +
+      ') did not reach plan (' +
+      (t.assertions + t._planned) +
+      ')]'
     : ''
 
   return new Error(message + details)
