@@ -146,7 +146,6 @@ await tester('execution (promise reject) without awaiting',
         actual: 
         expected: null
         operator: execution
-        stack: AssertionError [ERR_ASSERTION]: should resolve::
         ...
   `,
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
@@ -169,7 +168,6 @@ await tester('exception (promise resolve) without awaiting',
         actual: false
         expected: undefined
         operator: exception
-        stack: AssertionError [ERR_ASSERTION]: should reject::
         ...
   `,
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
