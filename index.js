@@ -814,7 +814,7 @@ class Test {
   }
 
   async _runAfterEach () {
-    if (!this._beforeEachs.length) return
+    if (!this._afterEachs.length) return
 
     let fired = false
 
