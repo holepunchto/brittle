@@ -269,7 +269,7 @@ class Test {
     this._isSolo = opts?.solo || false
     this._isSkip = opts?.skip || false
     this._isTodo = opts?.todo || false
-    this._isDescribe = opts?.describe || false
+    this._isDescribe = false
     this._isResolved = false
     this._isQueued = false
     this._isMain = this._main === this
@@ -283,7 +283,6 @@ class Test {
     this.afterEach = this._afterEach.bind(this)
     this.teardown = this._teardown.bind(this)
     this.test = this._test.bind(this)
-    this.describe = this._describe.bind(this)
     this.plan = this._plan.bind(this)
 
     this.pass = this._pass.bind(this)
@@ -708,18 +707,6 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
-  _describe (name, opts, fn) {
-    if (typeof name === 'function') return this.describe(null, null, name)
-    if (typeof opts === 'function') return this.describe(name, null, opts)
-
-    const t = new Test(name, this, opts, { describe: true })
-
-    if (this._hasPlan) this._planned--
-    this._active++
-
-    return fn ? t._run(fn, opts || {}) : t
-  }
-
   async _run (fn, opts) {
     this._isQueued = true
 
@@ -727,8 +714,12 @@ class Test {
       if (!(await this._runner.queue(this))) return
     }
 
+    this._isDescribe = fn.name === 'describe'
+
     if (!this._isDescribe) {
-      for (let i = this._parents.length - 1; i >= 0; i--) { await this._parents[i]._runBeforeEach() }
+      for (let i = this._parents.length - 1; i >= 0; i--) {
+        await this._parents[i]._runBeforeEach()
+      }
     }
 
     this._onstart(opts)
@@ -754,7 +745,9 @@ class Test {
     this._wait = false
 
     if (!this._isDescribe) {
-      for (let i = 0; i < this._parents.length; i++) { await this._parents[i]._runAfterEach() }
+      for (let i = 0; i < this._parents.length; i++) {
+        await this._parents[i]._runAfterEach()
+      }
     }
 
     this._checkEnd()
@@ -927,7 +920,6 @@ exports = module.exports = test
 
 exports.Test = Test
 exports.test = test
-exports.describe = describe
 exports.hook = hook
 exports.solo = solo
 exports.skip = skip
@@ -1008,10 +1000,6 @@ function test (name, opts, fn, overrides) {
   t._onstart(opts)
 
   return t
-}
-
-function describe (name, opts, fn) {
-  return test(name, opts, fn, { describe: true })
 }
 
 function hook (name, opts, fn) {
