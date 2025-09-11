@@ -28,7 +28,7 @@ if (!cmd) process.exit(0)
 const { version } = cmd.flags
 if (version) {
   console.log(`v${pkg.version}`)
-  process.exit(1)
+  process.exit(0)
 }
 
 const argv = cmd.flags
