@@ -245,11 +245,11 @@ function signalToName (code) {
 function glob (g) {
   try {
     // if valid file entry, dont do globbing
-    fs.statSync(g)
-    return [g]
-  } catch {
-    const glob = new Globbie(g, { sync: true })
-    const matches = glob.match()
-    return matches
-  }
+    if (fs.statSync(g).isFile()) return [g]
+  } catch {}
+
+  const glob = new Globbie(g, { sync: true })
+  const matches = glob.match()
+
+  return matches
 }
