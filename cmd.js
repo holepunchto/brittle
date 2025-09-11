@@ -246,7 +246,7 @@ function glob (g) {
   try {
     // if valid file entry, dont do globbing
     if (fs.statSync(g).isFile()) return [g]
-  } catch { /*ignore*/ }
+  } catch { /* ignore */ }
 
   const glob = new Globbie(g, { sync: true })
   const matches = glob.match()
