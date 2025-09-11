@@ -2,6 +2,7 @@
 
 const path = require('path')
 const os = require('os')
+const fs = require('fs')
 const { command, flag, rest } = require('paparam')
 const Globbie = require('globbie')
 const { spawn } = require('child_process')
@@ -27,8 +28,7 @@ const argv = cmd.flags
 
 const files = []
 for (const g of cmd.rest || []) {
-  const glob = new Globbie(g, { sync: true })
-  const matches = glob.match()
+  const matches = glob(g)
 
   if (matches.length === 0) {
     if (g[0] === '-') continue
@@ -240,4 +240,16 @@ function signalToName (code) {
     if (v === code) return k
   }
   return null
+}
+
+function glob (g) {
+  try {
+    // if valid file entry, dont do globbing
+    fs.statSync(g)
+    return [g]
+  } catch {
+    const glob = new Globbie(g, { sync: true })
+    const matches = glob.match()
+    return matches
+  }
 }
