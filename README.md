@@ -625,6 +625,7 @@ npm install -g brittle
 brittle [flags] <files>
 
 Flags:
+  --version, -v             Print the current version
   --solo, -s                Engage solo mode
   --bail, -b                Bail out on first assert failure
   --coverage, -c            Turn on coverage
