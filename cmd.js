@@ -7,9 +7,11 @@ const Globbie = require('globbie')
 const { spawn } = require('child_process')
 const process = require('process')
 const TracingPromise = require('./lib/tracing-promise')
+const pkg = require('./package')
 
 const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
 const cmd = command('brittle',
+  flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
@@ -22,6 +24,12 @@ const cmd = command('brittle',
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
+
+const { version } = cmd.flags
+if (version) {
+  console.log(`v${pkg.version}`)
+  process.exit(0)
+}
 
 const argv = cmd.flags
 
