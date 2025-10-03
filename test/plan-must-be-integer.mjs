@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic plan must be integer',
+await tester(
+  'classic plan must be integer',
   function (t) {
     t.plan('x')
     t.pass()
@@ -10,7 +11,10 @@ await tester('classic plan must be integer',
 
   # classic plan must be integer
   `,
-  { exitCode: 1, stderr: { includes: 'Plan takes a positive whole number only' } }
+  {
+    exitCode: 1,
+    stderr: { includes: 'Plan takes a positive whole number only' }
+  }
 )
 
 await spawner(
@@ -25,5 +29,8 @@ await spawner(
 
   # inverted plan must be integer
   `,
-  { exitCode: 1, stderr: { includes: 'Plan takes a positive whole number only' } }
+  {
+    exitCode: 1,
+    stderr: { includes: 'Plan takes a positive whole number only' }
+  }
 )

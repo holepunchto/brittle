@@ -2,7 +2,8 @@ import { tester, spawner } from './helpers/index.js'
 
 // + Should add a feature in spawner to also check the comments for tap outputs
 
-await tester('classic comment',
+await tester(
+  'classic comment',
   function (t) {
     t.pass()
     t.comment('here is a comment')
@@ -25,10 +26,13 @@ await tester('classic comment',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic comment after classic child',
+await tester(
+  'classic comment after classic child',
   function (t) {
     t.pass()
-    t.test('child', async (child) => { child.pass() })
+    t.test('child', async (child) => {
+      child.pass()
+    })
     t.comment('here is a comment')
   },
   `
@@ -50,7 +54,8 @@ await tester('classic comment after classic child',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic comment after inverted child',
+await tester(
+  'classic comment after inverted child',
   function (t) {
     t.pass()
     const child = t.test('child')
@@ -77,7 +82,8 @@ await tester('classic comment after inverted child',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic comment inside classic child',
+await tester(
+  'classic comment inside classic child',
   function (t) {
     t.pass()
     t.test('child', function (child) {
@@ -104,7 +110,8 @@ await tester('classic comment inside classic child',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic comment on inverted child',
+await tester(
+  'classic comment on inverted child',
   function (t) {
     t.pass()
     const child = t.test('child')
@@ -160,7 +167,9 @@ await spawner(
   function (test) {
     const t = test('inverted comment after classic child')
     t.pass()
-    t.test('child', async (child) => { child.pass() })
+    t.test('child', async (child) => {
+      child.pass()
+    })
     t.comment('here is a comment')
     t.end()
   },

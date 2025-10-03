@@ -12,7 +12,9 @@ await spawner(
       t.teardown(async function () {
         clearInterval(intervalId)
 
-        await new Promise((resolve) => { setTimeout(resolve, 100) })
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100)
+        })
         if (count++ !== 1) throw new Error('Different order detected')
       })
     })
