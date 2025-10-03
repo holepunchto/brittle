@@ -1,6 +1,7 @@
 import { tester } from './helpers/index.js'
 
-await tester('sync function allowed',
+await tester(
+  'sync function allowed',
   function (t) {
     t.pass()
   },

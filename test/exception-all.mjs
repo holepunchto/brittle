@@ -1,17 +1,38 @@
 import { tester } from './helpers/index.js'
 
-await tester('exception crash when an error is native',
+await tester(
+  'exception crash when an error is native',
   async function (t) {
-    t.exception(() => { throw ReferenceError('test') })
-    t.exception(() => { throw SyntaxError('test') })
-    t.exception(() => { throw RangeError('test') })
-    t.exception(() => { throw EvalError('test') })
-    t.exception(() => { throw TypeError('test') })
-    await t.exception(async () => { throw ReferenceError('test') })
-    await t.exception(async () => { throw SyntaxError('test') })
-    await t.exception(async () => { throw RangeError('test') })
-    await t.exception(async () => { throw EvalError('test') })
-    await t.exception(async () => { throw TypeError('test') })
+    t.exception(() => {
+      throw ReferenceError('test')
+    })
+    t.exception(() => {
+      throw SyntaxError('test')
+    })
+    t.exception(() => {
+      throw RangeError('test')
+    })
+    t.exception(() => {
+      throw EvalError('test')
+    })
+    t.exception(() => {
+      throw TypeError('test')
+    })
+    await t.exception(async () => {
+      throw ReferenceError('test')
+    })
+    await t.exception(async () => {
+      throw SyntaxError('test')
+    })
+    await t.exception(async () => {
+      throw RangeError('test')
+    })
+    await t.exception(async () => {
+      throw EvalError('test')
+    })
+    await t.exception(async () => {
+      throw TypeError('test')
+    })
     await t.exception(Promise.reject(ReferenceError('test')))
     await t.exception(Promise.reject(SyntaxError('test')))
     await t.exception(Promise.reject(RangeError('test')))
@@ -26,18 +47,39 @@ await tester('exception crash when an error is native',
   { exitCode: 1, stderr: { includes: 'ReferenceError: test' } }
 )
 
-await tester('exception.all does not crash when an error is native',
+await tester(
+  'exception.all does not crash when an error is native',
   async function (t) {
-    t.exception.all(() => { throw ReferenceError('test') })
-    t.exception.all(() => { throw SyntaxError('test') })
-    t.exception.all(() => { throw RangeError('test') })
-    t.exception.all(() => { throw EvalError('test') })
-    t.exception.all(() => { throw TypeError('test') })
-    await t.exception.all(async () => { throw ReferenceError('test') })
-    await t.exception.all(async () => { throw SyntaxError('test') })
-    await t.exception.all(async () => { throw RangeError('test') })
-    await t.exception.all(async () => { throw EvalError('test') })
-    await t.exception.all(async () => { throw TypeError('test') })
+    t.exception.all(() => {
+      throw ReferenceError('test')
+    })
+    t.exception.all(() => {
+      throw SyntaxError('test')
+    })
+    t.exception.all(() => {
+      throw RangeError('test')
+    })
+    t.exception.all(() => {
+      throw EvalError('test')
+    })
+    t.exception.all(() => {
+      throw TypeError('test')
+    })
+    await t.exception.all(async () => {
+      throw ReferenceError('test')
+    })
+    await t.exception.all(async () => {
+      throw SyntaxError('test')
+    })
+    await t.exception.all(async () => {
+      throw RangeError('test')
+    })
+    await t.exception.all(async () => {
+      throw EvalError('test')
+    })
+    await t.exception.all(async () => {
+      throw TypeError('test')
+    })
     await t.exception.all(Promise.reject(ReferenceError('test')))
     await t.exception.all(Promise.reject(SyntaxError('test')))
     await t.exception.all(Promise.reject(RangeError('test')))

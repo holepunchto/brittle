@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic teardown after end',
+await tester(
+  'classic teardown after end',
   function (t) {
     t.pass()
     t.end()
@@ -15,7 +16,7 @@ await tester('classic teardown after end',
       ok 1 - passed
   ok 1 - classic teardown after end # time = 0.711746ms
   `,
-  { exitCode: 1, stderr: { includes: 'Can\'t add teardown after end' } }
+  { exitCode: 1, stderr: { includes: "Can't add teardown after end" } }
 )
 
 await spawner(
@@ -34,5 +35,5 @@ await spawner(
       ok 1 - passed
   ok 1 - inverted teardown after end # time = 0.629008ms
   `,
-  { exitCode: 1, stderr: { includes: 'Can\'t add teardown after end' } }
+  { exitCode: 1, stderr: { includes: "Can't add teardown after end" } }
 )

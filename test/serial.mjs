@@ -3,12 +3,16 @@ import { spawner } from './helpers/index.js'
 await spawner(
   function (test) {
     test('one', async function (t) {
-      await new Promise(resolve => { setTimeout(resolve, 400) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 400)
+      })
       t.pass()
     })
 
     test('two', async function (t) {
-      await new Promise(resolve => { setTimeout(resolve, 200) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200)
+      })
       t.pass()
     })
   },

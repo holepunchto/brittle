@@ -1,9 +1,14 @@
 import { tester } from './helpers/index.js'
 
-await tester('multi-tick execution (promise resolve)',
+await tester(
+  'multi-tick execution (promise resolve)',
   async function (t) {
     t.pass('first')
-    await t.execution(new Promise((resolve) => { setTimeout(resolve, 100) }))
+    await t.execution(
+      new Promise((resolve) => {
+        setTimeout(resolve, 100)
+      })
+    )
     t.pass('second')
   },
   `
@@ -25,10 +30,15 @@ await tester('multi-tick execution (promise resolve)',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('multi-tick execution (promise reject)',
+await tester(
+  'multi-tick execution (promise reject)',
   async function (t) {
     t.pass('first')
-    await t.execution(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
+    await t.execution(
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(Error('test')), 100)
+      )
+    )
     t.pass('second')
   },
   `
@@ -56,10 +66,15 @@ await tester('multi-tick execution (promise reject)',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('multi-tick exception (promise resolve)',
+await tester(
+  'multi-tick exception (promise resolve)',
   async function (t) {
     t.pass('first')
-    await t.exception(new Promise((resolve) => { setTimeout(resolve, 100) }))
+    await t.exception(
+      new Promise((resolve) => {
+        setTimeout(resolve, 100)
+      })
+    )
     t.pass('second')
   },
   `
@@ -87,10 +102,15 @@ await tester('multi-tick exception (promise resolve)',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('multi-tick exception (promise reject)',
+await tester(
+  'multi-tick exception (promise reject)',
   async function (t) {
     t.pass('first')
-    await t.exception(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
+    await t.exception(
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(Error('test')), 100)
+      )
+    )
     t.pass('second')
   },
   `
@@ -112,10 +132,15 @@ await tester('multi-tick exception (promise reject)',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('execution (promise resolve) without awaiting',
+await tester(
+  'execution (promise resolve) without awaiting',
   function (t) {
     t.pass('first')
-    t.execution(new Promise((resolve) => { setTimeout(resolve, 100) }))
+    t.execution(
+      new Promise((resolve) => {
+        setTimeout(resolve, 100)
+      })
+    )
     t.pass('second')
   },
   `
@@ -129,10 +154,15 @@ await tester('execution (promise resolve) without awaiting',
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
 )
 
-await tester('execution (promise reject) without awaiting',
+await tester(
+  'execution (promise reject) without awaiting',
   function (t) {
     t.pass('first')
-    t.execution(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
+    t.execution(
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(Error('test')), 100)
+      )
+    )
     t.pass('second')
   },
   `
@@ -151,10 +181,15 @@ await tester('execution (promise reject) without awaiting',
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
 )
 
-await tester('exception (promise resolve) without awaiting',
+await tester(
+  'exception (promise resolve) without awaiting',
   function (t) {
     t.pass('first')
-    t.exception(new Promise((resolve) => { setTimeout(resolve, 100) }))
+    t.exception(
+      new Promise((resolve) => {
+        setTimeout(resolve, 100)
+      })
+    )
     t.pass('second')
   },
   `
@@ -173,10 +208,15 @@ await tester('exception (promise resolve) without awaiting',
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
 )
 
-await tester('exception (promise reject) without awaiting',
+await tester(
+  'exception (promise reject) without awaiting',
   function (t) {
     t.pass('first')
-    t.exception(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
+    t.exception(
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(Error('test')), 100)
+      )
+    )
     t.pass('second')
   },
   `

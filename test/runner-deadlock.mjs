@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic deadlock with plan',
+await tester(
+  'classic deadlock with plan',
   async function (t) {
     t.plan(1)
     t.pass()
@@ -15,7 +16,8 @@ await tester('classic deadlock with plan',
   { exitCode: 1, stderr: { includes: 'Test appears deadlocked' } }
 )
 
-await tester('classic deadlock without plan',
+await tester(
+  'classic deadlock without plan',
   async function (t) {
     t.pass()
     await t
@@ -29,7 +31,8 @@ await tester('classic deadlock without plan',
   { exitCode: 1, stderr: { includes: 'Test did not end' } }
 )
 
-await tester('classic bare deadlock',
+await tester(
+  'classic bare deadlock',
   async function (t) {
     await t
   },
@@ -65,7 +68,8 @@ await spawner(
   { exitCode: 0, stderr: '' }
 )
 
-await tester('try deadlock by child with plan',
+await tester(
+  'try deadlock by child with plan',
   async function (t) {
     const child = t.test()
     child.plan(1)
@@ -89,7 +93,8 @@ await tester('try deadlock by child with plan',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('try deadlock by child without plan',
+await tester(
+  'try deadlock by child without plan',
   async function (t) {
     const child = t.test()
     child.pass()

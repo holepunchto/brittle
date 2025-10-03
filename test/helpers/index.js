@@ -11,7 +11,7 @@ const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
 module.exports = { tester, spawner, standardizeTap }
 
-async function tester (name, fn, expectedOut, expectedMore, opts) {
+async function tester(name, fn, expectedOut, expectedMore, opts) {
   log(chalk.yellow.bold('Tester'), name)
   name = JSON.stringify(name)
 
@@ -19,17 +19,26 @@ async function tester (name, fn, expectedOut, expectedMore, opts) {
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function spawner (fn, expectedOut, expectedMore, opts) {
+async function spawner(fn, expectedOut, expectedMore, opts) {
   log(chalk.yellow.bold('Spawner'))
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: null }) {
-  if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
+async function executeTap(
+  script,
+  expectedOut,
+  more = {},
+  opts = { scriptFile: null }
+) {
+  if (typeof expectedOut !== 'string')
+    throw new Error('Expected stdout is required as a string')
   if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
-  const { exitCode, error, stdout, stderr } = await executeCode(script, opts.scriptFile)
+  const { exitCode, error, stdout, stderr } = await executeCode(
+    script,
+    opts.scriptFile
+  )
   const errors = new Errors()
   let tapout
   let tapexp
@@ -48,7 +57,12 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.add('TAP_MISMATCH', 'TAP output does not match the expected output', stdout, expectedOut)
+      errors.add(
+        'TAP_MISMATCH',
+        'TAP output does not match the expected output',
+        stdout,
+        expectedOut
+      )
     }
   }
 
@@ -70,12 +84,17 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
   return { errors: errors.list, exitCode, stdout, tapout, tapexp, stderr }
 }
 
-function exitCodeValidation (errors, actual, expected) {
+function exitCodeValidation(errors, actual, expected) {
   if (expected === undefined) return
 
   if (typeof expected === 'number') {
     if (actual !== expected) {
-      errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', actual, expected)
+      errors.add(
+        'EXIT_CODE_MISMATCH',
+        'exitCode is not the expected',
+        actual,
+        expected
+      )
     }
     return
   }
@@ -83,8 +102,17 @@ function exitCodeValidation (errors, actual, expected) {
   if (typeof expected === 'string') {
     const expectedCode = EXIT_CODES_KV[expected]
     const errorName = EXIT_CODES_VK[actual]
-    if (errorName === undefined || expectedCode === undefined || actual !== expectedCode) {
-      errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', actual + ' (' + errorName + ')', expectedCode + ' (' + expected + ')')
+    if (
+      errorName === undefined ||
+      expectedCode === undefined ||
+      actual !== expectedCode
+    ) {
+      errors.add(
+        'EXIT_CODE_MISMATCH',
+        'exitCode is not the expected',
+        actual + ' (' + errorName + ')',
+        expectedCode + ' (' + expected + ')'
+      )
     }
     return
   }
@@ -92,13 +120,18 @@ function exitCodeValidation (errors, actual, expected) {
   throw new Error('exitCode type not supported (only number or string)')
 }
 
-function stdValidation (errors, name, actual, std) {
+function stdValidation(errors, name, actual, std) {
   // log('stdValidation', { errors, name, actual, std })
   if (std === undefined) return
 
   if (typeof std === 'string') {
     if (actual !== std) {
-      errors.add(name.toUpperCase() + '_VALIDATION', name + ' is not the expected', actual, std)
+      errors.add(
+        name.toUpperCase() + '_VALIDATION',
+        name + ' is not the expected',
+        actual,
+        std
+      )
     }
     return
   }
@@ -110,7 +143,12 @@ function stdValidation (errors, name, actual, std) {
       }
 
       if (!actual || !actual.includes(std.includes)) {
-        errors.add(name.toUpperCase() + '_VALIDATION', name + ' did not include the expected', actual, std.includes)
+        errors.add(
+          name.toUpperCase() + '_VALIDATION',
+          name + ' did not include the expected',
+          actual,
+          std.includes
+        )
       }
       return
     }
@@ -122,11 +160,11 @@ function stdValidation (errors, name, actual, std) {
 }
 
 class Errors {
-  constructor () {
+  constructor() {
     this.list = []
   }
 
-  add (type, error, actual, expected) {
+  add(type, error, actual, expected) {
     const err = {
       type,
       error: typeof error === 'string' ? new Error(error) : error
@@ -139,7 +177,7 @@ class Errors {
   }
 }
 
-function executeCode (script, scriptFile = null) {
+function executeCode(script, scriptFile = null) {
   return new Promise((resolve, reject) => {
     if (scriptFile) fs.writeFileSync(scriptFile, script, 'utf-8')
 
@@ -175,21 +213,27 @@ function executeCode (script, scriptFile = null) {
   })
 }
 
-function standardizeTap (stdout) {
+function standardizeTap(stdout) {
   return stdout
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/\n[^\n]*node:(?:internal|vm)[^\n]*/g, '\n') // strip internal node stacks
     .replace(/\n[^\n]*(\[eval\])[^\n]*/g, '\n') // strip internal node stacks
-    .replace(/\n[^\n]*(Test\._(run|test|stealth)) \((.*):[\d]+:[\d]+\)[^\n]*/g, '\n$1 ($2:13:37)') // static line numbers for "Test._run/stealth/test"
+    .replace(
+      /\n[^\n]*(Test\._(run|test|stealth)) \((.*):[\d]+:[\d]+\)[^\n]*/g,
+      '\n$1 ($2:13:37)'
+    ) // static line numbers for "Test._run/stealth/test"
     .replace(/[/\\]/g, '/')
-    .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
+    .replace(
+      /(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g,
+      '\n[coverage]'
+    )
     .split('\n')
-    .map(n => n.trim())
-    .filter(n => n)
+    .map((n) => n.trim())
+    .filter((n) => n)
     .join('\n')
 }
 
-function log (...str) {
+function log(...str) {
   if (!PRINT_ENABLED) return
 
   console.log(...str)

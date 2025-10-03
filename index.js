@@ -2,7 +2,13 @@ const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const {
+  INDENT,
+  RUNNER,
+  IS_NODE,
+  IS_BARE,
+  DEFAULT_TIMEOUT
+} = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
@@ -14,18 +20,18 @@ const program = IS_NODE ? process : global.Bare
 const lazy = {
   _errors: null,
   _tmatch: null,
-  get errors () {
+  get errors() {
     if (!lazy._errors) lazy._errors = require('./lib/errors.js')
     return lazy._errors
   },
-  get tmatch () {
+  get tmatch() {
     if (!lazy._tmatch) lazy._tmatch = require('tmatch')
     return lazy._tmatch
   }
 }
 
 class Runner {
-  constructor () {
+  constructor() {
     this.tests = { count: 0, pass: 0 }
     this.assertions = { count: 0, pass: 0 }
 
@@ -54,23 +60,25 @@ class Runner {
     program.on('beforeExit', ondeadlock)
   }
 
-  resume () {
+  resume() {
     if (!this._paused) return
     this._resume()
     this._resume = this._paused = null
   }
 
-  pause () {
+  pause() {
     if (this._paused) return
-    this._paused = new Promise((resolve) => { this._resume = resolve })
+    this._paused = new Promise((resolve) => {
+      this._resume = resolve
+    })
   }
 
-  async _wait () {
+  async _wait() {
     await wait()
     await this._paused
   }
 
-  async queue (test) {
+  async queue(test) {
     this.start()
 
     if (test._isSolo) {
@@ -115,20 +123,29 @@ class Runner {
     return false
   }
 
-  _skip (reason, test) {
+  _skip(reason, test) {
     if (this._shouldTest(test)) {
       test._header()
       this.tests.pass++
       this.tests.count++
-      this.assert(false, true, this.tests.count, '- ' + test.name + ' # ' + reason, null)
+      this.assert(
+        false,
+        true,
+        this.tests.count,
+        '- ' + test.name + ' # ' + reason,
+        null
+      )
     }
   }
 
-  _shouldTest (test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+  _shouldTest(test) {
+    return (
+      test._isHook ||
+      (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    )
   }
 
-  async _autoExit (test) {
+  async _autoExit(test) {
     try {
       await test
       await wait(10) // wait 10 ticks...
@@ -138,40 +155,49 @@ class Runner {
     } catch {}
   }
 
-  log (...message) {
+  log(...message) {
     this._log(...message)
     this.padded = false
   }
 
-  padding () {
+  padding() {
     if (this.padded) return
     this.padded = true
     this.log()
   }
 
-  start () {
+  start() {
     if (this.started) return
     this.started = true
     this.log('TAP version 13')
   }
 
-  comment (...message) {
+  comment(...message) {
     this.log('#', ...message)
   }
 
-  end () {
+  end() {
     if (this.next) {
-      if (!this.next._isEnded && !(this.next._hasPlan && this.next._planned === 0)) {
-        this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
+      if (
+        !this.next._isEnded &&
+        !(this.next._hasPlan && this.next._planned === 0)
+      ) {
+        this.next._onend(
+          prematureEnd(this.next, 'Test did not end (' + this.next.name + ')')
+        )
         return
       }
 
       if (!this.next._isResolved) {
         if (this.next._isDone) {
-          this.next._onend(new Error('Teardown did not end (unresolved promise)'))
+          this.next._onend(
+            new Error('Teardown did not end (unresolved promise)')
+          )
           return
         }
-        this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
+        this.next._onend(
+          new Error('Test appears deadlocked (unresolved promise)')
+        )
         return
       }
     }
@@ -183,15 +209,25 @@ class Runner {
     this.padding()
     this.log('1..' + this.tests.count)
     this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
+    this.log(
+      '# asserts = ' +
+        this.assertions.pass +
+        '/' +
+        this.assertions.count +
+        ' pass'
+    )
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
+    if (
+      this.tests.count === this.tests.pass &&
+      this.assertions.count === this.assertions.pass
+    )
+      this.log('# ok')
     else this.log('# not ok')
   }
 
-  assert (indent, ok, number, message, explanation, stealth) {
+  assert(indent, ok, number, message, explanation, stealth) {
     const ind = indent ? INDENT : ''
 
     if (ok) {
@@ -202,13 +238,14 @@ class Runner {
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
-      if (!this.unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
+      if (!this.unstealth && stealth)
+        throw new AssertionError({ message: 'Stealth assertion failed' })
     }
   }
 }
 
 class Test {
-  constructor (name, parent, opts = {}) {
+  constructor(name, parent, opts = {}) {
     this._resolve = null
     this._reject = null
 
@@ -292,19 +329,19 @@ class Test {
     }
   }
 
-  then (...args) {
+  then(...args) {
     return this._promise.then(...args)
   }
 
-  catch (...args) {
+  catch(...args) {
     return this._promise.catch(...args)
   }
 
-  finally (...args) {
+  finally(...args) {
     return this._promise.finally(...args)
   }
 
-  _header () {
+  _header() {
     if (this._headerLogged) return
     this._headerLogged = true
     this._runner.start()
@@ -312,13 +349,15 @@ class Test {
     this._runner.comment(this.name || 'test')
   }
 
-  tmp () { return tmp(this) }
+  tmp() {
+    return tmp(this)
+  }
 
-  _planDoneOrEnd () {
+  _planDoneOrEnd() {
     return this._isEnded || (this._hasPlan && this._planned === 0)
   }
 
-  _timeout (ms) {
+  _timeout(ms) {
     if (!ms) {
       if (this._to) clearTimeout(this._to)
       this._to = null
@@ -335,7 +374,7 @@ class Test {
     if (this._to.unref) this._to.unref()
   }
 
-  _plan (n) {
+  _plan(n) {
     if (typeof n !== 'number' || n < 0) {
       throw new Error('Plan takes a positive whole number only')
     }
@@ -344,12 +383,12 @@ class Test {
     this._planned = n
   }
 
-  _comment (...m) {
-    if (this._isResolved) throw new Error('Can\'t comment after end')
+  _comment(...m) {
+    if (this._isResolved) throw new Error("Can't comment after end")
     this._runner.log(INDENT + '#', ...m)
   }
 
-  _message (message) {
+  _message(message) {
     let m = '- '
 
     if (!this._isMain) {
@@ -370,13 +409,13 @@ class Test {
     return m
   }
 
-  _tick (ok) {
+  _tick(ok) {
     if (ok) this.passes++
     else this.fails++
     this.assertions++
   }
 
-  _track (topLevel, ok) {
+  _track(topLevel, ok) {
     if (topLevel) {
       this._runner.tests.count++
       if (ok) this._runner.tests.pass++
@@ -394,8 +433,22 @@ class Test {
     return this._main.assertions
   }
 
-  _assertion (ok, message, explanation, caller, top, isStealth = this._isStealth) {
-    this._runner.assert(!this._main._isResolved, ok, this._track(false, ok), this._message(message), explanation, isStealth)
+  _assertion(
+    ok,
+    message,
+    explanation,
+    caller,
+    top,
+    isStealth = this._isStealth
+  ) {
+    this._runner.assert(
+      !this._main._isResolved,
+      ok,
+      this._track(false, ok),
+      this._message(message),
+      explanation,
+      isStealth
+    )
 
     if (this._isEnded || this._isDone) {
       throw new AssertionError({ message: 'Assertion after end' })
@@ -410,57 +463,71 @@ class Test {
     }
   }
 
-  _fail (message = 'failed') {
+  _fail(message = 'failed') {
     const explanation = explain(false, message, 'fail', this._fail)
     this._assertion(false, message, explanation, this._fail, undefined)
   }
 
-  _pass (message = 'passed') {
+  _pass(message = 'passed') {
     this._assertion(true, message, null, this._pass, undefined)
   }
 
-  _ok (assertion, message = 'expected truthy value') {
+  _ok(assertion, message = 'expected truthy value') {
     const ok = assertion
     const explanation = explain(ok, message, 'ok', this._ok)
     this._assertion(ok, message, explanation, this._ok, undefined)
   }
 
-  _absent (assertion, message = 'expected falsy value') {
+  _absent(assertion, message = 'expected falsy value') {
     const ok = !assertion
     const explanation = explain(ok, message, 'absent', this._absent)
     this._assertion(ok, message, explanation, this._absent, undefined)
   }
 
-  _is (strict, actual, expected, message = 'should be equal') {
+  _is(strict, actual, expected, message = 'should be equal') {
     const ok = strict ? actual === expected : actual == expected // eslint-disable-line
     const explanation = explain(ok, message, 'is', this._is, actual, expected)
     this._assertion(ok, message, explanation, this._is, undefined)
   }
 
-  _not (strict, actual, expected, message = 'should not be equal') {
+  _not(strict, actual, expected, message = 'should not be equal') {
     const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
     const explanation = explain(ok, message, 'not', this._not, actual, expected)
     this._assertion(ok, message, explanation, this._not, undefined)
   }
 
-  _alike (strict, actual, expected, message = 'should deep equal') {
+  _alike(strict, actual, expected, message = 'should deep equal') {
     const ok = sameObject(actual, expected, { strict })
-    const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'alike',
+      this._alike,
+      actual,
+      expected
+    )
     this._assertion(ok, message, explanation, this._alike, undefined)
   }
 
-  _unlike (strict, actual, expected, message = 'should not deep equal') {
+  _unlike(strict, actual, expected, message = 'should not deep equal') {
     const ok = sameObject(actual, expected, { strict }) === false
-    const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'unlike',
+      this._unlike,
+      actual,
+      expected
+    )
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
 
-  _teardown (fn, opts = {}) {
-    if (this._isDone) throw new Error('Can\'t add teardown after end')
+  _teardown(fn, opts = {}) {
+    if (this._isDone) throw new Error("Can't add teardown after end")
     this._teardowns.push([opts.order || 0, !!opts.force, fn])
   }
 
-  async _exception (natives, functionOrPromise, expectedError, message) {
+  async _exception(natives, functionOrPromise, expectedError, message) {
     if (typeof expectedError === 'string') {
       message = expectedError
       expectedError = undefined
@@ -476,7 +543,8 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function')
+        functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should reject'
         await functionOrPromise
@@ -497,12 +565,20 @@ class Test {
       this._active--
     }
 
-    const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
+    const explanation = explain(
+      ok,
+      message,
+      'exception',
+      this._exception,
+      actual,
+      expectedError,
+      top
+    )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
   }
 
-  async _execution (functionOrPromise, message) {
+  async _execution(functionOrPromise, message) {
     const top = originFrame(this._execution)
     const pristineMessage = message === undefined
 
@@ -515,7 +591,8 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function')
+        functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should resolve'
         await functionOrPromise
@@ -529,21 +606,29 @@ class Test {
 
     const elapsed = time()
 
-    const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
+    const explanation = explain(
+      ok,
+      message,
+      'execution',
+      this._execution,
+      error,
+      null,
+      top
+    )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
 
     return elapsed
   }
 
-  _stealth (name, opts, fn) {
+  _stealth(name, opts, fn) {
     if (typeof name === 'function') return this.stealth(null, null, name)
     if (typeof opts === 'function') return this.stealth(name, null, opts)
 
     return this.test(name, { ...opts, stealth: true }, fn)
   }
 
-  _snapshot (actual, message = 'should match snapshot') {
+  _snapshot(actual, message = 'should match snapshot') {
     const top = originFrame(this._snapshot)
 
     if (!top) {
@@ -552,26 +637,41 @@ class Test {
     }
 
     if (b4a.isBuffer(actual)) {
-      actual = new Uint8Array(actual.buffer, actual.byteOffset, actual.byteLength)
+      actual = new Uint8Array(
+        actual.buffer,
+        actual.byteOffset,
+        actual.byteLength
+      )
     }
 
     const filename = top.getFileName()
     const key = (this.name || '') + ' ' + this._message(message)
-    const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
+    const expected = getSnapshot(
+      filename,
+      key + ' - ' + this._getTick(key),
+      actual
+    )
 
     const ok = sameObject(actual, expected, { strict: true })
-    const explanation = explain(ok, message, 'snapshot', this._snapshot, actual, expected)
+    const explanation = explain(
+      ok,
+      message,
+      'snapshot',
+      this._snapshot,
+      actual,
+      expected
+    )
 
     this._assertion(ok, message, explanation, this._snapshot, undefined)
   }
 
-  _getTick (key) {
+  _getTick(key) {
     const tick = this._tickers.get(key) || 0
     this._tickers.set(key, 1 + tick)
     return tick
   }
 
-  _test (name, opts, fn) {
+  _test(name, opts, fn) {
     if (typeof name === 'function') return this.test(null, null, name)
     if (typeof opts === 'function') return this.test(name, null, opts)
 
@@ -583,7 +683,7 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
-  async _run (fn, opts) {
+  async _run(fn, opts) {
     this._isQueued = true
 
     if (!this._parent) {
@@ -596,7 +696,12 @@ class Test {
     try {
       await fn(this)
     } catch (err) {
-      if (!(err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed')) {
+      if (
+        !(
+          err instanceof AssertionError &&
+          err.message === 'ERR_ASSERTION: Stealth assertion failed'
+        )
+      ) {
         this._wait = false
         await this._runTeardown(err)
         throw err
@@ -611,7 +716,7 @@ class Test {
     return await this
   }
 
-  _end () {
+  _end() {
     this._isEnded = true
 
     if (this._hasPlan && this._planned > 0) {
@@ -621,12 +726,12 @@ class Test {
     this._checkEnd()
   }
 
-  _checkEnd () {
+  _checkEnd() {
     if (this._active || this._wait) return
     if (this._isEnded || (this._hasPlan && this._planned === 0)) this._done()
   }
 
-  _done () {
+  _done() {
     if (this._isDone) return
     this._isDone = true
 
@@ -647,7 +752,7 @@ class Test {
     }
   }
 
-  async _runTeardown (error) {
+  async _runTeardown(error) {
     const forced = !!error
 
     let fired = false
@@ -674,14 +779,17 @@ class Test {
     this._onend(error)
   }
 
-  _onstart (opts) {
+  _onstart(opts) {
     const to = this._isMain
-      ? (opts && opts.timeout !== undefined) ? opts.timeout : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
+      ? opts && opts.timeout !== undefined
+        ? opts.timeout
+        : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
       : opts && opts.timeout // non main ones do not
 
     if (this._isMain) {
       if (!this._isQueued) {
-        if (this._runner.next) throw new Error('Only run test can be running at the same time')
+        if (this._runner.next)
+          throw new Error('Only run test can be running at the same time')
         this._runner.next = this
       }
       this._header()
@@ -691,16 +799,22 @@ class Test {
     if (to) this._timeout(to)
   }
 
-  _onend (err) {
+  _onend(err) {
     if (this._isResolved) return
 
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
-    const ok = (this.fails === 0)
+    const ok = this.fails === 0
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this._runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
+      this._runner.assert(
+        false,
+        ok,
+        this._track(true, ok),
+        '- ' + (this.name || '') + time,
+        null
+      )
     }
 
     this._isResolved = true
@@ -734,14 +848,24 @@ exports.stealth = stealth
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true, coverage = false } = {}) {
+function configure({
+  timeout = DEFAULT_TIMEOUT,
+  bail = false,
+  solo = false,
+  unstealth = false,
+  source = true,
+  coverage = false
+} = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+  if (coverage)
+    require('bare-cov')({
+      dir: typeof coverage === 'string' ? coverage : undefined
+    })
 
   runner.defaultTimeout = timeout
   runner.bail = bail
@@ -750,7 +874,7 @@ function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, uns
   runner.source = source
 }
 
-function highDefTimerNode () {
+function highDefTimerNode() {
   const then = process.hrtime.bigint()
   return function () {
     const now = process.hrtime.bigint()
@@ -758,7 +882,7 @@ function highDefTimerNode () {
   }
 }
 
-function highDefTimerFallback () {
+function highDefTimerFallback() {
   const then = Date.now()
   return function () {
     const now = Date.now()
@@ -766,11 +890,11 @@ function highDefTimerFallback () {
   }
 }
 
-function cmp (a, b) {
+function cmp(a, b) {
   return a[0] - b[0]
 }
 
-function test (name, opts, fn, overrides) {
+function test(name, opts, fn, overrides) {
   if (typeof name === 'function') return test(null, null, name, overrides)
   if (typeof opts === 'function') return test(name, null, opts, overrides)
 
@@ -793,54 +917,75 @@ function test (name, opts, fn, overrides) {
   return t
 }
 
-function hook (name, opts, fn) {
+function hook(name, opts, fn) {
   return test(name, opts, fn, { hook: true })
 }
 
-function solo (name, opts, fn) {
+function solo(name, opts, fn) {
   if (!name && !opts && !fn) return test.configure({ solo: true })
   return test(name, opts, fn, { solo: true })
 }
 
-function skip (name, opts, fn) {
+function skip(name, opts, fn) {
   return test(name, opts, fn, { skip: true })
 }
 
-function todo (name, opts, fn) {
+function todo(name, opts, fn) {
   return test(name, opts, fn, { todo: true })
 }
 
-function pause () {
+function pause() {
   getRunner().pause()
 }
 
-function resume () {
+function resume() {
   getRunner().resume()
 }
 
-function wait (ticks = 1) {
-  return new Promise(resolve => {
-    tickish(function loop () {
+function wait(ticks = 1) {
+  return new Promise((resolve) => {
+    tickish(function loop() {
       if (--ticks <= 0) return resolve()
       tickish(loop)
     })
   })
 }
 
-function tickish (fn) {
-  if (IS_NODE) { // do both types of tick in node to flush both queues
+function tickish(fn) {
+  if (IS_NODE) {
+    // do both types of tick in node to flush both queues
     process.nextTick(queueMicrotask, fn)
   } else {
     queueMicrotask(fn)
   }
 }
 
-function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
+function explain(
+  ok,
+  message,
+  assert,
+  stackStartFunction,
+  actual,
+  expected,
+  top = !ok && originFrame(stackStartFunction),
+  extra
+) {
   const runner = getRunner()
-  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.source ? top : null, extra)
+  return ok
+    ? null
+    : lazy.errors.explain(
+        ok,
+        message,
+        assert,
+        stackStartFunction,
+        actual,
+        expected,
+        runner.source ? top : null,
+        extra
+      )
 }
 
-function originFrame (stackStartFunction) {
+function originFrame(stackStartFunction) {
   if (!Error.captureStackTrace) return undefined
   const { prepareStackTrace } = Error
   Error.prepareStackTrace = (_, stack) => {
@@ -855,31 +1000,37 @@ function originFrame (stackStartFunction) {
   return top
 }
 
-function isPromise (p) {
+function isPromise(p) {
   return !!(p && typeof p.then === 'function')
 }
 
-function isUncaught (err) {
-  return err instanceof SyntaxError ||
+function isUncaught(err) {
+  return (
+    err instanceof SyntaxError ||
     err instanceof ReferenceError ||
     err instanceof TypeError ||
     err instanceof EvalError ||
     err instanceof RangeError
+  )
 }
 
-function getRunner () {
+function getRunner() {
   if (!global[RUNNER]) global[RUNNER] = new Runner()
   return global[RUNNER]
 }
 
-function prematureEnd (t, message) {
+function prematureEnd(t, message) {
   const details = t._hasPlan
-    ? ' [assertion count (' + t.assertions + ') did not reach plan (' + (t.assertions + t._planned) + ')]'
+    ? ' [assertion count (' +
+      t.assertions +
+      ') did not reach plan (' +
+      (t.assertions + t._planned) +
+      ')]'
     : ''
 
   return new Error(message + details)
 }
 
-function stealth (name, opts, fn) {
+function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
 }

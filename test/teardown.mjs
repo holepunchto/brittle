@@ -1,15 +1,20 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('teardown classic',
+await tester(
+  'teardown classic',
   async function (t) {
     t.teardown(async function () {
       console.log('[spawner tester] teardown classic is called')
-      await new Promise((resolve) => { setTimeout(resolve, 200) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200)
+      })
       console.log('[spawner tester] teardown classic successful')
     })
 
     t.pass()
-    await new Promise((resolve) => { setTimeout(resolve, 10) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 10)
+    })
 
     console.log('[spawner tester] end of test function')
   },
@@ -39,12 +44,16 @@ await spawner(
 
     t.teardown(async function () {
       console.log('[spawner tester] teardown inverted is called')
-      await new Promise((resolve) => { setTimeout(resolve, 200) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200)
+      })
       console.log('[spawner tester] teardown inverted successful')
     })
 
     t.pass()
-    await new Promise((resolve) => { setTimeout(resolve, 10) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 10)
+    })
     console.log('[spawner tester] before calling t.end()')
     t.end()
 
@@ -73,22 +82,31 @@ await spawner(
   { exitCode: 0, stderr: '' }
 )
 
-await tester('teardown order option',
+await tester(
+  'teardown order option',
   async function (t) {
     t.teardown(function () {
       console.log('[spawner tester] teardown B')
     })
 
-    t.teardown(function () {
-      console.log('[spawner tester] teardown C')
-    }, { order: Infinity })
+    t.teardown(
+      function () {
+        console.log('[spawner tester] teardown C')
+      },
+      { order: Infinity }
+    )
 
-    t.teardown(function () {
-      console.log('[spawner tester] teardown A')
-    }, { order: -Infinity })
+    t.teardown(
+      function () {
+        console.log('[spawner tester] teardown A')
+      },
+      { order: -Infinity }
+    )
 
     t.pass()
-    await new Promise((resolve) => { setTimeout(resolve, 200) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 200)
+    })
 
     console.log('[spawner tester] end of test function')
   },
@@ -113,11 +131,16 @@ await tester('teardown order option',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('teardown after error classic',
+await tester(
+  'teardown after error classic',
   function (t) {
     t.teardown(async function () {
-      await new Promise((resolve) => { setTimeout(resolve, 200) })
-      console.log('[spawner tester] async teardown after error successful (classic)')
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200)
+      })
+      console.log(
+        '[spawner tester] async teardown after error successful (classic)'
+      )
     })
 
     throw Error('test')
@@ -133,7 +156,8 @@ await tester('teardown after error classic',
   }
 )
 
-await tester('teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan',
+await tester(
+  'teardown of parent assert should not hang due to an active handle when child assert completion meets parent plan',
   function (t) {
     const intervalId = setInterval(function () {}, 500)
 

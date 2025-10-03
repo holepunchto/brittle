@@ -2,8 +2,8 @@ import { tester, spawner } from './helpers/index.js'
 
 await spawner(
   function (test) {
-    function f () {
-      function x () {
+    function f() {
+      function x() {
         throw Error('check')
       }
       x()
@@ -23,7 +23,8 @@ await spawner(
   { exitCode: 1, stderr: { includes: 'Error: check' } }
 )
 
-await tester('premature end',
+await tester(
+  'premature end',
   function (t) {
     t.plan(2)
     t.pass()
@@ -35,10 +36,17 @@ await tester('premature end',
   # premature end
       ok 1 - passed
   `,
-  { exitCode: 1, stderr: { includes: 'Too few assertions [assertion count (1) did not reach plan (2)]' } }
+  {
+    exitCode: 1,
+    stderr: {
+      includes:
+        'Too few assertions [assertion count (1) did not reach plan (2)]'
+    }
+  }
 )
 
-await tester('count exceeds plan',
+await tester(
+  'count exceeds plan',
   function (t) {
     t.plan(1)
     t.pass()
@@ -54,7 +62,8 @@ await tester('count exceeds plan',
   { exitCode: 1, stderr: { includes: 'Too many assertions' } }
 )
 
-await tester('premature end',
+await tester(
+  'premature end',
   async function (t) {
     const child = t.test('inverted child of premature end')
     child.plan(2)
@@ -71,7 +80,8 @@ await tester('premature end',
   { exitCode: 1, stderr: { includes: 'Test did not end' } }
 )
 
-await tester('count exceeds plan',
+await tester(
+  'count exceeds plan',
   async function (t) {
     const child = t.test('inverted child of count exceeds plan')
     child.plan(1)
@@ -89,15 +99,18 @@ await tester('count exceeds plan',
   { exitCode: 1, stderr: { includes: 'Assertion after end' } }
 )
 
-await tester('Assertion after end from within a safety-caught callback',
+await tester(
+  'Assertion after end from within a safety-caught callback',
   function (t) {
     const EventEmitter = require('events')
     const safetyCatch = require('safety-catch')
     class SimpleEmitter extends EventEmitter {
-      emitEvent () {
+      emitEvent() {
         try {
           this.emit('event')
-        } catch (e) { safetyCatch(e) }
+        } catch (e) {
+          safetyCatch(e)
+        }
       }
     }
     const emitter = new SimpleEmitter()
@@ -135,7 +148,13 @@ await spawner(
   # top level inverted
       ok 1 - passed
   `,
-  { exitCode: 1, stderr: { includes: 'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]' } }
+  {
+    exitCode: 1,
+    stderr: {
+      includes:
+        'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]'
+    }
+  }
 )
 
 await spawner(
@@ -151,5 +170,8 @@ await spawner(
 
   # basic
   `,
-  { exitCode: 1, stderr: { includes: 'Only run test can be running at the same time' } }
+  {
+    exitCode: 1,
+    stderr: { includes: 'Only run test can be running at the same time' }
+  }
 )

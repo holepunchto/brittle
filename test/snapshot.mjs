@@ -12,7 +12,8 @@ const scriptFile = join(__dirname, '_script.js')
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: basic snapshot
-await tester('basic snapshot',
+await tester(
+  'basic snapshot',
   function (t) {
     t.snapshot('hello world')
     t.snapshot({ foo: 'bar', num: 42 })
@@ -39,7 +40,8 @@ await tester('basic snapshot',
 )
 
 // Verify snapshots: basic snapshot
-await tester('basic snapshot',
+await tester(
+  'basic snapshot',
   function (t) {
     t.snapshot('hello world')
     t.snapshot({ foo: 'bar', num: 42 })
@@ -66,7 +68,8 @@ await tester('basic snapshot',
 )
 
 // Expect error on mismatch: basic snapshot
-await tester('basic snapshot',
+await tester(
+  'basic snapshot',
   function (t) {
     t.snapshot('hello world')
     t.snapshot({ foo: 'different', num: 42 }) // This should fail
@@ -110,12 +113,24 @@ await tester('basic snapshot',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: typed array snapshots
-await tester('typed array snapshots',
+await tester(
+  'typed array snapshots',
   function (t) {
     // Patch the require in the snapshot to use the local index.js instead of the brittle package
     const fs = require('fs')
-    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
-    const patchBrittle = () => fs.writeFileSync(snapshotPath, fs.readFileSync(snapshotPath, 'utf-8').replaceAll('require(\'brittle\')', 'require(\'../../index.js\')'), 'utf-8')
+    const snapshotPath = require('path').join(
+      __dirname,
+      'fixtures',
+      '_script.snapshot.cjs'
+    )
+    const patchBrittle = () =>
+      fs.writeFileSync(
+        snapshotPath,
+        fs
+          .readFileSync(snapshotPath, 'utf-8')
+          .replaceAll("require('brittle')", "require('../../index.js')"),
+        'utf-8'
+      )
 
     const uint8 = new Uint8Array([1, 2, 3, 4, 5])
     const uint16 = new Uint16Array([256, 512, 1024])
@@ -149,7 +164,8 @@ await tester('typed array snapshots',
 )
 
 // Verify snapshots: typed array snapshots
-await tester('typed array snapshots',
+await tester(
+  'typed array snapshots',
   function (t) {
     const uint8 = new Uint8Array([1, 2, 3, 4, 5])
     const uint16 = new Uint16Array([256, 512, 1024])
@@ -180,7 +196,8 @@ await tester('typed array snapshots',
 )
 
 // Expect error on mismatch: typed array snapshots
-await tester('typed array snapshots',
+await tester(
+  'typed array snapshots',
   function (t) {
     const uint8 = new Uint8Array([1, 2, 3, 4, 5])
     const uint16 = new Uint16Array([256, 512, 1024])
@@ -232,12 +249,24 @@ await tester('typed array snapshots',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: buffer conversion to uint8array
-await tester('buffer conversion to uint8array',
+await tester(
+  'buffer conversion to uint8array',
   function (t) {
     // Patch the require in the snapshot to use the local index.js instead of the brittle package
     const fs = require('fs')
-    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
-    const patchBrittle = () => fs.writeFileSync(snapshotPath, fs.readFileSync(snapshotPath, 'utf-8').replaceAll('require(\'brittle\')', 'require(\'../../index.js\')'), 'utf-8')
+    const snapshotPath = require('path').join(
+      __dirname,
+      'fixtures',
+      '_script.snapshot.cjs'
+    )
+    const patchBrittle = () =>
+      fs.writeFileSync(
+        snapshotPath,
+        fs
+          .readFileSync(snapshotPath, 'utf-8')
+          .replaceAll("require('brittle')", "require('../../index.js')"),
+        'utf-8'
+      )
 
     const buffer = Buffer.from([1, 2, 3, 4, 5])
     t.snapshot(buffer) // Should be converted to Uint8Array internally
@@ -262,7 +291,8 @@ await tester('buffer conversion to uint8array',
 )
 
 // Verify snapshots: buffer conversion to uint8array
-await tester('buffer conversion to uint8array',
+await tester(
+  'buffer conversion to uint8array',
   function (t) {
     const buffer = Buffer.from([1, 2, 3, 4, 5])
     t.snapshot(buffer)
@@ -286,7 +316,8 @@ await tester('buffer conversion to uint8array',
 )
 
 // Expect error on mismatch: buffer conversion to uint8array
-await tester('buffer conversion to uint8array',
+await tester(
+  'buffer conversion to uint8array',
   function (t) {
     const buffer = Buffer.from([1, 2, 3, 4, 6]) // mismatch
     t.snapshot(buffer)
@@ -335,7 +366,8 @@ await tester('buffer conversion to uint8array',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: multiple snapshots with the same message
-await tester('multiple snapshots with the same message',
+await tester(
+  'multiple snapshots with the same message',
   function (t) {
     t.snapshot('first value', 'same message')
     t.snapshot('second value', 'same message')
@@ -362,7 +394,8 @@ await tester('multiple snapshots with the same message',
 )
 
 // Verify snapshots: multiple snapshots with the same message
-await tester('multiple snapshots with the same message',
+await tester(
+  'multiple snapshots with the same message',
   function (t) {
     t.snapshot('first value', 'same message')
     t.snapshot('second value', 'same message')
@@ -389,7 +422,8 @@ await tester('multiple snapshots with the same message',
 )
 
 // Expect error on mismatch: multiple snapshots with the same message
-await tester('multiple snapshots with the same message',
+await tester(
+  'multiple snapshots with the same message',
   function (t) {
     t.snapshot('first value', 'same message')
     t.snapshot('second value', 'same message')
@@ -431,7 +465,8 @@ await tester('multiple snapshots with the same message',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: custom snapshot messages
-await tester('custom snapshot messages',
+await tester(
+  'custom snapshot messages',
   function (t) {
     t.snapshot('value1', 'custom message 1')
     t.snapshot('value2', 'custom message 2')
@@ -456,7 +491,8 @@ await tester('custom snapshot messages',
 )
 
 // Verify snapshots: custom snapshot messages
-await tester('custom snapshot messages',
+await tester(
+  'custom snapshot messages',
   function (t) {
     t.snapshot('value1', 'custom message 1')
     t.snapshot('value2', 'custom message 2')
@@ -481,7 +517,8 @@ await tester('custom snapshot messages',
 )
 
 // Expect error on mismatch: custom snapshot messages
-await tester('custom snapshot messages',
+await tester(
+  'custom snapshot messages',
   function (t) {
     t.snapshot('value1', 'custom message 1')
     t.snapshot('wrong', 'custom message 2') // mismatch
@@ -521,7 +558,8 @@ await tester('custom snapshot messages',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: complex nested objects
-await tester('complex nested objects',
+await tester(
+  'complex nested objects',
   function (t) {
     const complex = {
       string: 'test',
@@ -556,7 +594,8 @@ await tester('complex nested objects',
 )
 
 // Verify snapshots: complex nested objects
-await tester('complex nested objects',
+await tester(
+  'complex nested objects',
   function (t) {
     const complex = {
       string: 'test',
@@ -591,7 +630,8 @@ await tester('complex nested objects',
 )
 
 // Expect error on mismatch: complex nested objects
-await tester('complex nested objects',
+await tester(
+  'complex nested objects',
   function (t) {
     const complex = {
       string: 'test',
@@ -663,7 +703,8 @@ await tester('complex nested objects',
 rmSync(snapshotFile, { force: true })
 
 // Initialize snapshots: multiline strings use template literals
-await tester('multiline strings use template literals',
+await tester(
+  'multiline strings use template literals',
   function (t) {
     const multiline = 'line 1\nline 2\nline 3'
     t.snapshot(multiline)
@@ -687,7 +728,8 @@ await tester('multiline strings use template literals',
 )
 
 // Verify snapshots: multiline strings use template literals
-await tester('multiline strings use template literals',
+await tester(
+  'multiline strings use template literals',
   function (t) {
     const multiline = 'line 1\nline 2\nline 3'
     t.snapshot(multiline)
@@ -711,7 +753,8 @@ await tester('multiline strings use template literals',
 )
 
 // Expect error on mismatch: multiline strings use template literals
-await tester('multiline strings use template literals',
+await tester(
+  'multiline strings use template literals',
   function (t) {
     const multiline = 'line 1\nline 2\nline 4' // mismatch
     t.snapshot(multiline)

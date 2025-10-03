@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic no plan',
+await tester(
+  'classic no plan',
   function (t) {
     t.fail()
   },
@@ -27,7 +28,8 @@ await tester('classic no plan',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('classic with plan',
+await tester(
+  'classic with plan',
   function (t) {
     t.plan(1)
     t.fail()

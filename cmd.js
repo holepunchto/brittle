@@ -9,17 +9,34 @@ const process = require('process')
 const TracingPromise = require('./lib/tracing-promise')
 const pkg = require('./package')
 
-const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
-const cmd = command('brittle',
+const args = (process.env.BRITTLE || '')
+  .split(/\s|,/g)
+  .map((s) => s.trim())
+  .filter((s) => s)
+  .concat(process.argv.slice(2))
+const cmd = command(
+  'brittle',
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
-  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
+  flag(
+    '--cov-dir <dir>',
+    'Configure coverage output directory (default: ./coverage)'
+  ),
   flag('--trace', 'Trace all active promises and print them if the test fails'),
-  flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
-  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
-  flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
+  flag(
+    '--timeout, -t <timeout>',
+    'Set the test timeout in milliseconds (default: 30000)'
+  ),
+  flag(
+    '--runner, -r <runner>',
+    'Generates an out file that contains all target tests'
+  ),
+  flag(
+    '--mine, -m <miners>',
+    'Keep running the tests in <miners> processes until they fail.'
+  ),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   rest('<files>')
 ).parse(args)
@@ -80,7 +97,8 @@ if (argv.runner) {
 
   let s = ''
 
-  s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
+  s +=
+    "runTests()\n\nasync function runTests () {\n  const test = (await import('brittle')).default\n\n"
 
   if (bail || solo || unstealth || timeout) {
     s += `  test.configure({ bail: ${!!bail}, solo: ${!!solo}, unstealth: ${!!unstealth}, timeout: ${timeout} })\n`
@@ -94,7 +112,7 @@ if (argv.runner) {
 
     let r = path.relative(dir, t).replace(/\\/g, '/')
     if (r[0] !== '.') r = './' + r
-    s += '  await import(\'' + r + '\')\n'
+    s += "  await import('" + r + "')\n"
   }
 
   s = s.trimRight()
@@ -110,21 +128,27 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
+if (coverage && process.env.BRITTLE_COVERAGE !== 'false')
+  require('bare-cov')({ dir: covDir })
 
 if (mine) startMining().catch()
 else start().catch(onerror)
 
-function onerror (err) {
+function onerror(err) {
   console.error(err.stack)
   process.exit(1)
 }
 
-async function start () {
+async function start() {
   const brittle = require('./')
 
   if (bail || solo || unstealth || timeout) {
-    brittle.configure({ bail, solo, unstealth, timeout: timeout ? Number(timeout) : undefined })
+    brittle.configure({
+      bail,
+      solo,
+      unstealth,
+      timeout: timeout ? Number(timeout) : undefined
+    })
   }
 
   brittle.pause()
@@ -136,7 +160,7 @@ async function start () {
   brittle.resume()
 }
 
-async function startMining () {
+async function startMining() {
   const args = [__filename]
     .concat(solo ? ['--solo'] : [])
     .concat(bail ? ['--bail'] : [])
@@ -162,13 +186,13 @@ async function startMining () {
   process.once('SIGINT', bail)
   process.once('SIGTERM', bail)
 
-  function bail () {
+  function bail() {
     bailed = true
     clearInterval(interval)
     for (const r of running) r.kill()
   }
 
-  async function bump () {
+  async function bump() {
     if (running.size >= max || bailed) return
 
     const r = run()
@@ -192,7 +216,14 @@ async function startMining () {
 
     if (newline) console.log()
     if (exitCode) console.log('Runner failed with exit code ' + exitCode + '!')
-    else console.log('Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!')
+    else
+      console.log(
+        'Runner failed with signal code ' +
+          signalCode +
+          ' (' +
+          signalToName(signalCode) +
+          ')!'
+      )
 
     console.log('Shutting down the rest and printing output...')
 
@@ -213,7 +244,7 @@ async function startMining () {
     process.exitCode = exitCode || 1
   }
 
-  function run () {
+  function run() {
     const p = spawn(process.execPath, args)
 
     const output = []
@@ -221,8 +252,8 @@ async function startMining () {
     p.stdout.on('data', (data) => output.push({ stdout: true, data }))
     p.stderr.on('data', (data) => output.push({ stdout: false, data }))
 
-    const stdoutClosed = new Promise(resolve => p.stdout.on('close', resolve))
-    const stderrClosed = new Promise(resolve => p.stderr.on('close', resolve))
+    const stdoutClosed = new Promise((resolve) => p.stdout.on('close', resolve))
+    const stderrClosed = new Promise((resolve) => p.stderr.on('close', resolve))
 
     const promise = new Promise((resolve) => {
       p.on('exit', async (exitCode, signalCode) => {
@@ -243,7 +274,7 @@ async function startMining () {
   }
 }
 
-function signalToName (code) {
+function signalToName(code) {
   for (const [k, v] of Object.entries(os.constants.signals)) {
     if (v === code) return k
   }
