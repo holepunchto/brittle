@@ -2,13 +2,7 @@ const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const {
-  INDENT,
-  RUNNER,
-  IS_NODE,
-  IS_BARE,
-  DEFAULT_TIMEOUT
-} = require('./lib/constants')
+const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
@@ -128,21 +122,12 @@ class Runner {
       test._header()
       this.tests.pass++
       this.tests.count++
-      this.assert(
-        false,
-        true,
-        this.tests.count,
-        '- ' + test.name + ' # ' + reason,
-        null
-      )
+      this.assert(false, true, this.tests.count, '- ' + test.name + ' # ' + reason, null)
     }
   }
 
   _shouldTest(test) {
-    return (
-      test._isHook ||
-      (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
-    )
+    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
   }
 
   async _autoExit(test) {
@@ -178,26 +163,17 @@ class Runner {
 
   end() {
     if (this.next) {
-      if (
-        !this.next._isEnded &&
-        !(this.next._hasPlan && this.next._planned === 0)
-      ) {
-        this.next._onend(
-          prematureEnd(this.next, 'Test did not end (' + this.next.name + ')')
-        )
+      if (!this.next._isEnded && !(this.next._hasPlan && this.next._planned === 0)) {
+        this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
         return
       }
 
       if (!this.next._isResolved) {
         if (this.next._isDone) {
-          this.next._onend(
-            new Error('Teardown did not end (unresolved promise)')
-          )
+          this.next._onend(new Error('Teardown did not end (unresolved promise)'))
           return
         }
-        this.next._onend(
-          new Error('Test appears deadlocked (unresolved promise)')
-        )
+        this.next._onend(new Error('Test appears deadlocked (unresolved promise)'))
         return
       }
     }
@@ -209,20 +185,11 @@ class Runner {
     this.padding()
     this.log('1..' + this.tests.count)
     this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log(
-      '# asserts = ' +
-        this.assertions.pass +
-        '/' +
-        this.assertions.count +
-        ' pass'
-    )
+    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (
-      this.tests.count === this.tests.pass &&
-      this.assertions.count === this.assertions.pass
-    )
+    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass)
       this.log('# ok')
     else this.log('# not ok')
   }
@@ -433,14 +400,7 @@ class Test {
     return this._main.assertions
   }
 
-  _assertion(
-    ok,
-    message,
-    explanation,
-    caller,
-    top,
-    isStealth = this._isStealth
-  ) {
+  _assertion(ok, message, explanation, caller, top, isStealth = this._isStealth) {
     this._runner.assert(
       !this._main._isResolved,
       ok,
@@ -498,27 +458,13 @@ class Test {
 
   _alike(strict, actual, expected, message = 'should deep equal') {
     const ok = sameObject(actual, expected, { strict })
-    const explanation = explain(
-      ok,
-      message,
-      'alike',
-      this._alike,
-      actual,
-      expected
-    )
+    const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
     this._assertion(ok, message, explanation, this._alike, undefined)
   }
 
   _unlike(strict, actual, expected, message = 'should not deep equal') {
     const ok = sameObject(actual, expected, { strict }) === false
-    const explanation = explain(
-      ok,
-      message,
-      'unlike',
-      this._unlike,
-      actual,
-      expected
-    )
+    const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
 
@@ -543,8 +489,7 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function')
-        functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should reject'
         await functionOrPromise
@@ -591,8 +536,7 @@ class Test {
 
     this._active++
     try {
-      if (typeof functionOrPromise === 'function')
-        functionOrPromise = functionOrPromise()
+      if (typeof functionOrPromise === 'function') functionOrPromise = functionOrPromise()
       if (isPromise(functionOrPromise)) {
         if (pristineMessage) message = 'should resolve'
         await functionOrPromise
@@ -606,15 +550,7 @@ class Test {
 
     const elapsed = time()
 
-    const explanation = explain(
-      ok,
-      message,
-      'execution',
-      this._execution,
-      error,
-      null,
-      top
-    )
+    const explanation = explain(ok, message, 'execution', this._execution, error, null, top)
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
 
@@ -637,30 +573,15 @@ class Test {
     }
 
     if (b4a.isBuffer(actual)) {
-      actual = new Uint8Array(
-        actual.buffer,
-        actual.byteOffset,
-        actual.byteLength
-      )
+      actual = new Uint8Array(actual.buffer, actual.byteOffset, actual.byteLength)
     }
 
     const filename = top.getFileName()
     const key = (this.name || '') + ' ' + this._message(message)
-    const expected = getSnapshot(
-      filename,
-      key + ' - ' + this._getTick(key),
-      actual
-    )
+    const expected = getSnapshot(filename, key + ' - ' + this._getTick(key), actual)
 
     const ok = sameObject(actual, expected, { strict: true })
-    const explanation = explain(
-      ok,
-      message,
-      'snapshot',
-      this._snapshot,
-      actual,
-      expected
-    )
+    const explanation = explain(ok, message, 'snapshot', this._snapshot, actual, expected)
 
     this._assertion(ok, message, explanation, this._snapshot, undefined)
   }
@@ -698,8 +619,7 @@ class Test {
     } catch (err) {
       if (
         !(
-          err instanceof AssertionError &&
-          err.message === 'ERR_ASSERTION: Stealth assertion failed'
+          err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed'
         )
       ) {
         this._wait = false
@@ -788,8 +708,7 @@ class Test {
 
     if (this._isMain) {
       if (!this._isQueued) {
-        if (this._runner.next)
-          throw new Error('Only run test can be running at the same time')
+        if (this._runner.next) throw new Error('Only run test can be running at the same time')
         this._runner.next = this
       }
       this._header()
@@ -808,13 +727,7 @@ class Test {
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
-      this._runner.assert(
-        false,
-        ok,
-        this._track(true, ok),
-        '- ' + (this.name || '') + time,
-        null
-      )
+      this._runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
     }
 
     this._isResolved = true

@@ -118,11 +118,7 @@ await tester(
   function (t) {
     // Patch the require in the snapshot to use the local index.js instead of the brittle package
     const fs = require('fs')
-    const snapshotPath = require('path').join(
-      __dirname,
-      'fixtures',
-      '_script.snapshot.cjs'
-    )
+    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
     const patchBrittle = () =>
       fs.writeFileSync(
         snapshotPath,
@@ -254,11 +250,7 @@ await tester(
   function (t) {
     // Patch the require in the snapshot to use the local index.js instead of the brittle package
     const fs = require('fs')
-    const snapshotPath = require('path').join(
-      __dirname,
-      'fixtures',
-      '_script.snapshot.cjs'
-    )
+    const snapshotPath = require('path').join(__dirname, 'fixtures', '_script.snapshot.cjs')
     const patchBrittle = () =>
       fs.writeFileSync(
         snapshotPath,

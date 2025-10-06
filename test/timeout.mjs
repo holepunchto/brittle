@@ -2,15 +2,11 @@ import { spawner } from './helpers/index.js'
 
 await spawner(
   function (test) {
-    test(
-      'timeout option, classic, no plan',
-      { timeout: 10 },
-      async function (t) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 20)
-        })
-      }
-    )
+    test('timeout option, classic, no plan', { timeout: 10 }, async function (t) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
+    })
   },
   `
   TAP version 13

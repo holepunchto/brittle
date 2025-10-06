@@ -33,9 +33,7 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test(
-      'nesting - inverted parent, classic child, no plans, await child'
-    )
+    const t = test('nesting - inverted parent, classic child, no plans, await child')
     t.pass('parent pass')
     await t.test('child test', function (child) {
       child.pass('child pass')
@@ -64,9 +62,7 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test(
-      'nesting - inverted parent, inverted child, no plans (no awaiting child)'
-    )
+    const t = test('nesting - inverted parent, inverted child, no plans (no awaiting child)')
     t.pass('parent pass')
     const child = t.test('child assert')
     child.pass('child pass')
@@ -95,9 +91,7 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test(
-      'nesting - inverted parent, inverted child, no plans (no awaiting child)'
-    )
+    const t = test('nesting - inverted parent, inverted child, no plans (no awaiting child)')
     t.pass('parent pass')
     const child = t.test('child assert')
     child.pass('child pass')
@@ -155,9 +149,7 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test(
-      'nesting - inverted parent, classic child, parent+child plan'
-    )
+    const t = test('nesting - inverted parent, classic child, parent+child plan')
     t.plan(3)
     t.pass('parent pass')
     t.test('child test', function (child) {
@@ -187,9 +179,7 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test(
-      'nesting - inverted parent, inverted child, parent plan (no awaiting child)'
-    )
+    const t = test('nesting - inverted parent, inverted child, parent plan (no awaiting child)')
     t.plan(3)
     t.pass('parent pass')
     const child = t.test('child assert')

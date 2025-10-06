@@ -6,11 +6,8 @@ const runtime = IS_BARE ? 'bare' : 'node'
 
 let didTestError = false
 
-const { exitCode, error, stdout, stderr } = await executeCode(
-  './test/helpers/bare-test-script.js'
-)
-if (!is(IS_BARE ? 0 : 1, exitCode))
-  fnError('wrong exitcode', IS_BARE ? 0 : 1, exitCode)
+const { exitCode, error, stdout, stderr } = await executeCode('./test/helpers/bare-test-script.js')
+if (!is(IS_BARE ? 0 : 1, exitCode)) fnError('wrong exitcode', IS_BARE ? 0 : 1, exitCode)
 if (!absent(error)) fnError('error is there')
 if (!ok(stderr.includes('assertion count (0) did not reach plan (1)')))
   fnError('should include assertion count')

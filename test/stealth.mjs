@@ -14,13 +14,9 @@ await spawner(
       t.pass('should not print')
     })
 
-    stealth(
-      'redundant stealth option is ignored',
-      { stealth: false },
-      function (t) {
-        t.pass('should not print')
-      }
-    )
+    stealth('redundant stealth option is ignored', { stealth: false }, function (t) {
+      t.pass('should not print')
+    })
   },
   `
   TAP version 13
@@ -224,13 +220,9 @@ await tester(
       t.pass('this is stealth')
     })
 
-    t.stealth(
-      'redundant stealth option is ignored',
-      { stealth: false },
-      function (t) {
-        t.pass('this is stealth')
-      }
-    )
+    t.stealth('redundant stealth option is ignored', { stealth: false }, function (t) {
+      t.pass('this is stealth')
+    })
 
     t.pass('not stealth after')
   },

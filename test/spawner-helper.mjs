@@ -61,63 +61,35 @@ await tester('basic', function (t) {}, '', { stderr: { includes: '' } })
   .catch(catchMissingStderrIncludes)
 
 // ensure exit code
-const results1 = await tester(
-  'comment after end',
-  testCommentAfterEnd,
-  VALID_TAP_OUTPUT,
-  {
-    stderr: VALID_STDERR,
-    exitCode: VALID_EXITCODE,
-    _silent: true
-  }
-)
-alike(
-  results1,
-  ['EXIT_CODE_MISMATCH'],
-  'There should only be a exit code mismatch'
-)
+const results1 = await tester('comment after end', testCommentAfterEnd, VALID_TAP_OUTPUT, {
+  stderr: VALID_STDERR,
+  exitCode: VALID_EXITCODE,
+  _silent: true
+})
+alike(results1, ['EXIT_CODE_MISMATCH'], 'There should only be a exit code mismatch')
 
 // ensure stderr validation
-const results2 = await tester(
-  'comment after end',
-  testCommentAfterEnd,
-  VALID_TAP_OUTPUT,
-  {
-    stderr: WRONG_STDERR,
-    exitCode: WRONG_EXITCODE,
-    _silent: true
-  }
-)
-alike(
-  results2,
-  ['STDERR_VALIDATION'],
-  'There should be only a stderr validation'
-)
+const results2 = await tester('comment after end', testCommentAfterEnd, VALID_TAP_OUTPUT, {
+  stderr: WRONG_STDERR,
+  exitCode: WRONG_EXITCODE,
+  _silent: true
+})
+alike(results2, ['STDERR_VALIDATION'], 'There should be only a stderr validation')
 
 // ensure stdout match
-const results3 = await tester(
-  'comment after end',
-  testCommentAfterEnd,
-  WRONG_TAP_OUTPUT,
-  {
-    stderr: VALID_STDERR,
-    exitCode: WRONG_EXITCODE,
-    _silent: true
-  }
-)
+const results3 = await tester('comment after end', testCommentAfterEnd, WRONG_TAP_OUTPUT, {
+  stderr: VALID_STDERR,
+  exitCode: WRONG_EXITCODE,
+  _silent: true
+})
 alike(results3, ['TAP_MISMATCH'], 'There should be only a tap mismatch')
 
 // ensure when all wrong at the same time
-const results4 = await tester(
-  'comment after end',
-  testCommentAfterEnd,
-  WRONG_TAP_OUTPUT,
-  {
-    stderr: WRONG_STDERR,
-    exitCode: VALID_EXITCODE,
-    _silent: true
-  }
-)
+const results4 = await tester('comment after end', testCommentAfterEnd, WRONG_TAP_OUTPUT, {
+  stderr: WRONG_STDERR,
+  exitCode: VALID_EXITCODE,
+  _silent: true
+})
 alike(
   results4,
   ['EXIT_CODE_MISMATCH', 'STDERR_VALIDATION', 'TAP_MISMATCH'],
@@ -125,16 +97,11 @@ alike(
 )
 
 // ensure all good at the same time
-const results5 = await tester(
-  'comment after end',
-  testCommentAfterEnd,
-  VALID_TAP_OUTPUT,
-  {
-    stderr: VALID_STDERR,
-    exitCode: WRONG_EXITCODE,
-    _silent: true
-  }
-)
+const results5 = await tester('comment after end', testCommentAfterEnd, VALID_TAP_OUTPUT, {
+  stderr: VALID_STDERR,
+  exitCode: WRONG_EXITCODE,
+  _silent: true
+})
 alike(results5, [], 'There should be no errors')
 
 // helpers

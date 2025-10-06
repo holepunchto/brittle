@@ -35,9 +35,7 @@ await tester(
   async function (t) {
     t.pass('first')
     await t.execution(
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(Error('test')), 100)
-      )
+      new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100))
     )
     t.pass('second')
   },
@@ -107,9 +105,7 @@ await tester(
   async function (t) {
     t.pass('first')
     await t.exception(
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(Error('test')), 100)
-      )
+      new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100))
     )
     t.pass('second')
   },
@@ -158,11 +154,7 @@ await tester(
   'execution (promise reject) without awaiting',
   function (t) {
     t.pass('first')
-    t.execution(
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(Error('test')), 100)
-      )
-    )
+    t.execution(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
     t.pass('second')
   },
   `
@@ -212,11 +204,7 @@ await tester(
   'exception (promise reject) without awaiting',
   function (t) {
     t.pass('first')
-    t.exception(
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(Error('test')), 100)
-      )
-    )
+    t.exception(new Promise((resolve, reject) => setTimeout(() => reject(Error('test')), 100)))
     t.pass('second')
   },
   `

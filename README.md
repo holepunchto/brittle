@@ -471,10 +471,7 @@ t.exception.all(() => {
 await t.exception.all(async () => {
   throw Error('an err')
 }, /an err/)
-await t.exception.all(
-  Promise.reject(new SyntaxError('native error')),
-  /native error/
-)
+await t.exception.all(Promise.reject(new SyntaxError('native error')), /native error/)
 ```
 
 The `t.exception.all` method is an escape-hatch so it can be used with the

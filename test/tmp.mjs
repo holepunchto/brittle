@@ -8,9 +8,7 @@ await tester(
     t.teardown(
       () => {
         if (fs.existsSync(tmp))
-          throw new Error(
-            'tmp folder ' + tmp + 'should no longer exist but it does'
-          )
+          throw new Error('tmp folder ' + tmp + 'should no longer exist but it does')
       },
       { order: Infinity }
     )

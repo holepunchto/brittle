@@ -138,9 +138,7 @@ await tester(
       await new Promise((resolve) => {
         setTimeout(resolve, 200)
       })
-      console.log(
-        '[spawner tester] async teardown after error successful (classic)'
-      )
+      console.log('[spawner tester] async teardown after error successful (classic)')
     })
 
     throw Error('test')

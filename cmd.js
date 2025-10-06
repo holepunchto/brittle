@@ -20,23 +20,11 @@ const cmd = command(
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
-  flag(
-    '--cov-dir <dir>',
-    'Configure coverage output directory (default: ./coverage)'
-  ),
+  flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
   flag('--trace', 'Trace all active promises and print them if the test fails'),
-  flag(
-    '--timeout, -t <timeout>',
-    'Set the test timeout in milliseconds (default: 30000)'
-  ),
-  flag(
-    '--runner, -r <runner>',
-    'Generates an out file that contains all target tests'
-  ),
-  flag(
-    '--mine, -m <miners>',
-    'Keep running the tests in <miners> processes until they fail.'
-  ),
+  flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
+  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
+  flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   rest('<files>')
 ).parse(args)
@@ -128,8 +116,7 @@ if (argv.runner) {
   process.exit(0)
 }
 
-if (coverage && process.env.BRITTLE_COVERAGE !== 'false')
-  require('bare-cov')({ dir: covDir })
+if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
 
 if (mine) startMining().catch()
 else start().catch(onerror)
@@ -218,11 +205,7 @@ async function startMining() {
     if (exitCode) console.log('Runner failed with exit code ' + exitCode + '!')
     else
       console.log(
-        'Runner failed with signal code ' +
-          signalCode +
-          ' (' +
-          signalToName(signalCode) +
-          ')!'
+        'Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!'
       )
 
     console.log('Shutting down the rest and printing output...')

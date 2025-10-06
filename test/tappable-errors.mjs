@@ -39,8 +39,7 @@ await tester(
   {
     exitCode: 1,
     stderr: {
-      includes:
-        'Too few assertions [assertion count (1) did not reach plan (2)]'
+      includes: 'Too few assertions [assertion count (1) did not reach plan (2)]'
     }
   }
 )
@@ -151,8 +150,7 @@ await spawner(
   {
     exitCode: 1,
     stderr: {
-      includes:
-        'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]'
+      includes: 'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]'
     }
   }
 )
