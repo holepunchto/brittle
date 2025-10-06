@@ -178,7 +178,8 @@ await spawner(
   { exitCode: 0, stderr: '' }
 )
 
-await tester('stealth test child',
+await tester(
+  'stealth test child',
   function (t) {
     t.plan(3)
     t.pass('not stealth before')
@@ -207,7 +208,8 @@ await tester('stealth test child',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('stealth method',
+await tester(
+  'stealth method',
   function (t) {
     t.plan(4)
     t.pass('not stealth before')
@@ -242,7 +244,8 @@ await tester('stealth method',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('inverted stealth method',
+await tester(
+  'inverted stealth method',
   function (t) {
     t.plan(3)
     t.pass('not stealth before')
@@ -272,15 +275,20 @@ await tester('inverted stealth method',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('stealth test execution',
+await tester(
+  'stealth test execution',
   async function (t) {
     t.plan(4)
     t.pass('not stealth before')
-    await t.execution(() => t.test('child', { stealth: true }, async t => {
-      t.plan(2)
-      t.is(1, 1, 'this is stealth')
-      t.pass('this is stealth')
-    }), 'execution resolves')
+    await t.execution(
+      () =>
+        t.test('child', { stealth: true }, async (t) => {
+          t.plan(2)
+          t.is(1, 1, 'this is stealth')
+          t.pass('this is stealth')
+        }),
+      'execution resolves'
+    )
     t.pass('not stealth after')
   },
   `
@@ -302,11 +310,12 @@ await tester('stealth test execution',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('stealth test with error',
+await tester(
+  'stealth test with error',
   async function (t) {
     t.plan(3)
     t.pass('not stealth before')
-    t.test('child', { stealth: true }, async t => {
+    t.test('child', { stealth: true }, async (t) => {
       t.plan(2)
       t.is(1, 1, 'this is stealth')
       t.fail('this is stealth but fails so it is not')

@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic no plan',
+await tester(
+  'classic no plan',
   function (t) {
     t.pass()
   },
@@ -21,7 +22,8 @@ await tester('classic no plan',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic plan',
+await tester(
+  'classic plan',
   function (t) {
     t.plan(1)
     t.pass()
@@ -43,7 +45,8 @@ await tester('classic plan',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('classic plan w/comment',
+await tester(
+  'classic plan w/comment',
   function (t) {
     t.plan(1, 'comment')
     t.pass()

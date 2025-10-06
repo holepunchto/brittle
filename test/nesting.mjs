@@ -209,7 +209,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, inverted child, parent+child plan (no awaiting child)')
+    const t = test(
+      'nesting - inverted parent, inverted child, parent+child plan (no awaiting child)'
+    )
     t.plan(3)
     t.pass('parent pass')
     const child = t.test('child assert')
@@ -239,7 +241,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, inverted child, parent plan (await child before parent assert)')
+    const t = test(
+      'nesting - inverted parent, inverted child, parent plan (await child before parent assert)'
+    )
     t.plan(2)
     const child = t.test('child assert')
     child.pass('child pass')
@@ -272,7 +276,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, inverted child, parent+child plan (await child before parent assert)')
+    const t = test(
+      'nesting - inverted parent, inverted child, parent+child plan (await child before parent assert)'
+    )
     t.plan(2)
     const child = t.test('child assert')
     child.plan(1)
@@ -301,7 +307,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -341,7 +349,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -383,7 +393,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -425,7 +437,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -467,7 +481,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -515,7 +531,9 @@ await spawner(
 
 await spawner(
   async function (test) {
-    const t = test('nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order')
+    const t = test(
+      'nesting - inverted parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order'
+    )
     t.plan(3)
     const child1 = t.test('child one')
     const child2 = t.test('child two')
@@ -561,7 +579,8 @@ await spawner(
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, classic child, no plans',
+await tester(
+  'nesting - classic parent, classic child, no plans',
   function (t) {
     t.pass('parent pass')
     t.test('child test', function (child) {
@@ -588,7 +607,8 @@ await tester('nesting - classic parent, classic child, no plans',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, classic child, no plans, await child',
+await tester(
+  'nesting - classic parent, classic child, no plans, await child',
   async function (t) {
     t.pass('parent pass')
     await t.test('child test', function (child) {
@@ -615,7 +635,8 @@ await tester('nesting - classic parent, classic child, no plans, await child',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, no plans (no awaiting child)',
+await tester(
+  'nesting - classic parent, inverted child, no plans (no awaiting child)',
   function (t) {
     t.pass('parent pass')
     const child = t.test('child assert')
@@ -642,12 +663,15 @@ await tester('nesting - classic parent, inverted child, no plans (no awaiting ch
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, no plans (await child before parent assert)',
+await tester(
+  'nesting - classic parent, inverted child, no plans (await child before parent assert)',
   async function (t) {
     t.pass('parent pass')
     const child = t.test('child assert')
     child.pass('child pass')
-    setTimeout(() => { child.end() }, 10)
+    setTimeout(() => {
+      child.end()
+    }, 10)
     await child
     t.pass('parent pass')
   },
@@ -670,7 +694,8 @@ await tester('nesting - classic parent, inverted child, no plans (await child be
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, classic child, parent plan',
+await tester(
+  'nesting - classic parent, classic child, parent plan',
   async function (t) {
     t.plan(3)
     t.pass('parent pass')
@@ -698,7 +723,8 @@ await tester('nesting - classic parent, classic child, parent plan',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, classic child, parent+child plan',
+await tester(
+  'nesting - classic parent, classic child, parent+child plan',
   async function (t) {
     t.plan(3)
     t.pass('parent pass')
@@ -727,7 +753,8 @@ await tester('nesting - classic parent, classic child, parent+child plan',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, parent plan (no awaiting child)',
+await tester(
+  'nesting - classic parent, inverted child, parent plan (no awaiting child)',
   async function (t) {
     t.plan(3)
     t.pass('parent pass')
@@ -755,7 +782,8 @@ await tester('nesting - classic parent, inverted child, parent plan (no awaiting
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, parent+child plan (no awaiting child)',
+await tester(
+  'nesting - classic parent, inverted child, parent+child plan (no awaiting child)',
   async function (t) {
     t.plan(3)
     t.pass('parent pass')
@@ -783,7 +811,8 @@ await tester('nesting - classic parent, inverted child, parent+child plan (no aw
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, parent plan (await child before parent assert)',
+await tester(
+  'nesting - classic parent, inverted child, parent plan (await child before parent assert)',
   async function (t) {
     t.plan(2)
     const child = t.test('child assert')
@@ -814,7 +843,8 @@ await tester('nesting - classic parent, inverted child, parent plan (await child
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, inverted child, parent+child plan (await child before parent assert)',
+await tester(
+  'nesting - classic parent, inverted child, parent+child plan (await child before parent assert)',
   async function (t) {
     t.plan(2)
     const child = t.test('child assert')
@@ -842,7 +872,8 @@ await tester('nesting - classic parent, inverted child, parent+child plan (await
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children',
+await tester(
+  'nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, no awaiting children',
   function (t) {
     t.plan(3)
     const child1 = t.test('child one')
@@ -880,7 +911,8 @@ await tester('nesting - classic parent, two inverted children, parent plan, asyn
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children',
+await tester(
+  'nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children',
   async function (t) {
     t.plan(3)
     const child1 = t.test('child one')
@@ -920,7 +952,8 @@ await tester('nesting - classic parent, two inverted children, parent plan, asyn
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order',
+await tester(
+  'nesting - classic parent, two inverted children, parent plan, asynchronous child assertions, awaiting children in reverse order',
   async function (t) {
     t.plan(3)
     const child1 = t.test('child one')
@@ -960,7 +993,8 @@ await tester('nesting - classic parent, two inverted children, parent plan, asyn
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children',
+await tester(
+  'nesting - classic parent, two inverted children, parent+children plan, asynchronous child assertions, no awaiting children',
   async function (t) {
     t.plan(3)
     const child1 = t.test('child one')
@@ -1000,7 +1034,8 @@ await tester('nesting - classic parent, two inverted children, parent+children p
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children',
+await tester(
+  'nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children',
   async function (t) {
     t.plan(3)
     const child1 = t.test('child one')
@@ -1046,7 +1081,8 @@ await tester('nesting - classic parent, two inverted children, parent+child plan
   { exitCode: 0, stderr: '' }
 )
 
-await tester('nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order',
+await tester(
+  'nesting - classic parent, two inverted children, parent+child plan, asynchronous child assertions, awaiting children in reverse order',
   async function (t) {
     t.plan(3)
     const child1 = t.test('child one')

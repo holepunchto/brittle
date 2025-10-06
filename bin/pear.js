@@ -2,7 +2,10 @@
 
 /* global Pear */
 if (!global.Pear && global.process) {
-  const { status } = require('child_process').spawnSync('pear', process.argv.slice(1), { stdio: 'inherit', shell: true })
+  const { status } = require('child_process').spawnSync('pear', process.argv.slice(1), {
+    stdio: 'inherit',
+    shell: true
+  })
   process.exit(status)
 }
 

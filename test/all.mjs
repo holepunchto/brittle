@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const directory = await fs.readdir(__dirname, { withFileTypes: true })
-const files = directory.filter(dirent => !dirent.isDirectory())
+const files = directory.filter((dirent) => !dirent.isDirectory())
 
 for (const file of files) {
   if (file.name === 'all.mjs') continue
