@@ -40,6 +40,8 @@ class Runner {
     this.explicitSolo = false
     this.source = true
 
+    this.hooks = new Set()
+
     this._timer = highDefTimer()
     this._log = console.log.bind(console)
     this._paused = null
@@ -125,7 +127,14 @@ class Runner {
   }
 
   _shouldTest (test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    if (this.skipAll && !test._isHook) return false
+    if (this.solos.size > 0) {
+      if (test._parentHook) return this.hooks.has(test._parentHook)
+      if (test._isHook) return this.hooks.has(test)
+      if (!this.solos.has(test)) return false
+    }
+
+    return true
   }
 
   async _autoExit (test) {
@@ -208,6 +217,12 @@ class Runner {
 }
 
 class Test {
+  static currentHooks = new Set()
+
+  static unhook (t) {
+    return this.currentHooks.delete(t)
+  }
+
   constructor (name, parent, opts = {}) {
     this._resolve = null
     this._reject = null
@@ -236,6 +251,8 @@ class Test {
     this._isMain = this._main === this
     this._isStealth = opts?.stealth || parent?._isStealth || false
     this._checkDeadlock = opts?.deadlock !== false
+
+    this._parentHook = opts?.parentHook || null
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
@@ -286,6 +303,12 @@ class Test {
     this._teardowns = []
     this._tickers = new Map()
 
+    if (this._isHook) this.constructor.currentHooks.add(this)
+
+    if (this._isSolo) {
+      this.constructor.currentHooks.forEach((hook) => this._runner.hooks.add(hook))
+    }
+
     while (parent) {
       this._parents.push(parent)
       parent = parent._parent
@@ -313,6 +336,10 @@ class Test {
   }
 
   tmp () { return tmp(this) }
+
+  unhook () {
+    return this.constructor.unhook(this)
+  }
 
   _planDoneOrEnd () {
     return this._isEnded || (this._hasPlan && this._planned === 0)
@@ -777,6 +804,20 @@ function test (name, opts, fn, overrides) {
   opts = { ...opts, ...overrides }
 
   const t = new Test(name, null, opts)
+
+  if (t._isHook) {
+    const unhook = (name, opts, fn, overrides) => {
+      t.unhook()
+
+      if (name || opts || fn || overrides) {
+        return test(name, opts, fn, { ...overrides, parentHook: t })
+      }
+    }
+
+    if (fn) t._run(fn, opts)
+
+    return unhook
+  }
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
