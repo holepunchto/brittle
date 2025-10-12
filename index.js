@@ -224,6 +224,7 @@ class Test {
     this.passes = 0
     this.fails = 0
     this.assertions = 0
+    this.solos = new Set()
 
     this._isEnded = false
     this._isDone = false
@@ -583,11 +584,37 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
+  _skip (reason, subtest) {
+    this._tick(true)
+    getRunner().assert(true, true, this.assertions, this._message(subtest.name) + ' # ' + reason)
+  }
+
+  _shouldTest (subtest) {
+    return !subtest._isSkip && (this.solos.size === 0 || this.solos.has(subtest))
+  }
+
+  async queue (subtest) {
+    if (subtest._isSolo) {
+      this.solos.add(subtest)
+    }
+
+    await wait()
+
+    return this._shouldTest(subtest)
+  }
+
   async _run (fn, opts) {
     this._isQueued = true
 
     if (!this._parent) {
       if (!(await this._runner.queue(this))) return
+    } else {
+      if (!(await this._parent.queue(this))) {
+        if (this._isSkip) this._skip('SKIP', this)
+
+        this.end()
+        return
+      }
     }
 
     this._onstart(opts)
