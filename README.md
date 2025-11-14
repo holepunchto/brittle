@@ -491,6 +491,11 @@ Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
 
+#### `t.snapshot(actual, [message])`
+
+Compare `actual` against a saved snapshot, creating
+one if it does not exist. Uses the same comparison
+as `t.alike`.
 
 ### Utilities
 
