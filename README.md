@@ -425,7 +425,7 @@ that a function should not be called.
 
 #### `t.exception(Promise|function|async function, [error], [message])`
 
-Verify that a function throws, or a promise rejects.
+Verify that a function throws, or a promise rejects. Returns the error object.
 
 ```js
 t.exception(() => { throw Error('an err') }, /an err/)

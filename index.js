@@ -500,6 +500,8 @@ class Test {
     const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
+
+    return actual
   }
 
   async _execution (functionOrPromise, message) {
