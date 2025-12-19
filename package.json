@@ -14,8 +14,9 @@
   "scripts": {
     "format": "prettier --write .",
     "lint": "prettier --check . && lunte",
-    "test": "node test/all.mjs",
-    "test-bare": "bare test/bare-test.mjs"
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "node test/all.mjs",
+    "test:bare": "bare test/bare-test.mjs"
   },
   "files": [
     "index.js",

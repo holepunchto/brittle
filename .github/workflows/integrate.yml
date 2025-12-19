@@ -14,26 +14,16 @@ jobs:
     steps:
       - uses: holepunchto/actions/node-base@v1
       - run: npm run lint
-  test-node:
+  test:
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    name: Test (Node.js / ${{ matrix.os }})
-    steps:
-      - uses: holepunchto/actions/node-base@v1
-      - run: npm test
-  test-bare:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    name: Test (Bare / ${{ matrix.os }})
+    name: Test (Build / ${{ matrix.os }})
     steps:
       - uses: holepunchto/actions/bare-base@v1
-      - run: npm run test-bare
+      - run: npm test
   trigger_canary:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
