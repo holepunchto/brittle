@@ -189,9 +189,9 @@ class Runner {
     this.log('# time = ' + this._timer() + 'ms')
     this.log()
 
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass)
+    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) {
       this.log('# ok')
-    else this.log('# not ok')
+    } else this.log('# not ok')
   }
 
   assert(indent, ok, number, message, explanation, stealth) {
@@ -205,8 +205,9 @@ class Runner {
       this.log(ind + 'not ok ' + number, message)
       if (explanation) this.log(lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
-      if (!this.unstealth && stealth)
+      if (!this.unstealth && stealth) {
         throw new AssertionError({ message: 'Stealth assertion failed' })
+      }
     }
   }
 }
@@ -775,10 +776,7 @@ function configure({
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage)
-    require('bare-cov')({
-      dir: typeof coverage === 'string' ? coverage : undefined
-    })
+  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
 
   runner.defaultTimeout = timeout
   runner.bail = bail

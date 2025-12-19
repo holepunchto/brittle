@@ -13,7 +13,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "format": "prettier --write .",
-    "lint": "prettier --check .",
+    "lint": "prettier --check . && lunte",
     "test": "node test/all.mjs",
     "test-bare": "bare test/bare-test.mjs"
   },
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "chalk": "^4.1.2",
+    "lunte": "^1.4.0",
     "prettier": "^3.6.2",
     "prettier-config-holepunch": "^2.0.0",
     "safety-catch": "^1.0.2"

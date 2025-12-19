@@ -38,9 +38,7 @@ await tester(
   `,
   {
     exitCode: 1,
-    stderr: {
-      includes: 'Too few assertions [assertion count (1) did not reach plan (2)]'
-    }
+    stderr: { includes: 'Too few assertions [assertion count (1) did not reach plan (2)]' }
   }
 )
 
@@ -168,8 +166,5 @@ await spawner(
 
   # basic
   `,
-  {
-    exitCode: 1,
-    stderr: { includes: 'Only run test can be running at the same time' }
-  }
+  { exitCode: 1, stderr: { includes: 'Only run test can be running at the same time' } }
 )

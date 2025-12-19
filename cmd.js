@@ -130,12 +130,7 @@ async function start() {
   const brittle = require('./')
 
   if (bail || solo || unstealth || timeout) {
-    brittle.configure({
-      bail,
-      solo,
-      unstealth,
-      timeout: timeout ? Number(timeout) : undefined
-    })
+    brittle.configure({ bail, solo, unstealth, timeout: timeout ? Number(timeout) : undefined })
   }
 
   brittle.pause()
@@ -203,10 +198,11 @@ async function startMining() {
 
     if (newline) console.log()
     if (exitCode) console.log('Runner failed with exit code ' + exitCode + '!')
-    else
+    else {
       console.log(
         'Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!'
       )
+    }
 
     console.log('Shutting down the rest and printing output...')
 

@@ -9,8 +9,9 @@ let didTestError = false
 const { exitCode, error, stdout, stderr } = await executeCode('./test/helpers/bare-test-script.js')
 if (!is(IS_BARE ? 0 : 1, exitCode)) fnError('wrong exitcode', IS_BARE ? 0 : 1, exitCode)
 if (!absent(error)) fnError('error is there')
-if (!ok(stderr.includes('assertion count (0) did not reach plan (1)')))
+if (!ok(stderr.includes('assertion count (0) did not reach plan (1)'))) {
   fnError('should include assertion count')
+}
 if (!ok(stdout.includes('test should fail'))) fnError('wrong test name') // Name of the test, stored in ./helpers/bare-test-script.js
 
 if (didTestError) {

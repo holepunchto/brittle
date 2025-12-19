@@ -11,10 +11,7 @@ await tester(
 
   # classic plan must be integer
   `,
-  {
-    exitCode: 1,
-    stderr: { includes: 'Plan takes a positive whole number only' }
-  }
+  { exitCode: 1, stderr: { includes: 'Plan takes a positive whole number only' } }
 )
 
 await spawner(
@@ -29,8 +26,5 @@ await spawner(
 
   # inverted plan must be integer
   `,
-  {
-    exitCode: 1,
-    stderr: { includes: 'Plan takes a positive whole number only' }
-  }
+  { exitCode: 1, stderr: { includes: 'Plan takes a positive whole number only' } }
 )
