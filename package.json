@@ -12,8 +12,11 @@
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "standard && node test/all.mjs",
-    "test-bare": "bare test/bare-test.mjs"
+    "format": "prettier --write .",
+    "lint": "prettier --check . && lunte",
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "node test/all.mjs",
+    "test:bare": "bare test/bare-test.mjs"
   },
   "files": [
     "index.js",
@@ -40,8 +43,10 @@
   },
   "devDependencies": {
     "chalk": "^4.1.2",
-    "safety-catch": "^1.0.2",
-    "standard": "^17.0.0"
+    "lunte": "^1.4.0",
+    "prettier": "^3.6.2",
+    "prettier-config-holepunch": "^2.0.0",
+    "safety-catch": "^1.0.2"
   },
   "imports": {
     "assert": {

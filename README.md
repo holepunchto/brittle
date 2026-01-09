@@ -36,7 +36,7 @@ test('basic', function (t) {
 })
 
 test('asynchronous', async function (t) {
-  await new Promise(r => setTimeout(r, 250))
+  await new Promise((r) => setTimeout(r, 250))
   t.pass()
 })
 
@@ -65,8 +65,12 @@ test('executions', async function (t) {
 })
 
 test('exceptions', async function (t) {
-  t.exception(() => { throw Error('expected to throw') })
-  await t.exception(async () => { throw Error('expected to reject') })
+  t.exception(() => {
+    throw Error('expected to throw')
+  })
+  await t.exception(async () => {
+    throw Error('expected to reject')
+  })
 })
 
 const a = test('inverted test without plan needs end()')
@@ -88,10 +92,12 @@ There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
 ## Test Runtimes
+
 When installed as a dependency or globally, the following commands for using different runtimes are available:
-* `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
-* `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
-* `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
+
+- `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
+- `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
+- `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
 
 ## API
 
@@ -104,12 +110,13 @@ import { test, solo, skip, hook, todo, configure } from 'brittle'
 Create a classic test with an optional `name`.
 
 #### Available `options` for any test creation:
- * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
- * `solo` (`false`) - Skip all other tests except the `solo()` ones.
- * `hook` (`false`) - setup and teardown resources.
- * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
- * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
- * `stealth` (`false`) - only print test summary.
+
+- `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
+- `solo` (`false`) - Skip all other tests except the `solo()` ones.
+- `hook` (`false`) - setup and teardown resources.
+- `skip` (`false`) - skip this test, alternatively use the `skip()` function.
+- `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
+- `stealth` (`false`) - only print test summary.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
@@ -209,6 +216,7 @@ const isOk = await t
 ```
 
 #### `stealth([name], [options], callback)`
+
 #### `stealth([name], [options]) => assert`
 
 Create a stealth test.\
@@ -217,6 +225,7 @@ This will provide a new sub-assert object that only prints the test summary with
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `t.test([name], [options], callback)`
+
 #### `t.test([name], [options]) => assert`
 
 A subtest can be created by calling `test` on an `assert` (or `t`) object.\
@@ -236,7 +245,7 @@ test('basic', async function (t) {
 
   setTimeout(() => a.ok(true), Math.random() * 1000)
   setTimeout(() => b.ok(true), Math.random() * 1000)
-  
+
   // Won't proceed past here until both a and b plans are fulfilled
   await a
   await b
@@ -250,7 +259,7 @@ Subtest test options can be set by passing an object to the `test` function:
 ```js
 test('parent', { timeout: 1000 }, function (t) {
   t.test('basic using parent config', async function (t) {
-    await new Promise(r => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 500))
     t.pass()
   })
 
@@ -272,6 +281,7 @@ test('basic', async function (t) {
 ```
 
 #### `t.stealth([name], [options], callback)`
+
 #### `t.stealth([name], [options]) => assert`
 
 Create a stealth sub-test.\
@@ -280,6 +290,7 @@ This will provide a new sub-assert object that only prints the test summary with
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
+
 #### `solo([name], [options]) => assert`
 
 Filter out other tests by using the `solo` method:
@@ -302,6 +313,7 @@ If `solo` is used in a future tick (for example, in a `setTimeout` callback),\
 after `test` has already been used those tests won't be filtered.
 
 A few ways to enable `solo` functions:
+
 - Use `configure({ solo: true })` before any tests.
 - You can call `solo()` without callback underneath the imports.
 - Using the `--solo` flag with the `brittle` test runner.
@@ -316,7 +328,7 @@ t.end()
 
 #### `skip([name], [options], callback)`
 
-Skip a test: 
+Skip a test:
 
 ```js
 import { test, skip } from 'brittle'
@@ -338,7 +350,7 @@ Only the `middle test` will be executed.
 
 #### `hook([name], [options], callback)`
 
-Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage. 
+Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage.
 
 ```js
 import { test, solo, hook } from 'brittle'
@@ -369,12 +381,12 @@ It must be executed before any tests.
 
 #### Options
 
- * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
- * `bail` (`false`) - exit the process on first test failure
- * `solo` (`false`) - skip all other tests except the `solo()` ones
- * `source` (`true`) - shows error `source` information
- * `unstealth` (`false`) - show assertions even if `stealth` is used
- * `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
+- `timeout` (`30000`) - milliseconds to wait before ending a stalling test
+- `bail` (`false`) - exit the process on first test failure
+- `solo` (`false`) - skip all other tests except the `solo()` ones
+- `source` (`true`) - shows error `source` information
+- `unstealth` (`false`) - show assertions even if `stealth` is used
+- `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 
 ```js
 import { configure } from 'brittle'
@@ -394,13 +406,13 @@ Compare `actual` to `expected` with `!==`
 
 #### `t.alike(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `===`.
 
 #### `t.unlike(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!==`.
 
@@ -415,7 +427,7 @@ Checks that `value` is falsy: `!!value === false`
 #### `t.pass([message])`
 
 Asserts success. Useful for explicitly confirming
-that a function was called, or that behavior is 
+that a function was called, or that behavior is
 as expected.
 
 #### `t.fail([message])`
@@ -428,19 +440,23 @@ that a function should not be called.
 Verify that a function throws, or a promise rejects.
 
 ```js
-t.exception(() => { throw Error('an err') }, /an err/)
-await t.exception(async () => { throw Error('an err') }, /an err/)
+t.exception(() => {
+  throw Error('an err')
+}, /an err/)
+await t.exception(async () => {
+  throw Error('an err')
+}, /an err/)
 await t.exception(Promise.reject(Error('an err')), /an err/)
 ```
 
 If the error is an instance of any of the following native error constructors,
 then this will still result in failure since native errors often tend to be unintentational.
 
-* `SyntaxError`
-* `ReferenceError`
-* `TypeError`
-* `EvalError`
-* `RangeError`
+- `SyntaxError`
+- `ReferenceError`
+- `TypeError`
+- `EvalError`
+- `RangeError`
 
 If a `t.exception` is async, then you're supposed to await it.
 
@@ -449,8 +465,12 @@ If a `t.exception` is async, then you're supposed to await it.
 Verify that a function throws, or a promise rejects, including native errors.
 
 ```js
-t.exception.all(() => { throw Error('an err') }, /an err/)
-await t.exception.all(async () => { throw Error('an err') }, /an err/)
+t.exception.all(() => {
+  throw Error('an err')
+}, /an err/)
+await t.exception.all(async () => {
+  throw Error('an err')
+}, /an err/)
 await t.exception.all(Promise.reject(new SyntaxError('native error')), /native error/)
 ```
 
@@ -481,16 +501,15 @@ Compare `actual` to `expected` with `!=`.
 
 #### `t.alike.coercively(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `==`.
 
 #### `t.unlike.coercively(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
-
 
 ### Utilities
 
@@ -506,8 +525,8 @@ Creates a temporary folder and returns a promise that resolves its path. Once a 
 
 **Options:**
 
- * `order` (`0`) - set the ascending position priority for a teardown to be executed.
- * `force` (`false`) - run the teardown on failure as well as success
+- `order` (`0`) - set the ascending position priority for a teardown to be executed.
+- `force` (`false`) - run the teardown on failure as well as success
 
 The function passed to `teardown` is called right after a test ends:
 
@@ -543,19 +562,25 @@ If two teardowns have the same `order` they are ordered per time of invocation w
 ```js
 test('teardown order', function (t) {
   t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
+    await new Promise((r) => setTimeout(r, 200))
     console.log('teardown B')
   })
 
-  t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
-    console.log('teardown A')
-  }, { order: -1 })
+  t.teardown(
+    async function () {
+      await new Promise((r) => setTimeout(r, 200))
+      console.log('teardown A')
+    },
+    { order: -1 }
+  )
 
-  t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
-    console.log('teardown C')
-  }, { order: 1 })
+  t.teardown(
+    async function () {
+      await new Promise((r) => setTimeout(r, 200))
+      console.log('teardown C')
+    },
+    { order: 1 }
+  )
 
   t.pass()
 })
@@ -577,19 +602,22 @@ Force end a test.\
 `end` is determined by `assert` resolution or when a containing async function completes.\
 In case of inverted tests, they're required to be explicitly called.
 
-
 ### Readable Properties
 
 #### `t.name`
+
 The name of the test.
 
 #### `t.passes`
+
 The number of assertions that passed within the test.
 
 #### `t.fails`
+
 The number of assertions that failed within the test.
 
 #### `t.assertions`
+
 The number of assertions that were executed within the test.
 
 ## Runner
@@ -639,11 +667,13 @@ Flags:
 ```
 
 Note globbing is supported:
+
 ```sh
 brittle --coverage path/to/test/*.js
 ```
 
 Auto generate a single file containing "all tests":
+
 ```shell
 brittle -r test/all.js test/*.js
 
@@ -651,23 +681,29 @@ node test/all.js
 ```
 
 You can use an environment variable to also set flags:
+
 ```shell
 BRITTLE="--coverage --bail" brittle test.js
 ```
 
 Force disable coverage with an environment variable:
+
 ```shell
 BRITTLE_COVERAGE=false brittle test.js
 ```
+
 ### Coverage
+
 If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
 
 The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
 
 Istanbul can be used to convert the istanbul json report into other formats. e.g.:
+
 ```
 npx istanbul report html
 ```
 
 ## License
+
 Apache-2.0
