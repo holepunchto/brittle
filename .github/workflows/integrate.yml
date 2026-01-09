@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     tags: # To trigger the canary
-      - "*"
+      - '*'
   pull_request:
     branches: [main]
 jobs:
