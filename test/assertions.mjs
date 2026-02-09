@@ -106,6 +106,37 @@ await tester('passing (custom messages)',
   { exitCode: 0, stderr: '' }
 )
 
+await tester('stringify - prints negative zero',
+  async function (t) {
+    t.alike({ a: 0 }, { a: -0 }, 'check negative zero')
+  },
+  `
+  TAP version 13
+
+  # stringify - prints negative zero
+      not ok 1 - check negative zero
+        ---
+        actual: 
+          a: 0
+        expected: 
+          a: -0
+        operator: alike
+        stack: |
+          _fn ([eval]:4:7)
+          process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        ...
+  not ok 1 - stringify - prints negative zero # time = 3.140034ms
+
+  1..1
+  # tests = 0/1 pass
+  # asserts = 0/1 pass
+  # time = 5.976933ms
+
+  # ok
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
 await tester('failing (default messages)',
   async function (t) {
     t.fail()
