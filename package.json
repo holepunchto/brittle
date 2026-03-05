@@ -27,7 +27,6 @@
     "bare-fs": "^4.1.6",
     "bare-os": "^3.6.1",
     "bare-path": "^3.0.0",
-    "bare-process": "^4.2.1",
     "bare-sidecar": "^0.3.0",
     "bare-subprocess": "^5.0.0",
     "bare-url": "^2.1.6",
@@ -39,7 +38,6 @@
     "tmatch": "^5.0.0"
   },
   "devDependencies": {
-    "chalk": "^4.1.2",
     "safety-catch": "^1.0.2",
     "standard": "^17.0.0"
   },
@@ -54,6 +52,10 @@
     },
     "fs": {
       "bare": "bare-fs",
+      "default": "fs"
+    },
+    "fs/promises": {
+      "bare": "bare-fs/promises",
       "default": "fs"
     },
     "os": {
