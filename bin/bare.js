@@ -1,6 +1,7 @@
 #!/bin/sh
-':' // ; exec bare "$0" "$@" 2>/dev/null || exec node "$0" "$@"
-const isNode = !global.Bare && global.process
+':' // ; command -v bare >/dev/null && exec bare "$0" "$@" || exec node "$0" "$@"
+/* global Bare */
+const isNode = typeof Bare === 'undefined' && typeof process !== 'undefined'
 if (isNode) {
   const Sidecar = require('bare-sidecar')
   const fs = require('fs')
@@ -10,6 +11,6 @@ if (isNode) {
   sidecar.stderr.pipe(process.stderr)
   sidecar.on('exit', (code) => process.exit(code))
 } else {
-  Bare.IPC.unref()
+  if (Bare.IPC) Bare.IPC.unref()
   require('../cmd.js')
 }
