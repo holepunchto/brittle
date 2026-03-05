@@ -11,8 +11,9 @@
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "standard && node test/all.mjs",
-    "test-bare": "bare test/bare-test.mjs"
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "node test/all.mjs",
+    "test:bare": "node bin/bare test/all.mjs"
   },
   "files": [
     "index.js",
