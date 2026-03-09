@@ -151,8 +151,9 @@ function executeCode (script, scriptFile = null) {
     let stdout = ''
     let stderr = ''
 
-    child.on('exit', function (exitCode) {
+    child.on('exit', function (exitCode, signal) {
       if (scriptFile) fs.rmSync(scriptFile, { force: true })
+      if (exitCode === 0 && signal) exitCode = 128 + signal
       resolve({ exitCode, stdout, stderr })
     })
 
