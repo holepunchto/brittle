@@ -85,7 +85,7 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await spawner(
@@ -336,7 +336,7 @@ await tester('stealth test with error',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await spawner(
@@ -397,5 +397,5 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )

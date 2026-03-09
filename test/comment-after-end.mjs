@@ -13,5 +13,5 @@ await tester('comment after end',
       ok 1 - should be equal
   ok 1 - comment after end # time = 0.716469ms
   `,
-  { exitCode: 1, stderr: { includes: 'Can\'t comment after end' } }
+  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Can\'t comment after end' } }
 )

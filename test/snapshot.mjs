@@ -103,7 +103,7 @@ await tester('basic snapshot',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -225,7 +225,7 @@ await tester('typed array snapshots',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -328,7 +328,7 @@ await tester('buffer conversion to uint8array',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -424,7 +424,7 @@ await tester('multiple snapshots with the same message',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -514,7 +514,7 @@ await tester('custom snapshot messages',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -656,7 +656,7 @@ await tester('complex nested objects',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )
 
@@ -749,6 +749,6 @@ await tester('multiline strings use template literals',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' },
+  { exitCode: global.Bare ? 134 : 1, stderr: '' },
   { scriptFile }
 )

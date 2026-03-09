@@ -95,5 +95,5 @@ await tester('deadlocking adjacent awaits',
       ok 1 - (little test C) - little passed
       ok 2 - (big test C) - big passed
   `,
-  { exitCode: 1, stderr: { includes: 'Test did not end' } }
+  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Test did not end' } }
 )

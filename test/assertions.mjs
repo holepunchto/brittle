@@ -134,7 +134,7 @@ await tester('stringify - prints negative zero',
 
   # ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await tester('failing (default messages)',
@@ -363,7 +363,7 @@ await tester('failing (default messages)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await tester('failing (custom messages)',
@@ -554,7 +554,7 @@ await tester('failing (custom messages)',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await tester('passing and failing mixed',
@@ -779,7 +779,7 @@ await tester('passing and failing mixed',
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await spawner(
@@ -1158,7 +1158,7 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await spawner(
@@ -1417,7 +1417,7 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
 
 await spawner(
@@ -1710,5 +1710,5 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )

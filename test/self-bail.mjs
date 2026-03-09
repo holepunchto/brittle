@@ -41,5 +41,5 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 1, stderr: '' }
+  { exitCode: global.Bare ? 134 : 1, stderr: '' }
 )
