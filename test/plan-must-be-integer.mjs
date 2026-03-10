@@ -10,7 +10,7 @@ await tester('classic plan must be integer',
 
   # classic plan must be integer
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Plan takes a positive whole number only' } }
+  { exitCode: 'error', stderr: { includes: 'Plan takes a positive whole number only' } }
 )
 
 await spawner(
@@ -25,5 +25,5 @@ await spawner(
 
   # inverted plan must be integer
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Plan takes a positive whole number only' } }
+  { exitCode: 'error', stderr: { includes: 'Plan takes a positive whole number only' } }
 )

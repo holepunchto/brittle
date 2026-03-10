@@ -5,5 +5,5 @@ await spawner(
     foo.bar() // eslint-disable-line no-undef
   },
   '',
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'ReferenceError: foo is not defined' } }
+  { exitCode: 'error', stderr: { includes: 'ReferenceError: foo is not defined' } }
 )

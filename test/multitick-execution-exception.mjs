@@ -126,7 +126,7 @@ await tester('execution (promise resolve) without awaiting',
       ok 2 - second
       ok 3 - should resolve
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )
 
 await tester('execution (promise reject) without awaiting',
@@ -148,7 +148,7 @@ await tester('execution (promise reject) without awaiting',
         operator: execution
         ...
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )
 
 await tester('exception (promise resolve) without awaiting',
@@ -170,7 +170,7 @@ await tester('exception (promise resolve) without awaiting',
         operator: exception
         ...
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )
 
 await tester('exception (promise reject) without awaiting',
@@ -187,5 +187,5 @@ await tester('exception (promise reject) without awaiting',
       ok 2 - second
       ok 3 - should reject
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )

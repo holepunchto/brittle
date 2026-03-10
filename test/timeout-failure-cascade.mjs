@@ -18,5 +18,5 @@ await spawner(
 
   # tbd
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
 )

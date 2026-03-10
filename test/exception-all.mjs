@@ -23,7 +23,7 @@ await tester('exception crash when an error is native',
 
   # exception crash when an error is native
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'ReferenceError: test' } }
+  { exitCode: 'error', stderr: { includes: 'ReferenceError: test' } }
 )
 
 await tester('exception.all does not crash when an error is native',

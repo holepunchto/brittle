@@ -11,5 +11,5 @@ await spawner(
 
   # never resolve
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Test did not end' } }
+  { exitCode: 'error', stderr: { includes: 'Test did not end' } }
 )

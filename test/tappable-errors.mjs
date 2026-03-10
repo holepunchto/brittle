@@ -20,7 +20,7 @@ await spawner(
   # generic
       ok 1 - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Error: check' } }
+  { exitCode: 'error', stderr: { includes: 'Error: check' } }
 )
 
 await tester('premature end',
@@ -35,7 +35,7 @@ await tester('premature end',
   # premature end
       ok 1 - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Too few assertions [assertion count (1) did not reach plan (2)]' } }
+  { exitCode: 'error', stderr: { includes: 'Too few assertions [assertion count (1) did not reach plan (2)]' } }
 )
 
 await tester('count exceeds plan',
@@ -51,7 +51,7 @@ await tester('count exceeds plan',
       ok 1 - passed
       ok 2 - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Too many assertions' } }
+  { exitCode: 'error', stderr: { includes: 'Too many assertions' } }
 )
 
 await tester('premature end',
@@ -68,7 +68,7 @@ await tester('premature end',
   # premature end
       ok 1 - (inverted child of premature end) - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Test did not end' } }
+  { exitCode: 'error', stderr: { includes: 'Test did not end' } }
 )
 
 await tester('count exceeds plan',
@@ -86,7 +86,7 @@ await tester('count exceeds plan',
       ok 1 - (inverted child of count exceeds plan) - passed
       ok 2 - (inverted child of count exceeds plan) - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )
 
 await tester('Assertion after end from within a safety-caught callback',
@@ -118,7 +118,7 @@ await tester('Assertion after end from within a safety-caught callback',
     ok 1 - (sub1) - An event was emitted
     ok 2 - (sub1) - An event was emitted
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Assertion after end' } }
+  { exitCode: 'error', stderr: { includes: 'Assertion after end' } }
 )
 
 await spawner(
@@ -135,7 +135,7 @@ await spawner(
   # top level inverted
       ok 1 - passed
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]' } }
+  { exitCode: 'error', stderr: { includes: 'Test did not end (top level inverted) [assertion count (1) did not reach plan (2)]' } }
 )
 
 await spawner(
@@ -151,5 +151,5 @@ await spawner(
 
   # basic
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: { includes: 'Only run test can be running at the same time' } }
+  { exitCode: 'error', stderr: { includes: 'Only run test can be running at the same time' } }
 )
