@@ -26,7 +26,7 @@ fail message
 
   # not ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('multiline fail message with stack trace',
@@ -62,7 +62,7 @@ await tester('multiline fail message with stack trace',
 
   # not ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('multiline fail message with Windows stack trace',
@@ -98,5 +98,5 @@ await tester('multiline fail message with Windows stack trace',
 
   # not ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )

@@ -53,7 +53,7 @@ await tester('multi-tick execution (promise reject)',
 
   # not ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('multi-tick exception (promise resolve)',
@@ -84,7 +84,7 @@ await tester('multi-tick exception (promise resolve)',
 
   # not ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('multi-tick exception (promise reject)',

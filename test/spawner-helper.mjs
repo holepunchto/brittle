@@ -22,7 +22,7 @@ const VALID_STDERR = { includes: 'Can\'t comment after end' }
 const WRONG_STDERR = { includes: '7h1s i$ th3 wr0ng m3ss4g3' }
 
 const VALID_EXITCODE = 0
-const WRONG_EXITCODE = 1
+const WRONG_EXITCODE = global.Bare ? 134 : 1
 
 const failOnSuccess = () => { throw new Error('Should not have succeed') }
 
