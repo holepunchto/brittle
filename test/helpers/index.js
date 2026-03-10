@@ -26,7 +26,7 @@ async function spawner (fn, expectedOut, expectedMore, opts) {
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: path.resolve(__dirname, '..', '_testscript.js') }) {
+async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: path.resolve(__dirname, '..', `_testscript-${Math.random().toString(16).slice(2)}.js`) }) {
   if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
   if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
