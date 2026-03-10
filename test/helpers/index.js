@@ -175,8 +175,8 @@ function executeCode (script, scriptFile = null) {
 function standardizeTap (stdout) {
   return stdout
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
-    .replace(/stack: [\s\S]*\.\.\.\n/gm, 'stack: [stack]\n...\n') // strip stack traces
-    .replace(/source: [\s\S]*stack:/gm, 'stack:') // strip source traces
+    .replace(/stack: [\s\S]*\.\.\.\n/gm, '...\n') // strip stack traces
+    .replace(/source: [\s\S]*\.\.\.\n/gm, '...\n') // strip source traces
     .replace(/[/\\]/g, '/')
     .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
     .split('\n')
