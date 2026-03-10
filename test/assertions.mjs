@@ -134,7 +134,7 @@ await tester('stringify - prints negative zero',
 
   # ok
   `,
-  { exitCode: global.Bare ? 134 : 1, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
 
 await tester('failing (default messages)',
