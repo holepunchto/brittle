@@ -8,7 +8,7 @@ const { isWindows, isBare } = require('which-runtime')
 const PRINT_ENABLED = false
 const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
 
-const EXIT_CODES_KV = { ok: 0, error: isBare ? (isWindows ? 3221226505 : 137) : 1 }
+const EXIT_CODES_KV = { ok: 0, error: isBare ? (isWindows ? 3221226505 : 134) : 1 }
 const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
 module.exports = { tester, spawner, standardizeTap }
