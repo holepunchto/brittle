@@ -1,8 +1,8 @@
-import fs from 'fs'
 import { tester } from './helpers/index.js'
 
 await tester('tmp',
   async function (t) {
+    const fs = require('fs')
     const tmp = await t.tmp()
     t.teardown(() => {
       if (fs.existsSync(tmp)) throw new Error('tmp folder ' + tmp + 'should no longer exist but it does')
