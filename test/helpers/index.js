@@ -12,7 +12,7 @@ const ERROR_EXIT_CODE = isBare ? (isWindows ? 3221226505 : 134) : 1
 const EXIT_CODES_KV = { ok: 0, error: ERROR_EXIT_CODE }
 const EXIT_CODES_VK = { 0: 'ok', [ERROR_EXIT_CODE]: 'error' }
 
-module.exports = { tester, spawner, standardizeTap }
+module.exports = { tester, spawner, standardizeTap, ERROR_EXIT_CODE }
 
 async function tester (name, fn, expectedOut, expectedMore, opts) {
   log(colors.yellow.bold('Tester'), name)
