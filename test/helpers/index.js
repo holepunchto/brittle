@@ -3,6 +3,7 @@ const { spawn } = require('child_process')
 const colors = require('ansi-colors')
 const process = require('process')
 const fs = require('fs')
+const { isWindows } = require('which-runtime')
 
 const PRINT_ENABLED = false
 const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
@@ -173,7 +174,7 @@ function executeCode (script, scriptFile = null) {
 }
 
 function standardizeTap (stdout) {
-  return stdout
+  return ((isWindows && global.Bare) ? stdout.replaceAll('\r\n', '\n') : stdout)
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/stack: [\s\S]*\.\.\.\n/gm, '...\n') // strip stack traces
     .replace(/source: [\s\S]*\.\.\.\n/gm, '...\n') // strip source traces
