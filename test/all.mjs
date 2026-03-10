@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs/promises'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import colors from 'ansi-colors'
 import process from 'process'
@@ -7,7 +7,7 @@ import process from 'process'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const directory = await fs.readdir(__dirname, { withFileTypes: true })
+const directory = await fs.promises.readdir(__dirname, { withFileTypes: true })
 const files = directory.filter(dirent => !dirent.isDirectory())
 
 for (const file of files) {
