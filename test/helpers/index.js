@@ -3,12 +3,12 @@ const { spawn } = require('child_process')
 const colors = require('ansi-colors')
 const process = require('process')
 const fs = require('fs')
-const { isWindows } = require('which-runtime')
+const { isWindows, isBare } = require('which-runtime')
 
 const PRINT_ENABLED = false
 const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
 
-const EXIT_CODES_KV = { ok: 0, error: 1 }
+const EXIT_CODES_KV = { ok: 0, error: isBare ? (isWindows ? 3221226505 : 137) : 1 }
 const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
 module.exports = { tester, spawner, standardizeTap }
@@ -174,7 +174,7 @@ function executeCode (script, scriptFile = null) {
 }
 
 function standardizeTap (stdout) {
-  return ((isWindows && global.Bare) ? stdout.replaceAll('\r\n', '\n') : stdout)
+  return ((isWindows && isBare) ? stdout.replaceAll('\r\n', '\n') : stdout)
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/stack: [\s\S]*\.\.\.\n/gm, '...\n') // strip stack traces
     .replace(/source: [\s\S]*\.\.\.\n/gm, '...\n') // strip source traces
