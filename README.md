@@ -87,10 +87,17 @@ Every assertion can have a message, i.e. `t.pass('msg')`, `t.ok(false, 'should b
 There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
-## Test Runtimes
-When installed as a dependency or globally, the following commands for using different runtimes are available:
-* `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
-* `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
+## Runtimes
+
+`brittle` runs tests using bundled & embedded [Bare](https://docs.pears.com/bare-reference/overview).
+
+Use `brittle --node` flag to run tests with [Node.js](https://nodejs.org/).
+
+To support v3 usage, legacy support for `brittle-bare` and `brittle-node` bins remains:
+
+* `brittle-bare` - using bare, same as `brittle`
+* `brittle-node` - same as `brittle --node`
+
 
 ## API
 
