@@ -1,6 +1,5 @@
 const path = require('path')
 const { spawn } = require('child_process')
-const colors = require('ansi-colors')
 const process = require('process')
 const fs = require('fs')
 const { isWindows, isBare } = require('which-runtime')
@@ -15,7 +14,7 @@ const EXIT_CODES_VK = { 0: 'ok', [ERROR_EXIT_CODE]: 'error' }
 module.exports = { tester, spawner, standardizeTap, ERROR_EXIT_CODE }
 
 async function tester (name, fn, expectedOut, expectedMore, opts) {
-  log(colors.yellow.bold('Tester'), name)
+  log('Tester', name)
   name = JSON.stringify(name)
 
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
@@ -23,7 +22,7 @@ async function tester (name, fn, expectedOut, expectedMore, opts) {
 }
 
 async function spawner (fn, expectedOut, expectedMore, opts) {
-  log(colors.yellow.bold('Spawner'))
+  log('Spawner')
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   return executeTap(script, expectedOut, expectedMore, opts)
 }
@@ -59,12 +58,12 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
     process.exitCode = 1
 
     for (const err of errors.list) {
-      console.error(colors.red.bold('Error:'), err.error.message)
+      console.error('Error:', err.error.message)
 
       if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
-        console.error(colors.red('[actual]'))
+        console.error('[actual]')
         console.error(err.actual)
-        console.error(colors.red('[expected]'))
+        console.error('[expected]')
         console.error(err.expected)
       }
     }
