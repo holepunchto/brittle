@@ -89,14 +89,16 @@ Check the API but also all the [assertions here](#assertions) and [utilities her
 
 ## Runtimes
 
-`brittle` runs tests using bundled & embedded [Bare](https://docs.pears.com/bare-reference/overview).
+`brittle` runs tests using bundled & embedded [Bare](https://docs.pears.com/bare-reference/overview) which is included with `brittle`.
 
-Use `brittle --node` flag to run tests with [Node.js](https://nodejs.org/).
+Use `brittle --runtime node` to run tests with [Node.js](https://nodejs.org/).
+
+Use `brittle --runtime bare` to run tests with globally installed system Bare instead of included Bare. This can be useful for checking alternative Bare versions.
 
 To support v3 usage, legacy support for `brittle-bare` and `brittle-node` bins remains:
 
-* `brittle-bare` - using bare, same as `brittle`
-* `brittle-node` - same as `brittle --node`
+* `brittle-bare` - uses included bare, same as `brittle`
+* `brittle-node` - same as `brittle --runtime node`
 
 
 ## API
