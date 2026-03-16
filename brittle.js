@@ -1,5 +1,5 @@
 #!/bin/sh
-':' // ; exec sh "$(cd "$(dirname "$0")" && pwd -P)/brittle.sh" "$0" "$@"
+':' // ; exec sh "$(dirname "$0")/brittle.sh" "$0" "$@"
 const isNode = typeof Bare === 'undefined' && typeof process !== 'undefined'
 if (isNode) {
   const { command, flag, sloppy, rest } = require('paparam')
