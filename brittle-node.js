@@ -1,3 +1,2 @@
-#!/bin/sh
-':' // ; exec sh "$(dirname "$0")/brittle.sh" "$0" --runtime node "$@"
+#!/usr/bin/env node
 require('./cmd.js')
