@@ -2,9 +2,9 @@ name: Test with Node
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -26,16 +26,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.platform }}-${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-
-      - name: Install dependencies
-        run: npm i
-
-      - name: Lint
-        run: npm run lint
+      - uses: holepunchto/actions/node-base@v1
 
       - name: Run tests
         run: npm run test
