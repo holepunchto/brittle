@@ -1,7 +1,6 @@
 import { IS_BARE, IS_NODE } from '../lib/constants.js'
 import { spawn } from 'child_process'
 
-const chalk = !IS_BARE && await import('chalk').then(m => m.default)
 const runtime = IS_BARE ? 'bare' : 'node'
 
 let didTestError = false
@@ -20,26 +19,14 @@ if (didTestError) {
 function fnError (err, expected, actual) {
   didTestError = true
 
-  console.error(redBold('Error:'), err)
+  console.error('Error:', err)
 
   if (actual || expected) {
-    console.error(red('[actual]'))
+    console.error('[actual]')
     console.error(actual)
-    console.error(red('[expected'))
+    console.error('[expected')
     console.error(expected)
   }
-}
-
-function red (str) {
-  return IS_BARE
-    ? str
-    : chalk.red(str)
-}
-
-function redBold (str) {
-  return IS_BARE
-    ? str
-    : chalk.red.bold(str)
 }
 
 // This is a modified version of executeCode() in test/helpers/index.js to support `bare.

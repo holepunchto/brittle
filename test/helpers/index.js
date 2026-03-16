@@ -1,6 +1,5 @@
 const path = require('path')
 const { spawn } = require('child_process')
-const chalk = require('chalk')
 const fs = require('fs')
 
 const PRINT_ENABLED = false
@@ -12,7 +11,7 @@ const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 module.exports = { tester, spawner, standardizeTap }
 
 async function tester (name, fn, expectedOut, expectedMore, opts) {
-  log(chalk.yellow.bold('Tester'), name)
+  log('Tester', name)
   name = JSON.stringify(name)
 
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\ntest(${name}, _fn)`
@@ -20,7 +19,7 @@ async function tester (name, fn, expectedOut, expectedMore, opts) {
 }
 
 async function spawner (fn, expectedOut, expectedMore, opts) {
-  log(chalk.yellow.bold('Spawner'))
+  log('Spawner')
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   return executeTap(script, expectedOut, expectedMore, opts)
 }
@@ -53,15 +52,15 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
   }
 
   if (!more._silent && errors.list.length) {
-    process.exitCode = 1
+    (global.process ?? global.Bare).exitCode = 1
 
     for (const err of errors.list) {
-      console.error(chalk.red.bold('Error:'), err.error.message)
+      console.error('Error:', err.error.message)
 
       if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
-        console.error(chalk.red('[actual]'))
+        console.error('[actual]')
         console.error(err.actual)
-        console.error(chalk.red('[expected]'))
+        console.error('[expected]')
         console.error(err.expected)
       }
     }
@@ -145,7 +144,7 @@ function executeCode (script, scriptFile = null) {
 
     const args = scriptFile ? [scriptFile] : ['-e', script]
     const opts = { timeout: 30000, cwd: path.join(__dirname, '../..') }
-    const child = spawn(process.execPath, args, opts)
+    const child = spawn((global.process ?? global.Bare).argv[0], args, opts)
 
     let exitCode
     let stdout = ''
