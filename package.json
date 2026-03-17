@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": {
     "brittle": "advise.js",
-    "brittle-make-runner": "make-runner.js",
+    "brittle-make-test": "make-test.js",
     "brittle-bare": "brittle-bare.js",
     "brittle-node": "brittle-node.js"
   },
