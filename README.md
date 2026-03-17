@@ -2,16 +2,16 @@
 
 > tap à la mode
 
-A TAP test runner built for modern times.
+A TAP test runner built for [Bare](https://github.com/holepunchto/bare) runtime and [Node.js](https://nodejs.org)
 
 <img width=300 height=200 src=brittle.png>
 
 ## Usage
 
-First install brittle from npm
+Install brittle into the project as a development dependency:
 
-```
-npm i brittle
+```sh
+npm i -D brittle
 ```
 
 Then start writing tests
@@ -89,17 +89,37 @@ Check the API but also all the [assertions here](#assertions) and [utilities her
 
 ## Runtimes
 
-`brittle` runs tests using bundled & embedded [Bare](https://docs.pears.com/bare-reference/overview) which is included with `brittle`.
+### Bare
 
-Use `brittle --runtime node` to run tests with [Node.js](https://nodejs.org/).
+Use `brittle-bare` to run tests on [Bare](https://github.com/holepunchto/bare):
 
-Use `brittle --runtime bare` to run tests with globally installed system Bare instead of included Bare. This can be useful for checking alternative Bare versions.
+```sh
+brittle-bare test/all.mjs
+```
 
-To support v3 usage, legacy support for `brittle-bare` and `brittle-node` bins remains:
+Bare must be installed on the system.
 
-* `brittle-bare` - uses included bare, same as `brittle`
-* `brittle-node` - same as `brittle --runtime node`
+If [CLI](#cli) flags are not needed then it's also possible to run tests directly on the runtime:
 
+```sh
+bare test/all.mjs
+```
+
+### Node.js
+
+[Node.js](https://nodejs.org/)
+
+```sh
+brittle-node test/all.mjs
+```
+
+Node must be installed on the system.
+
+If [CLI](#cli) flags are not needed then it's also possible to run tests directly on the runtime:
+
+```sh
+node test/all.mjs
+```
 
 ## API
 
@@ -615,22 +635,56 @@ The following would run all `.js` files in the test folder:
   "name": "my-app",
   "version": "1.0.0",
   "scripts": {
-    "test": "brittle test/*.js"
+    "test": "npm run test:bare && npm run test:node",
+    "test:bare": "brittle-bare test/all.mjs",
+    "test:node": "brittle-node test/all.mjs"
   },
   "devDependencies": {
-    "brittle": "^3.0.0-alpha.3"
+    "brittle": "^4.0.0"
   }
 }
 ```
 
 ## CLI
 
-```sh
-npm install -g brittle
+Brittle comes with three commands:
+
+* `brittle-make-test`
+* `brittle-bare`
+* `brittle-node`
+
+The idea is to use these commands within the `package.json` `scripts` field: 
+
+```json
+  {
+    "make:test": "brittle-make-test test/index.js test/*.test.js",
+    "test": "npm run test:bare && npm run test:node",
+    "test:bare": "brittle-bare test",
+    "test:node": "brittle-node test"
+  }
 ```
 
+Use `brittle-make-test` to generate an entrypoint for tests.
+
+```sh
+brittle-make-test [flags] <outfile> <files>
+
+Arguments:
+  <outfile>                 Generates an out file that contains all target tests
+  <files>
+
+Flags:
+  --solo, -s                Engage solo mode
+  --bail, -b                Bail out on first assert failure
+  --unstealth, -u           Print out assertions even if stealth is used
+  --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
+  --help|-h                 Show help
+```
+
+The `brittle-node` and `brittle-bare` commands are the same, they just execute per runtime.
+
 ```shell
-brittle [flags] <files>
+brittle-node|brittle-bare [flags] <files>
 
 Flags:
   --version, -v             Print the current version
@@ -648,32 +702,30 @@ Flags:
 
 Note globbing is supported:
 ```sh
-brittle --coverage path/to/test/*.js
+brittle path/to/test/*.js
 ```
 
-Auto generate a single file containing "all tests":
-```shell
-brittle -r test/all.js test/*.js
 
-node test/all.js
-```
+The `BRITTLE` environment variable can also set flags:
 
-You can use an environment variable to also set flags:
 ```shell
-BRITTLE="--coverage --bail" brittle test.js
+BRITTLE="--coverage --bail" brittle-bare test.js
 ```
 
 Force disable coverage with an environment variable:
 ```shell
-BRITTLE_COVERAGE=false brittle test.js
+BRITTLE_COVERAGE=false brittle-node test.js
 ```
+
 ### Coverage
+
 If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
 
 The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
 
 Istanbul can be used to convert the istanbul json report into other formats. e.g.:
-```
+
+```sh
 npx istanbul report html
 ```
 
