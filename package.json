@@ -45,6 +45,7 @@
   ],
   "devDependencies": {
     "bare-events": "^2.8.2",
+    "bare-stylize": "^0.0.1",
     "safety-catch": "^1.0.2",
     "standard": "^17.1.2"
   },

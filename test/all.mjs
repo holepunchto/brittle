@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
+import stylize from 'bare-stylize'
 import process from 'process'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -13,12 +14,12 @@ for (const file of files) {
   if (file.name === 'all.mjs') continue
   const filepath = path.join(__dirname, file.name)
 
-  console.log('Running', filepath)
+  console.log(stylize(['bold', 'green'], 'Running'), filepath)
   await import('file://' + filepath)
 }
 
 if (process.exitCode) {
-  console.log('Tests failed')
+  console.log(stylize(['bold', 'red'], 'Tests failed'))
 } else {
-  console.log('Tests passed')
+  console.log(stylize(['bold', 'green'], 'Tests passed'))
 }
