@@ -3,7 +3,6 @@ const { spawn } = require('child_process')
 const process = require('process')
 const fs = require('fs')
 const { isWindows, isBare } = require('which-runtime')
-const stylize = require('bare-stylize')
 
 const PRINT_ENABLED = false
 const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
@@ -23,7 +22,7 @@ async function tester (name, fn, expectedOut, expectedMore, opts) {
 }
 
 async function spawner (fn, expectedOut, expectedMore, opts) {
-  log(stylize(['bold', 'yellow'], 'Spawner'))
+  log('Spawner')
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   return executeTap(script, expectedOut, expectedMore, opts)
 }
@@ -59,12 +58,12 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
     process.exitCode = 1
 
     for (const err of errors.list) {
-      console.error(stylize(['bold', 'red'], 'Error:'), err.error.message)
+      console.error('Error:', err.error.message)
 
       if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
-        console.error(stylize(['red'], '[actual]'))
+        console.error('[actual]')
         console.error(err.actual)
-        console.error(stylize(['red'], '[expected]'))
+        console.error('[expected]')
         console.error(err.expected)
       }
     }
