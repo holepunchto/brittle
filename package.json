@@ -45,6 +45,7 @@
   ],
   "devDependencies": {
     "bare-events": "^2.8.2",
+    "bare-utils": "^1.6.0",
     "safety-catch": "^1.0.2",
     "standard": "^17.1.2"
   },
@@ -80,6 +81,10 @@
     "events": {
       "bare": "bare-events",
       "default": "events"
+    },
+    "util": {
+      "bare": "bare-utils",
+      "default": "util"
     }
   },
   "repository": {
