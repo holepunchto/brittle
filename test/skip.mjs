@@ -59,7 +59,7 @@ await spawner(
     t.end()
   },
   '',
-  { exitCode: 1, stderr: { includes: 'An inverted test cannot be skipped' } }
+  { exitCode: 'error', stderr: { includes: 'An inverted test cannot be skipped' } }
 )
 
 await spawner(
@@ -69,5 +69,5 @@ await spawner(
     t.end()
   },
   '',
-  { exitCode: 1, stderr: { includes: 'An inverted test cannot be skipped' } }
+  { exitCode: 'error', stderr: { includes: 'An inverted test cannot be skipped' } }
 )

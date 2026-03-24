@@ -129,7 +129,7 @@ await tester('teardown after error classic',
   `,
   {
     stderr: { includes: 'Error: test' },
-    exitCode: 1
+    exitCode: 'error'
   }
 )
 

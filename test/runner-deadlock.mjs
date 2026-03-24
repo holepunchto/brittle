@@ -12,7 +12,7 @@ await tester('classic deadlock with plan',
   # classic deadlock with plan
       ok 1 - passed
   `,
-  { exitCode: 1, stderr: { includes: 'Test appears deadlocked' } }
+  { exitCode: 'error', stderr: { includes: 'Test appears deadlocked' } }
 )
 
 await tester('classic deadlock without plan',
@@ -26,7 +26,7 @@ await tester('classic deadlock without plan',
   # classic deadlock without plan
       ok 1 - passed
   `,
-  { exitCode: 1, stderr: { includes: 'Test did not end' } }
+  { exitCode: 'error', stderr: { includes: 'Test did not end' } }
 )
 
 await tester('classic bare deadlock',
@@ -38,7 +38,7 @@ await tester('classic bare deadlock',
 
   # classic bare deadlock
   `,
-  { exitCode: 1, stderr: { includes: 'Test did not end' } }
+  { exitCode: 'error', stderr: { includes: 'Test did not end' } }
 )
 
 await spawner(

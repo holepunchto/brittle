@@ -12,8 +12,10 @@
   "author": "David Mark Clements (@davidmarkclem)",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "standard && node test/all.mjs",
-    "test-bare": "bare test/bare-test.mjs"
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "node test/all.mjs",
+    "test:bare": "bare test/all.mjs",
+    "lint": "standard"
   },
   "files": [
     "index.js",
@@ -21,18 +23,18 @@
     "lib/**.js"
   ],
   "dependencies": {
-    "b4a": "^1.6.0",
-    "bare-assert": "^1.0.2",
-    "bare-cov": "^1.1.0",
-    "bare-fs": "^4.1.6",
-    "bare-os": "^3.6.1",
+    "b4a": "^1.8.0",
+    "bare-assert": "^1.2.0",
+    "bare-cov": "^1.2.1",
+    "bare-fs": "^4.5.5",
+    "bare-os": "^3.7.1",
     "bare-path": "^3.0.0",
-    "bare-process": "^4.2.1",
-    "bare-subprocess": "^5.0.0",
-    "bare-url": "^2.1.6",
+    "bare-process": "^4.3.0",
+    "bare-subprocess": "^5.2.2",
+    "bare-url": "^2.3.2",
     "error-stack-parser": "^2.1.4",
-    "globbie": "^1.0.2",
-    "paparam": "^1.6.2",
+    "globbie": "^1.0.3",
+    "paparam": "^1.10.0",
     "same-object": "^1.0.2",
     "test-tmp": "^1.4.0",
     "tmatch": "^5.0.0",
@@ -42,9 +44,9 @@
     "bare-sidecar"
   ],
   "devDependencies": {
-    "chalk": "^4.1.2",
+    "bare-events": "^2.8.2",
     "safety-catch": "^1.0.2",
-    "standard": "^17.0.0"
+    "standard": "^17.1.2"
   },
   "imports": {
     "assert": {
@@ -74,6 +76,10 @@
     "url": {
       "bare": "bare-url",
       "default": "url"
+    },
+    "events": {
+      "bare": "bare-events",
+      "default": "events"
     }
   },
   "repository": {

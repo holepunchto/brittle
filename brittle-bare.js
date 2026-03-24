@@ -7,4 +7,3 @@ if (isNode) {
   process.exit(status)
 }
 require('./cmd.js')
-
