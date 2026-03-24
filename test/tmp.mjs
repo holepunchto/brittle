@@ -1,12 +1,18 @@
 import { tester } from './helpers/index.js'
 
-await tester('tmp',
+await tester(
+  'tmp',
   async function (t) {
     const fs = require('fs')
     const tmp = await t.tmp()
-    t.teardown(() => {
-      if (fs.existsSync(tmp)) throw new Error('tmp folder ' + tmp + 'should no longer exist but it does')
-    }, { order: Infinity })
+    t.teardown(
+      () => {
+        if (fs.existsSync(tmp)) {
+          throw new Error('tmp folder ' + tmp + 'should no longer exist but it does')
+        }
+      },
+      { order: Infinity }
+    )
     t.ok(fs.existsSync(tmp), 'passed')
   },
   `

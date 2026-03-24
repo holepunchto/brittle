@@ -1,6 +1,7 @@
 import { tester } from './helpers/index.js'
 
-await tester('trailing adjacent awaits',
+await tester(
+  'trailing adjacent awaits',
   async function (t) {
     const big = t.test('big test A')
     const little = t.test('little test A')
@@ -35,7 +36,8 @@ await tester('trailing adjacent awaits',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('interruptive adjacent awaits',
+await tester(
+  'interruptive adjacent awaits',
   async function (t) {
     const big = t.test('big test B')
     const little = t.test('little test B')
@@ -71,7 +73,8 @@ await tester('interruptive adjacent awaits',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('deadlocking adjacent awaits',
+await tester(
+  'deadlocking adjacent awaits',
   async function (t) {
     const big = t.test('big test C')
     const little = t.test('little test C')

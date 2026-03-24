@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('classic plan must be integer',
+await tester(
+  'classic plan must be integer',
   function (t) {
     t.plan('x')
     t.pass()

@@ -13,7 +13,7 @@ const EXIT_CODES_VK = { 0: 'ok', [ERROR_EXIT_CODE]: 'error' }
 
 module.exports = { tester, spawner, standardizeTap, ERROR_EXIT_CODE }
 
-async function tester (name, fn, expectedOut, expectedMore, opts) {
+async function tester(name, fn, expectedOut, expectedMore, opts) {
   log('Tester', name)
   name = JSON.stringify(name)
 
@@ -21,13 +21,24 @@ async function tester (name, fn, expectedOut, expectedMore, opts) {
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function spawner (fn, expectedOut, expectedMore, opts) {
+async function spawner(fn, expectedOut, expectedMore, opts) {
   log('Spawner')
   const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: path.resolve(__dirname, '..', `_testscript-${Math.random().toString(16).slice(2)}.js`) }) {
+async function executeTap(
+  script,
+  expectedOut,
+  more = {},
+  opts = {
+    scriptFile: path.resolve(
+      __dirname,
+      '..',
+      `_testscript-${Math.random().toString(16).slice(2)}.js`
+    )
+  }
+) {
   if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
   if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
@@ -50,7 +61,12 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
     tapexp = standardizeTap(expectedOut)
 
     if (tapout !== tapexp) {
-      errors.add('TAP_MISMATCH', 'TAP output does not match the expected output', stdout, expectedOut)
+      errors.add(
+        'TAP_MISMATCH',
+        'TAP output does not match the expected output',
+        stdout,
+        expectedOut
+      )
     }
   }
 
@@ -72,7 +88,7 @@ async function executeTap (script, expectedOut, more = {}, opts = { scriptFile: 
   return { errors: errors.list, exitCode, stdout, tapout, tapexp, stderr }
 }
 
-function exitCodeValidation (errors, actual, expected) {
+function exitCodeValidation(errors, actual, expected) {
   if (expected === undefined) return
 
   if (typeof expected === 'number') {
@@ -86,7 +102,12 @@ function exitCodeValidation (errors, actual, expected) {
     const expectedCode = EXIT_CODES_KV[expected]
     const errorName = EXIT_CODES_VK[actual]
     if (errorName === undefined || expectedCode === undefined || actual !== expectedCode) {
-      errors.add('EXIT_CODE_MISMATCH', 'exitCode is not the expected', actual + ' (' + errorName + ')', expectedCode + ' (' + expected + ')')
+      errors.add(
+        'EXIT_CODE_MISMATCH',
+        'exitCode is not the expected',
+        actual + ' (' + errorName + ')',
+        expectedCode + ' (' + expected + ')'
+      )
     }
     return
   }
@@ -94,7 +115,7 @@ function exitCodeValidation (errors, actual, expected) {
   throw new Error('exitCode type not supported (only number or string)')
 }
 
-function stdValidation (errors, name, actual, std) {
+function stdValidation(errors, name, actual, std) {
   // log('stdValidation', { errors, name, actual, std })
   if (std === undefined) return
 
@@ -112,7 +133,12 @@ function stdValidation (errors, name, actual, std) {
       }
 
       if (!actual || !actual.includes(std.includes)) {
-        errors.add(name.toUpperCase() + '_VALIDATION', name + ' did not include the expected', actual, std.includes)
+        errors.add(
+          name.toUpperCase() + '_VALIDATION',
+          name + ' did not include the expected',
+          actual,
+          std.includes
+        )
       }
       return
     }
@@ -124,11 +150,11 @@ function stdValidation (errors, name, actual, std) {
 }
 
 class Errors {
-  constructor () {
+  constructor() {
     this.list = []
   }
 
-  add (type, error, actual, expected) {
+  add(type, error, actual, expected) {
     const err = {
       type,
       error: typeof error === 'string' ? new Error(error) : error
@@ -141,7 +167,7 @@ class Errors {
   }
 }
 
-function executeCode (script, scriptFile = null) {
+function executeCode(script, scriptFile = null) {
   return new Promise((resolve, reject) => {
     if (scriptFile) fs.writeFileSync(scriptFile, script, 'utf-8')
 
@@ -173,20 +199,20 @@ function executeCode (script, scriptFile = null) {
   })
 }
 
-function standardizeTap (stdout) {
-  return ((isWindows && isBare) ? stdout.replaceAll('\r\n', '\n') : stdout)
+function standardizeTap(stdout) {
+  return (isWindows && isBare ? stdout.replaceAll('\r\n', '\n') : stdout)
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/stack: [\s\S]*\.\.\.\n/gm, '...\n') // strip stack traces
     .replace(/source: [\s\S]*\.\.\.\n/gm, '...\n') // strip source traces
     .replace(/[/\\]/g, '/')
     .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
     .split('\n')
-    .map(n => n.trim())
-    .filter(n => n)
+    .map((n) => n.trim())
+    .filter((n) => n)
     .join('\n')
 }
 
-function log (...str) {
+function log(...str) {
   if (!PRINT_ENABLED) return
 
   console.log(...str)

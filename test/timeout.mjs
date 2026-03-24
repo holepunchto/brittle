@@ -3,7 +3,9 @@ import { spawner } from './helpers/index.js'
 await spawner(
   function (test) {
     test('timeout option, classic, no plan', { timeout: 10 }, async function (t) {
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -17,7 +19,9 @@ await spawner(
 await spawner(
   async function (test) {
     const t = test('timeout option, inverted, no plan', { timeout: 10 })
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     t.end()
   },
   `
@@ -32,7 +36,9 @@ await spawner(
   function (test) {
     test('timeout option, classic, plan', { timeout: 10 }, async function (t) {
       t.plan(1)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -47,7 +53,9 @@ await spawner(
   async function (test) {
     const t = test('timeout option, inverted, plan', { timeout: 10 })
     t.plan(1)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     await t
   },
   `
@@ -62,7 +70,9 @@ await spawner(
   function (test) {
     test('timeout method, classic, no plan', async function (t) {
       t.timeout(10)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -77,7 +87,9 @@ await spawner(
   async function (test) {
     const t = test('timeout method, inverted, no plan')
     t.timeout(10)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     t.end()
   },
   `
@@ -93,7 +105,9 @@ await spawner(
     test('timeout method, classic, plan', async function (t) {
       t.timeout(10)
       t.plan(1)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -109,7 +123,9 @@ await spawner(
     const t = test('timeout method, inverted, plan')
     t.timeout(10)
     t.plan(1)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     await t
   },
   `

@@ -42,7 +42,10 @@ await spawner(
       ok 1 - passed
   ok 1 - classic test # time = 0.604742ms
   `,
-  { exitCode: 'error', stderr: { includes: 'Configuration must happen prior to registering any tests' } }
+  {
+    exitCode: 'error',
+    stderr: { includes: 'Configuration must happen prior to registering any tests' }
+  }
 )
 
 await spawner(
@@ -60,7 +63,10 @@ await spawner(
       ok 1 - passed
   ok 1 - inverted test # time = 0.646337ms
   `,
-  { exitCode: 'error', stderr: { includes: 'Configuration must happen prior to registering any tests' } }
+  {
+    exitCode: 'error',
+    stderr: { includes: 'Configuration must happen prior to registering any tests' }
+  }
 )
 
 await spawner(
@@ -80,5 +86,8 @@ await spawner(
       ok 1 - passed
   ok 1 - inverted test # time = 0.672834ms
   `,
-  { exitCode: 'error', stderr: { includes: 'Configuration must happen prior to registering any tests' } }
+  {
+    exitCode: 'error',
+    stderr: { includes: 'Configuration must happen prior to registering any tests' }
+  }
 )

@@ -24,7 +24,7 @@ await spawner(
       t.is(resource.hooked, undefined)
     })
   },
-`
+  `
 TAP version 13
 
 # check resource
@@ -52,7 +52,7 @@ ok 5 - check resource # time = 0.116902ms
 
 # ok
 `,
-{ exitCode: 0, stderr: '' }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -79,7 +79,7 @@ await spawner(
       t.is(resource.hooked, undefined)
     })
   },
-`
+  `
 TAP version 13
 
 # solo check resource
@@ -107,7 +107,7 @@ ok 5 - solo check resource # time = 0.116902ms
 
 # ok
 `,
-{ exitCode: 0, stderr: '' }
+  { exitCode: 0, stderr: '' }
 )
 
 await spawner(
@@ -146,7 +146,7 @@ await spawner(
       t.is(resource.hooked, undefined)
     })
   },
-`
+  `
 TAP version 13
 
 # solo check resource
@@ -174,5 +174,5 @@ ok 5 - solo check resource # time = 0.116902ms
 
 # ok
 `,
-{ exitCode: 0, stderr: '' }
+  { exitCode: 0, stderr: '' }
 )

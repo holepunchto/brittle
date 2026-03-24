@@ -5,9 +5,14 @@ const fs = require('fs')
 const { command, arg, flag, bail, rest } = require('paparam')
 const glob = require('./lib/glob')
 
-const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
+const args = (process.env.BRITTLE || '')
+  .split(/\s|,/g)
+  .map((s) => s.trim())
+  .filter((s) => s)
+  .concat(process.argv.slice(2))
 
-const cmd = command('brittle-make-test',
+const cmd = command(
+  'brittle-make-test',
   arg('<outfile>', 'Generates an out file that contains all target tests'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
@@ -29,14 +34,15 @@ if (cmd.flags.runner === true) {
 const files = glob(cmd.rest)
 runner(cmd.args.outfile, files, cmd.flags)
 
-function runner (file, files, { bail, solo, unstealth, timeout }) {
+function runner(file, files, { bail, solo, unstealth, timeout }) {
   console.log('file', file)
   const out = path.resolve(file)
   const dir = path.dirname(out)
 
   let s = ''
 
-  s += 'runTests()\n\nasync function runTests () {\n  const test = (await import(\'brittle\')).default\n\n'
+  s +=
+    "runTests()\n\nasync function runTests () {\n  const test = (await import('brittle')).default\n\n"
 
   if (bail || solo || unstealth || timeout) {
     s += `  test.configure({ bail: ${!!bail}, solo: ${!!solo}, unstealth: ${!!unstealth}, timeout: ${timeout} })\n`
@@ -50,7 +56,7 @@ function runner (file, files, { bail, solo, unstealth, timeout }) {
 
     let r = path.relative(dir, t).replace(/\\/g, '/')
     if (r[0] !== '.') r = './' + r
-    s += '  await import(\'' + r + '\')\n'
+    s += "  await import('" + r + "')\n"
   }
 
   s = s.trimRight()

@@ -9,8 +9,13 @@ const TracingPromise = require('./lib/tracing-promise')
 const glob = require('./lib/glob')
 const pkg = require('./package')
 
-const args = (process.env.BRITTLE || '').split(/\s|,/g).map(s => s.trim()).filter(s => s).concat(process.argv.slice(2))
-const cmd = command('brittle-' + runtime,
+const args = (process.env.BRITTLE || '')
+  .split(/\s|,/g)
+  .map((s) => s.trim())
+  .filter((s) => s)
+  .concat(process.argv.slice(2))
+const cmd = command(
+  'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--bail, -b', 'Bail out on first assert failure'),
@@ -65,12 +70,12 @@ if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ 
 if (mine) startMining().catch()
 else start().catch(onerror)
 
-function onerror (err) {
+function onerror(err) {
   console.error(err.stack)
   process.exit(1)
 }
 
-async function start () {
+async function start() {
   const brittle = require('./')
 
   if (bail || solo || unstealth || timeout) {
@@ -86,7 +91,7 @@ async function start () {
   brittle.resume()
 }
 
-async function startMining () {
+async function startMining() {
   const args = [__filename]
     .concat(solo ? ['--solo'] : [])
     .concat(bail ? ['--bail'] : [])
@@ -112,13 +117,13 @@ async function startMining () {
   process.once('SIGINT', bail)
   process.once('SIGTERM', bail)
 
-  function bail () {
+  function bail() {
     bailed = true
     clearInterval(interval)
     for (const r of running) r.kill()
   }
 
-  async function bump () {
+  async function bump() {
     if (running.size >= max || bailed) return
 
     const r = run()
@@ -142,7 +147,11 @@ async function startMining () {
 
     if (newline) console.log()
     if (exitCode) console.log('Runner failed with exit code ' + exitCode + '!')
-    else console.log('Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!')
+    else {
+      console.log(
+        'Runner failed with signal code ' + signalCode + ' (' + signalToName(signalCode) + ')!'
+      )
+    }
 
     console.log('Shutting down the rest and printing output...')
 
@@ -163,7 +172,7 @@ async function startMining () {
     process.exitCode = exitCode || 1
   }
 
-  function run () {
+  function run() {
     const p = spawn(process.execPath, args)
 
     const output = []
@@ -171,8 +180,8 @@ async function startMining () {
     p.stdout.on('data', (data) => output.push({ stdout: true, data }))
     p.stderr.on('data', (data) => output.push({ stdout: false, data }))
 
-    const stdoutClosed = new Promise(resolve => p.stdout.on('close', resolve))
-    const stderrClosed = new Promise(resolve => p.stderr.on('close', resolve))
+    const stdoutClosed = new Promise((resolve) => p.stdout.on('close', resolve))
+    const stderrClosed = new Promise((resolve) => p.stderr.on('close', resolve))
 
     const promise = new Promise((resolve) => {
       p.on('exit', async (exitCode, signalCode) => {
@@ -193,7 +202,7 @@ async function startMining () {
   }
 }
 
-function signalToName (code) {
+function signalToName(code) {
   for (const [k, v] of Object.entries(os.constants.signals)) {
     if (v === code) return k
   }
