@@ -20,6 +20,7 @@ const cmd = command('brittle',
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
+  flag('--watch, -w', 'Watch test files for changes and re-run on change'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   rest('<files>')
 ).parse(args)
@@ -52,7 +53,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth } = argv
+const { solo, bail, timeout, coverage, covDir, mine, watch, trace, unstealth } = argv
 
 process.title = 'brittle'
 
@@ -113,6 +114,7 @@ if (argv.runner) {
 if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
 
 if (mine) startMining().catch()
+else if (watch) startWatching()
 else start().catch(onerror)
 
 function onerror (err) {
@@ -134,6 +136,86 @@ async function start () {
   }
 
   brittle.resume()
+}
+
+function startWatching () {
+  const fs = require('fs')
+
+  const args = [__filename]
+    .concat(solo ? ['--solo'] : [])
+    .concat(bail ? ['--bail'] : [])
+    .concat(unstealth ? ['--unstealth'] : [])
+    .concat(trace ? ['--trace'] : [])
+    .concat(timeout ? ['--timeout', timeout + ''] : [])
+    .concat(files)
+
+  let current = null
+  let debounceTimer = null
+  let pendingRestart = false
+
+  const resolvedFiles = files.map(f => path.resolve(f))
+  const lastMtimes = new Map(resolvedFiles.map(f => [f, mtime(f)]))
+  const watchers = resolvedFiles.map(f => fs.watch(f, function () { onchange(f) }))
+
+  process.once('SIGINT', bail)
+  process.once('SIGTERM', bail)
+
+  console.log('Watching for changes...\n')
+  run()
+
+  function mtime (f) {
+    try { return fs.statSync(f).mtimeMs } catch { return 0 }
+  }
+
+  function snapshotMtimes () {
+    for (const f of resolvedFiles) lastMtimes.set(f, mtime(f))
+  }
+
+  function onchange (f) {
+    if (mtime(f) === lastMtimes.get(f)) return
+    if (current) { current.restarting = true; return }
+    if (pendingRestart) return
+    pendingRestart = true
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(restart, 100)
+  }
+
+  function bail () {
+    for (const w of watchers) w.close()
+    if (current) current.kill()
+    process.exit(0)
+  }
+
+  function restart () {
+    if (current) {
+      current.restarting = true
+      current.kill()
+    } else {
+      console.log('\n--- File changed, re-running tests ---\n')
+      run()
+    }
+  }
+
+  function run () {
+    snapshotMtimes()
+    const p = spawn(process.execPath, args, { stdio: 'inherit' })
+    const proc = {
+      restarting: false,
+      kill: () => p.kill()
+    }
+    current = proc
+
+    p.on('exit', () => {
+      if (current === proc) current = null
+      pendingRestart = false
+      if (proc.restarting) {
+        console.log('\n--- File changed, re-running tests ---\n')
+        run()
+      } else {
+        console.log('\nWatching for changes...')
+      }
+    })
+  }
 }
 
 async function startMining () {

@@ -9,7 +9,7 @@ const pkg = JSON.stringify(path.join(__dirname, '..', '..', 'index.js'))
 const EXIT_CODES_KV = { ok: 0, error: 1 }
 const EXIT_CODES_VK = { 0: 'ok', 1: 'error' }
 
-module.exports = { tester, spawner, standardizeTap }
+module.exports = { tester, spawner, watcher, standardizeTap }
 
 async function tester (name, fn, expectedOut, expectedMore, opts) {
   log(chalk.yellow.bold('Tester'), name)
@@ -187,6 +187,81 @@ function standardizeTap (stdout) {
     .map(n => n.trim())
     .filter(n => n)
     .join('\n')
+}
+
+async function watcher (name, fn) {
+  log(chalk.yellow.bold('Watcher'), name)
+
+  const root = path.join(__dirname, '../..')
+  const cmd = path.join(root, 'cmd.js')
+  const relFile = 'tmp-watch-' + Math.random().toString(16).slice(2) + '.mjs'
+  const absFile = path.join(root, relFile)
+  const errors = new Errors()
+
+  function writeFixture (testName) {
+    fs.writeFileSync(absFile, 'import test from ' + pkg + '\ntest(' + JSON.stringify(testName) + ', function (t) { t.pass() })\n')
+  }
+
+  writeFixture(name)
+
+  let output = ''
+  const p = spawn(process.execPath, [cmd, '--watch', relFile], { stdio: 'pipe', cwd: root })
+  p.stdout.setEncoding('utf-8')
+  p.stdout.on('data', function (chunk) { output += chunk })
+
+  const api = {
+    get output () { return output },
+    resetOutput () { output = '' },
+    write (testName) { writeFixture(testName) },
+    waitForDone () { return waitFor(function () { return output.includes('\nWatching for changes') }) },
+    ok (value, message) {
+      if (!value) errors.add('ASSERTION', message || 'expected truthy value', value, true)
+    },
+    is (actual, expected, message) {
+      if (actual !== expected) errors.add('ASSERTION', message || 'expected equal', actual, expected)
+    }
+  }
+
+  try {
+    await fn(api)
+  } catch (err) {
+    errors.add('WATCHER_ERROR', err)
+  } finally {
+    p.kill()
+    await new Promise(function (resolve) { p.on('exit', resolve) })
+    try { fs.unlinkSync(absFile) } catch {}
+  }
+
+  if (errors.list.length) {
+    process.exitCode = 1
+
+    for (const err of errors.list) {
+      console.error(chalk.red.bold('Error:'), err.error.message)
+
+      if (Object.hasOwn(err, 'actual') || Object.hasOwn(err, 'expected')) {
+        console.error(chalk.red('[actual]'))
+        console.error(err.actual)
+        console.error(chalk.red('[expected]'))
+        console.error(err.expected)
+      }
+    }
+  }
+}
+
+function waitFor (fn, timeout) {
+  timeout = timeout || 5000
+  return new Promise(function (resolve, reject) {
+    const deadline = Date.now() + timeout
+    const tick = setInterval(function () {
+      if (fn()) {
+        clearInterval(tick)
+        resolve()
+      } else if (Date.now() > deadline) {
+        clearInterval(tick)
+        reject(new Error('timed out waiting for condition'))
+      }
+    }, 50)
+  })
 }
 
 function log (...str) {
