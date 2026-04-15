@@ -2,9 +2,11 @@ const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const { INDENT, RUNNER, THREADS, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
+const { Readable } = require('streamx')
+const FramedStream = require('framed-stream')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -41,9 +43,16 @@ class Runner {
     this.source = true
 
     this._timer = highDefTimer()
-    this._log = console.log.bind(console)
+    this._log = this.getLogger()
     this._paused = null
     this._resume = null
+
+    if (global.Bare && global.Bare.Thread.isMainThread === false) {
+      const Pipe = require('bare-pipe')
+      const { pipe: pipefd, file } = global.Bare.Thread.self.data
+      this._file = file
+      this._pipe = new FramedStream(new Pipe(pipefd))
+    }
 
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
@@ -52,6 +61,14 @@ class Runner {
     }
 
     program.on('beforeExit', ondeadlock)
+  }
+
+  getLogger() {
+    if (!global.Bare || global.Bare.Thread.isMainThread) return console.log.bind(console)
+
+    return (...args) => {
+      this._pipe.write(JSON.stringify({ file: this._file, type: 'log', args }))
+    }
   }
 
   resume() {
@@ -760,6 +777,7 @@ exports.configure = configure
 exports.pause = pause
 exports.resume = resume
 exports.stealth = stealth
+exports.threadRun = threadRun
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
@@ -946,4 +964,64 @@ function prematureEnd(t, message) {
 
 function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
+}
+
+class Threads {
+  threads = []
+  printIndex = 0
+  printing = null
+  isSolo = false
+  sendingState = null
+  constructor() {}
+
+  async print() {
+    while (this.printIndex < this.threads.length) {
+      const current = this.threads[this.printIndex]
+      current.output.on('data', (chunk) => {
+        const decoded = JSON.parse(chunk.toString())
+        console.log(...decoded.args)
+      })
+      await current.done
+      this.printIndex++
+    }
+  }
+
+  async sendState() {
+    return new Promise((resolve) => {
+      setImmediate(() => {
+        for (const thread of this.threads) {
+          thread.connection.write(JSON.stringify({ type: 'state', solo: this.isSolo }))
+        }
+        resolve()
+      })
+    })
+  }
+
+  add(thread, file, connection) {
+    const output = new Readable()
+    connection.on('data', (chunk) => {
+      const decoded = JSON.parse(chunk.toString())
+      if (decoded.type === 'log') output.push(chunk)
+    })
+
+    const done = new Promise((resolve) => {
+      connection.on('end', () => resolve('done'))
+      connection.on('error', () => resolve('error'))
+    })
+
+    this.threads.push({ thread, file, output, connection, done })
+    if (!this.printing) this.printing = this.print()
+    if (!this.sendingState) this.sendingState = this.sendState()
+  }
+}
+
+function threadRun(file) {
+  if (!global[THREADS]) global[THREADS] = new Threads()
+  const { Thread } = global.Bare
+  const Pipe = require('bare-pipe')
+
+  const [receiver, sender] = Pipe.pipe()
+  const connection = new FramedStream(new Pipe(receiver))
+
+  global[THREADS].add(new Thread(file, { data: { file: file, pipe: sender } }), file, connection)
 }
