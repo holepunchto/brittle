@@ -292,7 +292,10 @@ class Runner {
       if (IS_BARE) global.Bare.exitCode = 1
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
-      if (this.bail && !this.skipAll) this.skipAll = true
+      if (this.bail && !this.skipAll) {
+        this._threadStream.write(JSON.stringify({ type: 'state', skipAll: true }))
+        this.skipAll = true
+      }
       if (!this.unstealth && stealth) {
         throw new AssertionError({ message: 'Stealth assertion failed' })
       }
@@ -1038,14 +1041,16 @@ function stealth(name, opts, fn) {
 class Threads {
   threads = []
   initializing = null
+  initialized = false
   constructor() {}
 
   async init() {
     if (this.initializing) return this.initializing
     this.initializing = new Promise((resolve) => {
       setImmediate(async () => {
-        this.sendInitialState()
         this.printLogs()
+        await this.sendInitialState()
+        this.initialized = true
         resolve()
       })
     })
@@ -1126,15 +1131,23 @@ class Threads {
   async sendInitialState() {
     return new Promise((resolve) => {
       setImmediate(async () => {
-        const states = await Promise.all(this.threads.map((t) => t.state))
-        await this.broadcastState({ solo: states.some((s) => s.solo) })
+        const runner = getRunner()
+        const states = await Promise.all(this.threads.map((t) => t.initialState))
+        await this.broadcastState({
+          solo: states.some((s) => s.solo),
+          timeout: runner.defaultTimeout,
+          bail: runner.bail,
+          unstealth: runner.unstealth,
+          source: runner.source
+        })
         resolve()
       })
     })
   }
 
-  async broadcastState(state) {
+  async broadcastState(state, except = null) {
     for (const thread of this.threads) {
+      if (thread.thread === except) continue
       thread.connection.write(JSON.stringify({ type: 'state', ...state }))
     }
   }
@@ -1150,10 +1163,17 @@ class Threads {
       connection.on('end', () => resolve('done'))
       connection.on('error', () => resolve('error'))
     })
-    const state = new Promise((resolve) => {
+    const initialState = new Promise((resolve) => {
       connection.on('data', (chunk) => {
         const decoded = JSON.parse(chunk.toString())
-        if (decoded.type === 'state') resolve(decoded)
+        if (decoded.type === 'state') {
+          if (this.initialized) {
+            this.broadcastState(decoded, thread)
+            return
+          }
+
+          resolve(decoded)
+        }
       })
     })
     const result = new Promise((resolve) => {
@@ -1163,7 +1183,7 @@ class Threads {
       })
     })
 
-    this.threads.push({ thread, file, output, connection, done, state, result })
+    this.threads.push({ thread, file, output, connection, done, initialState, result })
     this.init()
   }
 }
