@@ -5,7 +5,7 @@ const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, THREADS, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
-const { Readable } = require('streamx')
+const { Readable, Duplex } = require('streamx')
 const FramedStream = require('framed-stream')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
@@ -47,11 +47,17 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    if (global.Bare && global.Bare.Thread.isMainThread === false) {
-      const Pipe = require('bare-pipe')
-      const { pipe: pipefd, file } = global.Bare.Thread.self.data
+    this._isChildThread = global.Bare && !global.Bare.Thread.isMainThread
+    if (this._isChildThread) {
+      const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
-      this._pipe = new FramedStream(new Pipe(pipefd))
+      this._pipe = createFromPipes(receiver, sender)
+      this.state = new Promise((resolve) => {
+        this._pipe.on('data', (chunk) => {
+          const decoded = JSON.parse(chunk.toString())
+          if (decoded.type === 'state') resolve(decoded)
+        })
+      })
     }
 
     const ondeadlock = () => {
@@ -1015,13 +1021,50 @@ class Threads {
   }
 }
 
+function createPipes() {
+  const Pipe = require('bare-pipe')
+  const [cReceiver, sSender] = Pipe.pipe()
+  const [sReceiver, cSender] = Pipe.pipe()
+
+  const recv = new Pipe(sReceiver)
+  const send = new Pipe(sSender)
+
+  const duplex = new Duplex({
+    write: (data, cb) => send.write(data, cb),
+    final: (cb) => send.end(cb)
+  })
+
+  recv.on('data', (chunk) => duplex.push(chunk))
+  recv.on('end', () => duplex.push(null))
+
+  return { stream: new FramedStream(duplex), cReceiver, cSender }
+}
+
+function createFromPipes(receiver, sender) {
+  const Pipe = require('bare-pipe')
+  const recv = new Pipe(receiver)
+  const send = new Pipe(sender)
+
+  const duplex = new Duplex({
+    write: (data, cb) => send.write(data, cb),
+    final: (cb) => send.end(cb)
+  })
+
+  recv.on('data', (chunk) => duplex.push(chunk))
+  recv.on('end', () => duplex.push(null))
+
+  return new FramedStream(duplex)
+}
+
 function threadRun(file) {
   if (!global[THREADS]) global[THREADS] = new Threads()
   const { Thread } = global.Bare
-  const Pipe = require('bare-pipe')
 
-  const [receiver, sender] = Pipe.pipe()
-  const connection = new FramedStream(new Pipe(receiver))
+  const { stream: connection, cReceiver, cSender } = createPipes()
 
-  global[THREADS].add(new Thread(file, { data: { file: file, pipe: sender } }), file, connection)
+  global[THREADS].add(
+    new Thread(file, { data: { file: file, sender: cSender, receiver: cReceiver } }),
+    file,
+    connection
+  )
 }
