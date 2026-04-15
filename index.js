@@ -65,10 +65,7 @@ class Runner {
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      if (!global[THREADS]) {
-        this._threadStream.end()
-        this.end()
-      }
+      if (!global[THREADS]) this.end()
     }
 
     program.on('beforeExit', ondeadlock)
@@ -292,7 +289,7 @@ class Runner {
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
-        this._threadStream.write({ type: 'state', skipAll: true })
+        if (isChildThread) this._threadStream.write({ type: 'state', skipAll: true })
         this.skipAll = true
       }
       if (!this.unstealth && stealth) {
