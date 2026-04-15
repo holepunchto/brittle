@@ -66,7 +66,7 @@ class Runner {
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      this.end()
+      if (!global[THREADS]) this.end()
     }
 
     program.on('beforeExit', ondeadlock)
