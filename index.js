@@ -65,7 +65,10 @@ class Runner {
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      if (!global[THREADS]) this.end()
+      if (!global[THREADS]) {
+        this._threadStream.end()
+        this.end()
+      }
     }
 
     program.on('beforeExit', ondeadlock)
@@ -1139,9 +1142,9 @@ class Threads {
     })
   }
 
-  async broadcastState(state, except = null) {
+  async broadcastState(state) {
     for (const thread of this.threads) {
-      if (thread.thread === except) continue
+      if (thread.isDone) continue
       thread.connection.write({ type: 'state', ...state })
     }
   }
@@ -1160,7 +1163,7 @@ class Threads {
       connection.on('data', (decoded) => {
         if (decoded.type === 'state') {
           if (this.initialized) {
-            this.broadcastState(decoded, thread)
+            this.broadcastState(decoded)
             return
           }
 
@@ -1174,7 +1177,21 @@ class Threads {
       })
     })
 
-    this.threads.push({ thread, file, output, connection, done, initialState, result })
+    const threadBundle = {
+      thread,
+      file,
+      output,
+      connection,
+      done,
+      isDone: false,
+      initialState,
+      result
+    }
+    done.then(() => {
+      threadBundle.isDone = true
+    })
+
+    this.threads.push(threadBundle)
     this.init()
   }
 }
