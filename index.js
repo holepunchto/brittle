@@ -91,6 +91,10 @@ class Runner {
 
   async syncState() {
     if (this.state) return this.state
+
+    const stream = this._pipe.rawStream
+    stream.recv.ref()
+
     this._pipe.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
     this.state = new Promise((resolve) => {
       this._pipe.on('data', (chunk) => {
@@ -98,6 +102,9 @@ class Runner {
         if (decoded.type === 'state') resolve(decoded)
       })
     })
+
+    this.state.then(() => stream.recv.unref())
+
     return this.state
   }
 
@@ -1009,7 +1016,6 @@ class Threads {
         const solo = states.some((s) => s.solo)
         for (const thread of this.threads) {
           thread.connection.write(JSON.stringify({ type: 'state', solo }))
-          thread.connection.end()
         }
         resolve()
       })
@@ -1048,13 +1054,17 @@ function createPipes() {
   const recv = new Pipe(sReceiver)
   const send = new Pipe(sSender)
 
-  const duplex = new Duplex({
-    write: (data, cb) => send.write(data, cb),
-    final: (cb) => send.end(cb)
-  })
-
-  recv.on('data', (chunk) => duplex.push(chunk))
-  recv.on('end', () => duplex.push(null))
+  const duplex = new (class PipeDuplex extends Duplex {
+    constructor({ send, recv, ...opts }) {
+      super(opts)
+      this.recv = recv
+      this.send = send
+      this._write = (data, cb) => this.send.write(data, cb)
+      this._final = (cb) => this.send.end(cb)
+      this.recv.on('data', (chunk) => this.push(chunk))
+      this.recv.on('end', () => this.push(null))
+    }
+  })({ send, recv })
 
   return { stream: new FramedStream(duplex), cReceiver, cSender }
 }
@@ -1063,14 +1073,19 @@ function createFromPipes(receiver, sender) {
   const Pipe = require('bare-pipe')
   const recv = new Pipe(receiver)
   const send = new Pipe(sender)
+  recv.unref()
 
-  const duplex = new Duplex({
-    write: (data, cb) => send.write(data, cb),
-    final: (cb) => send.end(cb)
-  })
-
-  recv.on('data', (chunk) => duplex.push(chunk))
-  recv.on('end', () => duplex.push(null))
+  const duplex = new (class PipeDuplex extends Duplex {
+    constructor({ send, recv, ...opts }) {
+      super(opts)
+      this.recv = recv
+      this.send = send
+      this._write = (data, cb) => this.send.write(data, cb)
+      this._final = (cb) => this.send.end(cb)
+      this.recv.on('data', (chunk) => this.push(chunk))
+      this.recv.on('end', () => this.push(null))
+    }
+  })({ send, recv })
 
   return new FramedStream(duplex)
 }
