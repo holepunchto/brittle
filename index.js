@@ -52,6 +52,15 @@ class Runner {
       const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
+      this._initialState = new Promise((resolve) => {
+        this._threadStream.on('data', (chunk) => {
+          const decoded = JSON.parse(chunk.toString())
+          if (decoded.type === 'state') {
+            this._updateState(decoded)
+            resolve(decoded)
+          }
+        })
+      })
     }
 
     const ondeadlock = () => {
@@ -106,21 +115,25 @@ class Runner {
     await this._paused
   }
 
+  _updateState(state) {
+    this.state = state
+    if (state.timeout !== undefined) this.defaultTimeout = state.timeout
+    if (state.bail !== undefined) this.bail = state.bail
+    if (state.solo !== undefined) this.explicitSolo = state.solo
+    if (state.unstealth !== undefined) this.unstealth = state.unstealth
+    if (state.source !== undefined) this.source = state.source
+    if (state.skipAll !== undefined) this.skipAll = state.skipAll
+  }
+
   async syncState() {
     if (this.state) return this.state
 
+    this._threadStream.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
+
     const stream = this._threadStream.rawStream
     stream.recv.ref()
-
-    this._threadStream.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
-    this.state = new Promise((resolve) => {
-      this._threadStream.on('data', (chunk) => {
-        const decoded = JSON.parse(chunk.toString())
-        if (decoded.type === 'state') resolve(decoded)
-      })
-    })
-
-    this.state.then(() => stream.recv.unref())
+    await this._initialState
+    stream.recv.unref()
 
     return this.state
   }
@@ -134,10 +147,7 @@ class Runner {
 
     await this._wait()
 
-    if (isChildThread) {
-      const state = await this.syncState()
-      if (state.solo) this.explicitSolo = true
-    }
+    if (isChildThread) await this.syncState()
 
     if (this.explicitSolo && !test._isSolo) {
       return false
