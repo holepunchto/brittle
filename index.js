@@ -1043,12 +1043,12 @@ class Threads {
   async init() {
     if (this.initializing) return this.initializing
     this.initializing = (async () => {
-      this.print()
+      this.printLogs()
       await this.sendInitialState()
     })()
   }
 
-  async print() {
+  async printLogs() {
     let testCount = 0
     let printIndex = 0
     let tapVersionPrinted = false
