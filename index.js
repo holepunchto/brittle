@@ -11,6 +11,7 @@ const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 const program = IS_NODE ? process : global.Bare
+const isChildThread = global.Bare && !global.Bare.Thread.isMainThread
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -47,8 +48,7 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    this._isChildThread = global.Bare && !global.Bare.Thread.isMainThread
-    if (this._isChildThread) {
+    if (isChildThread) {
       const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
@@ -64,10 +64,27 @@ class Runner {
   }
 
   getLogger() {
-    if (!global.Bare || global.Bare.Thread.isMainThread) return console.log.bind(console)
+    if (isChildThread) {
+      return (type, ...args) => {
+        this._threadStream.write(
+          JSON.stringify({ type: 'log', subtype: type, file: this._file, args })
+        )
+      }
+    }
 
-    return (...args) => {
-      this._threadStream.write(JSON.stringify({ type: 'log', file: this._file, args }))
+    return (type, ...args) => {
+      if (type === 'assert') {
+        const [ind, oknotok, number, message] = args
+        console.log(`${ind}${oknotok} ${number} ${message}`)
+        return
+      }
+
+      if (type === 'comment') {
+        console.log('#', ...args)
+        return
+      }
+
+      console.log(...args)
     }
   }
 
@@ -117,7 +134,7 @@ class Runner {
 
     await this._wait()
 
-    if (this._isChildThread) {
+    if (isChildThread) {
       const state = await this.syncState()
       if (state.solo) this.explicitSolo = true
     }
@@ -189,17 +206,17 @@ class Runner {
   padding() {
     if (this.padded) return
     this.padded = true
-    this.log()
+    this.log('padding')
   }
 
   start() {
     if (this.started) return
     this.started = true
-    this.log('TAP version 13')
+    this.log('start', 'TAP version 13')
   }
 
   comment(...message) {
-    this.log('#', ...message)
+    this.log('comment', ...message)
   }
 
   end() {
@@ -219,21 +236,39 @@ class Runner {
       }
     }
 
+    if (isChildThread) {
+      this._threadStream.write(
+        JSON.stringify({
+          type: 'result',
+          bail: this.bail,
+          skipAll: this.skipAll,
+          tests: { pass: this.tests.pass, count: this.tests.count },
+          asserts: { pass: this.assertions.pass, count: this.assertions.count },
+          time: this._timer()
+        })
+      )
+
+      return
+    }
+
     if (this.bail && this.skipAll) {
-      this.log('Bail out!')
+      this.log('bail', 'Bail out!')
     }
 
     this.padding()
-    this.log('1..' + this.tests.count)
-    this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
-    this.log('# time = ' + this._timer() + 'ms')
-    this.log()
+    this.log('result', '1..' + this.tests.count)
+    this.log('result', '# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
+    this.log(
+      'result',
+      '# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass'
+    )
+    this.log('result', '# time = ' + this._timer() + 'ms')
+    this.log('padding')
 
     if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) {
-      this.log('# ok')
+      this.log('result', '# ok')
     } else {
-      this.log('# not ok')
+      this.log('result', '# not ok')
     }
   }
 
@@ -241,12 +276,12 @@ class Runner {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      if (!stealth || this.unstealth) this.log(ind + 'ok ' + number, message)
+      if (!stealth || this.unstealth) this.log('assert', ind, 'ok', number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
-      this.log(ind + 'not ok ' + number, message)
-      if (explanation) this.log(lazy.errors.stringify(explanation))
+      this.log('assert', ind, 'not ok', number, message)
+      if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) this.skipAll = true
       if (!this.unstealth && stealth) {
         throw new AssertionError({ message: 'Stealth assertion failed' })
@@ -998,15 +1033,39 @@ class Threads {
   constructor() {}
 
   async print() {
+    let testCount = 0
+    let startPrinted = false
     while (this.printIndex < this.threads.length) {
       const current = this.threads[this.printIndex]
       current.output.on('data', (chunk) => {
         const decoded = JSON.parse(chunk.toString())
+        if (decoded.subtype === 'start') {
+          if (!startPrinted) {
+            console.log('TAP version 13')
+            startPrinted = true
+          }
+          return
+        }
+
+        if (decoded.subtype === 'assert') {
+          const [ind, oknotok, number, message] = decoded.args
+          const derivedNumber = ind === '' ? ++testCount : number
+          console.log(`${ind}${oknotok} ${derivedNumber} ${message}`)
+          return
+        }
+
+        if (decoded.subtype === 'comment') {
+          console.log('#', ...decoded.args)
+          return
+        }
+
         console.log(...decoded.args)
       })
       await current.done
       this.printIndex++
     }
+
+    await this.printResults()
   }
 
   async sendState() {
@@ -1017,6 +1076,40 @@ class Threads {
         for (const thread of this.threads) {
           thread.connection.write(JSON.stringify({ type: 'state', solo }))
         }
+        resolve()
+      })
+    })
+  }
+
+  async printResults() {
+    return new Promise((resolve) => {
+      setImmediate(async () => {
+        const tests = { pass: 0, count: 0 }
+        const asserts = { pass: 0, count: 0 }
+        let maxTime = 0
+
+        const results = await Promise.all(this.threads.map((t) => t.result))
+        for (const result of results) {
+          tests.pass += result.tests.pass
+          tests.count += result.tests.count
+          asserts.pass += result.asserts.pass
+          asserts.count += result.asserts.count
+          if (result.time > maxTime) maxTime = result.time
+        }
+
+        console.log()
+        console.log('1..' + tests.count)
+        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
+        console.log('# asserts = ' + asserts.pass + '/' + asserts.count + ' pass')
+        console.log('# time = ' + maxTime + 'ms')
+        console.log()
+
+        if (tests.count === tests.pass && asserts.count === asserts.pass) {
+          console.log('# ok')
+        } else {
+          console.log('# not ok')
+        }
+
         resolve()
       })
     })
@@ -1039,8 +1132,14 @@ class Threads {
         if (decoded.type === 'state') resolve(decoded)
       })
     })
+    const result = new Promise((resolve) => {
+      connection.on('data', (chunk) => {
+        const decoded = JSON.parse(chunk.toString())
+        if (decoded.type === 'result') resolve(decoded)
+      })
+    })
 
-    this.threads.push({ thread, file, output, connection, done, state })
+    this.threads.push({ thread, file, output, connection, done, state, result })
     if (!this.printing) this.printing = this.print()
     if (!this.sendingState) this.sendingState = this.sendState()
   }
