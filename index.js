@@ -89,7 +89,8 @@ class Runner {
       }
 
       if (type === 'comment') {
-        console.log('#', ...args)
+        const [ind, ...rest] = args
+        console.log(`${ind}#`, ...rest)
         return
       }
 
@@ -226,7 +227,7 @@ class Runner {
   }
 
   comment(...message) {
-    this.log('comment', ...message)
+    this.log('comment', '', ...message)
   }
 
   end() {
@@ -442,7 +443,7 @@ class Test {
 
   _comment(...m) {
     if (this._isResolved) throw new Error("Can't comment after end")
-    this._runner.log(INDENT + '#', ...m)
+    this._runner.log('comment', INDENT, ...m)
   }
 
   _message(message) {
@@ -1078,7 +1079,8 @@ class Threads {
         }
 
         if (decoded.subtype === 'comment') {
-          console.log('#', ...decoded.args)
+          const [ind, ...args] = decoded.args
+          console.log(`${ind}#`, ...args)
           return
         }
 
