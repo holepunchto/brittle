@@ -1042,10 +1042,14 @@ class Threads {
 
   async init() {
     if (this.initializing) return this.initializing
-    this.initializing = (async () => {
-      this.printLogs()
-      await this.sendInitialState()
-    })()
+    this.initializing = new Promise((resolve) => {
+      setImmediate(async () => {
+        this.sendInitialState()
+        this.printLogs()
+        resolve()
+      })
+    })
+    return this.initializing
   }
 
   async printLogs() {
