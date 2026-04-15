@@ -1,12 +1,12 @@
 const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
+const { Readable } = require('streamx')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, THREADS, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
-const { Readable, Duplex } = require('streamx')
-const FramedStream = require('framed-stream')
+const threadStreams = require('./lib/thread-streams')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -51,7 +51,7 @@ class Runner {
     if (this._isChildThread) {
       const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
-      this._pipe = createFromPipes(receiver, sender)
+      this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
     }
 
     const ondeadlock = () => {
@@ -67,7 +67,7 @@ class Runner {
     if (!global.Bare || global.Bare.Thread.isMainThread) return console.log.bind(console)
 
     return (...args) => {
-      this._pipe.write(JSON.stringify({ file: this._file, type: 'log', args }))
+      this._threadStream.write(JSON.stringify({ type: 'log', file: this._file, args }))
     }
   }
 
@@ -92,12 +92,12 @@ class Runner {
   async syncState() {
     if (this.state) return this.state
 
-    const stream = this._pipe.rawStream
+    const stream = this._threadStream.rawStream
     stream.recv.ref()
 
-    this._pipe.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
+    this._threadStream.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
     this.state = new Promise((resolve) => {
-      this._pipe.on('data', (chunk) => {
+      this._threadStream.on('data', (chunk) => {
         const decoded = JSON.parse(chunk.toString())
         if (decoded.type === 'state') resolve(decoded)
       })
@@ -1046,55 +1046,11 @@ class Threads {
   }
 }
 
-function createPipes() {
-  const Pipe = require('bare-pipe')
-  const [cReceiver, sSender] = Pipe.pipe()
-  const [sReceiver, cSender] = Pipe.pipe()
-
-  const recv = new Pipe(sReceiver)
-  const send = new Pipe(sSender)
-
-  const duplex = new (class PipeDuplex extends Duplex {
-    constructor({ send, recv, ...opts }) {
-      super(opts)
-      this.recv = recv
-      this.send = send
-      this._write = (data, cb) => this.send.write(data, cb)
-      this._final = (cb) => this.send.end(cb)
-      this.recv.on('data', (chunk) => this.push(chunk))
-      this.recv.on('end', () => this.push(null))
-    }
-  })({ send, recv })
-
-  return { stream: new FramedStream(duplex), cReceiver, cSender }
-}
-
-function createFromPipes(receiver, sender) {
-  const Pipe = require('bare-pipe')
-  const recv = new Pipe(receiver)
-  const send = new Pipe(sender)
-  recv.unref()
-
-  const duplex = new (class PipeDuplex extends Duplex {
-    constructor({ send, recv, ...opts }) {
-      super(opts)
-      this.recv = recv
-      this.send = send
-      this._write = (data, cb) => this.send.write(data, cb)
-      this._final = (cb) => this.send.end(cb)
-      this.recv.on('data', (chunk) => this.push(chunk))
-      this.recv.on('end', () => this.push(null))
-    }
-  })({ send, recv })
-
-  return new FramedStream(duplex)
-}
-
 function threadRun(file) {
   if (!global[THREADS]) global[THREADS] = new Threads()
   const { Thread } = global.Bare
 
-  const { stream: connection, cReceiver, cSender } = createPipes()
+  const { stream: connection, cReceiver, cSender } = threadStreams.createStream()
 
   global[THREADS].add(
     new Thread(file, { data: { file: file, sender: cSender, receiver: cReceiver } }),
