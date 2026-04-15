@@ -53,8 +53,7 @@ class Runner {
       this._file = file
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
       this._initialState = new Promise((resolve) => {
-        this._threadStream.on('data', (chunk) => {
-          const decoded = JSON.parse(chunk.toString())
+        this._threadStream.on('data', (decoded) => {
           if (decoded.type === 'state') {
             this._updateState(decoded)
             resolve(decoded)
@@ -75,9 +74,7 @@ class Runner {
   getLogger() {
     if (isChildThread) {
       return (type, ...args) => {
-        this._threadStream.write(
-          JSON.stringify({ type: 'log', subtype: type, file: this._file, args })
-        )
+        this._threadStream.write({ type: 'log', subtype: type, file: this._file, args })
       }
     }
 
@@ -128,7 +125,7 @@ class Runner {
   async syncState() {
     if (this.state) return this.state
 
-    this._threadStream.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
+    this._threadStream.write({ type: 'state', solo: this.solos.size > 0 })
 
     const stream = this._threadStream.rawStream
     stream.recv.ref()
@@ -247,16 +244,14 @@ class Runner {
     }
 
     if (isChildThread) {
-      this._threadStream.write(
-        JSON.stringify({
-          type: 'result',
-          bail: this.bail,
-          skipAll: this.skipAll,
-          tests: { pass: this.tests.pass, count: this.tests.count },
-          asserts: { pass: this.assertions.pass, count: this.assertions.count },
-          time: this._timer()
-        })
-      )
+      this._threadStream.write({
+        type: 'result',
+        bail: this.bail,
+        skipAll: this.skipAll,
+        tests: { pass: this.tests.pass, count: this.tests.count },
+        asserts: { pass: this.assertions.pass, count: this.assertions.count },
+        time: this._timer()
+      })
 
       return
     }
@@ -293,7 +288,7 @@ class Runner {
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
-        this._threadStream.write(JSON.stringify({ type: 'state', skipAll: true }))
+        this._threadStream.write({ type: 'state', skipAll: true })
         this.skipAll = true
       }
       if (!this.unstealth && stealth) {
@@ -1063,8 +1058,7 @@ class Threads {
     let tapVersionPrinted = false
     while (printIndex < this.threads.length) {
       const current = this.threads[printIndex]
-      current.output.on('data', (chunk) => {
-        const decoded = JSON.parse(chunk.toString())
+      current.output.on('data', (decoded) => {
         if (decoded.subtype === 'start') {
           if (!tapVersionPrinted) {
             console.log('TAP version 13')
@@ -1148,15 +1142,14 @@ class Threads {
   async broadcastState(state, except = null) {
     for (const thread of this.threads) {
       if (thread.thread === except) continue
-      thread.connection.write(JSON.stringify({ type: 'state', ...state }))
+      thread.connection.write({ type: 'state', ...state })
     }
   }
 
   add(thread, file, connection) {
     const output = new Readable()
-    connection.on('data', (chunk) => {
-      const decoded = JSON.parse(chunk.toString())
-      if (decoded.type === 'log') output.push(chunk)
+    connection.on('data', (decoded) => {
+      if (decoded.type === 'log') output.push(decoded)
     })
 
     const done = new Promise((resolve) => {
@@ -1164,8 +1157,7 @@ class Threads {
       connection.on('error', () => resolve('error'))
     })
     const initialState = new Promise((resolve) => {
-      connection.on('data', (chunk) => {
-        const decoded = JSON.parse(chunk.toString())
+      connection.on('data', (decoded) => {
         if (decoded.type === 'state') {
           if (this.initialized) {
             this.broadcastState(decoded, thread)
@@ -1177,8 +1169,7 @@ class Threads {
       })
     })
     const result = new Promise((resolve) => {
-      connection.on('data', (chunk) => {
-        const decoded = JSON.parse(chunk.toString())
+      connection.on('data', (decoded) => {
         if (decoded.type === 'result') resolve(decoded)
       })
     })
