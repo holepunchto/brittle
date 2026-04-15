@@ -52,12 +52,6 @@ class Runner {
       const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
       this._pipe = createFromPipes(receiver, sender)
-      this.state = new Promise((resolve) => {
-        this._pipe.on('data', (chunk) => {
-          const decoded = JSON.parse(chunk.toString())
-          if (decoded.type === 'state') resolve(decoded)
-        })
-      })
     }
 
     const ondeadlock = () => {
@@ -95,6 +89,18 @@ class Runner {
     await this._paused
   }
 
+  async syncState() {
+    if (this.state) return this.state
+    this._pipe.write(JSON.stringify({ type: 'state', solo: this.solos.size > 0 }))
+    this.state = new Promise((resolve) => {
+      this._pipe.on('data', (chunk) => {
+        const decoded = JSON.parse(chunk.toString())
+        if (decoded.type === 'state') resolve(decoded)
+      })
+    })
+    return this.state
+  }
+
   async queue(test) {
     this.start()
 
@@ -103,6 +109,11 @@ class Runner {
     }
 
     await this._wait()
+
+    if (this._isChildThread) {
+      const state = await this.syncState()
+      if (state.solo) this.explicitSolo = true
+    }
 
     if (this.explicitSolo && !test._isSolo) {
       return false
@@ -976,7 +987,6 @@ class Threads {
   threads = []
   printIndex = 0
   printing = null
-  isSolo = false
   sendingState = null
   constructor() {}
 
@@ -994,9 +1004,12 @@ class Threads {
 
   async sendState() {
     return new Promise((resolve) => {
-      setImmediate(() => {
+      setImmediate(async () => {
+        const states = await Promise.all(this.threads.map((t) => t.state))
+        const solo = states.some((s) => s.solo)
         for (const thread of this.threads) {
-          thread.connection.write(JSON.stringify({ type: 'state', solo: this.isSolo }))
+          thread.connection.write(JSON.stringify({ type: 'state', solo }))
+          thread.connection.end()
         }
         resolve()
       })
@@ -1014,8 +1027,14 @@ class Threads {
       connection.on('end', () => resolve('done'))
       connection.on('error', () => resolve('error'))
     })
+    const state = new Promise((resolve) => {
+      connection.on('data', (chunk) => {
+        const decoded = JSON.parse(chunk.toString())
+        if (decoded.type === 'state') resolve(decoded)
+      })
+    })
 
-    this.threads.push({ thread, file, output, connection, done })
+    this.threads.push({ thread, file, output, connection, done, state })
     if (!this.printing) this.printing = this.print()
     if (!this.sendingState) this.sendingState = this.sendState()
   }
