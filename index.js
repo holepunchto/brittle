@@ -1037,22 +1037,29 @@ function stealth(name, opts, fn) {
 
 class Threads {
   threads = []
-  printIndex = 0
-  printing = null
-  sendingState = null
+  initializing = null
   constructor() {}
+
+  async init() {
+    if (this.initializing) return this.initializing
+    this.initializing = (async () => {
+      this.print()
+      await this.sendInitialState()
+    })()
+  }
 
   async print() {
     let testCount = 0
-    let startPrinted = false
-    while (this.printIndex < this.threads.length) {
-      const current = this.threads[this.printIndex]
+    let printIndex = 0
+    let tapVersionPrinted = false
+    while (printIndex < this.threads.length) {
+      const current = this.threads[printIndex]
       current.output.on('data', (chunk) => {
         const decoded = JSON.parse(chunk.toString())
         if (decoded.subtype === 'start') {
-          if (!startPrinted) {
+          if (!tapVersionPrinted) {
             console.log('TAP version 13')
-            startPrinted = true
+            tapVersionPrinted = true
           }
           return
         }
@@ -1072,23 +1079,10 @@ class Threads {
         console.log(...decoded.args)
       })
       await current.done
-      this.printIndex++
+      printIndex++
     }
 
     await this.printResults()
-  }
-
-  async sendState() {
-    return new Promise((resolve) => {
-      setImmediate(async () => {
-        const states = await Promise.all(this.threads.map((t) => t.state))
-        const solo = states.some((s) => s.solo)
-        for (const thread of this.threads) {
-          thread.connection.write(JSON.stringify({ type: 'state', solo }))
-        }
-        resolve()
-      })
-    })
   }
 
   async printResults() {
@@ -1125,6 +1119,22 @@ class Threads {
     })
   }
 
+  async sendInitialState() {
+    return new Promise((resolve) => {
+      setImmediate(async () => {
+        const states = await Promise.all(this.threads.map((t) => t.state))
+        await this.broadcastState({ solo: states.some((s) => s.solo) })
+        resolve()
+      })
+    })
+  }
+
+  async broadcastState(state) {
+    for (const thread of this.threads) {
+      thread.connection.write(JSON.stringify({ type: 'state', ...state }))
+    }
+  }
+
   add(thread, file, connection) {
     const output = new Readable()
     connection.on('data', (chunk) => {
@@ -1150,8 +1160,7 @@ class Threads {
     })
 
     this.threads.push({ thread, file, output, connection, done, state, result })
-    if (!this.printing) this.printing = this.print()
-    if (!this.sendingState) this.sendingState = this.sendState()
+    this.init()
   }
 }
 
