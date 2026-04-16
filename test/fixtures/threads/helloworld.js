@@ -1,4 +1,4 @@
-const test = require('../../../../')
+const test = require('../../../')
 
 test('hello world', (t) => {
   t.plan(3)

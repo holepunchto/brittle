@@ -5,7 +5,7 @@ if (!isBare) process.exit()
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/solo/helloworld.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.threadRun(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
     brittle.threadRun(require.resolve('./fixtures/threads/solo/hiworld.js'))
   },
@@ -37,7 +37,7 @@ await spawner(
 await spawner(
   function (brittle) {
     brittle.configure({ bail: true })
-    brittle.threadRun(require.resolve('./fixtures/threads/bail/helloworld.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.threadRun(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
     brittle.threadRun(require.resolve('./fixtures/threads/bail/hiworld.js'))
   },
@@ -87,12 +87,38 @@ await spawner(
 
 await spawner(
   function (brittle) {
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.threadRun(require.resolve('./fixtures/threads/error/plan.js'))
   },
   `
   TAP version 13
 
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 301ms
+
   # plan
   `,
   { exitCode: 'error', stderr: { includes: 'Error: Test did not end (plan)' } }
+)
+
+await spawner(
+  function (brittle) {
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/error/timeout.js'))
+  },
+  `
+  TAP version 13
+  
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 301ms
+
+  # timeout
+  `,
+  { exitCode: 'error', stderr: { includes: 'Error: Test timed out after 10 ms' } }
 )
