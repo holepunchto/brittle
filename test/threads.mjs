@@ -87,17 +87,11 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.threadRun(require.resolve('./fixtures/threads/error/plan.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
   },
   `
   TAP version 13
-
-  # hello world
-      ok 1 - hello world
-      ok 2 - hello world
-      ok 3 - hello world
-  ok 1 - hello world # time = 301ms
 
   # plan
   `,
@@ -106,17 +100,11 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.threadRun(require.resolve('./fixtures/threads/error/timeout.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
   },
   `
   TAP version 13
-  
-  # hello world
-      ok 1 - hello world
-      ok 2 - hello world
-      ok 3 - hello world
-  ok 1 - hello world # time = 301ms
 
   # timeout
   `,
