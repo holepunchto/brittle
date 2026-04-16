@@ -79,6 +79,11 @@ class Runner {
     }
 
     return (type, ...args) => {
+      if (type === 'start') {
+        console.log('TAP version 13')
+        return
+      }
+
       if (type === 'assert') {
         const [indent, oknotok, number, message] = args
         console.log(`${indent}${oknotok} ${number} ${message}`)
@@ -88,6 +93,25 @@ class Runner {
       if (type === 'comment') {
         const [indent, ...rest] = args
         console.log(`${indent}#`, ...rest)
+        return
+      }
+
+      if (type === 'results') {
+        const [tests, assertions, time] = args
+
+        if (this.bail && this.skipAll) console.log('Bail out!')
+
+        this.padding()
+
+        console.log('1..' + tests.count)
+        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
+        console.log('# asserts = ' + assertions.pass + '/' + assertions.count + ' pass')
+        console.log('# time = ' + time + 'ms')
+        console.log()
+
+        const isOk = tests.count === tests.pass && assertions.count === assertions.pass
+        console.log(`# ${isOk ? 'ok' : 'not ok'}`)
+
         return
       }
 
@@ -220,7 +244,7 @@ class Runner {
   start() {
     if (this.started) return
     this.started = true
-    this.log('start', 'TAP version 13')
+    this.log('start')
   }
 
   comment(...message) {
@@ -257,25 +281,7 @@ class Runner {
       return
     }
 
-    if (this.bail && this.skipAll) {
-      this.log('bail', 'Bail out!')
-    }
-
-    this.padding()
-    this.log('result', '1..' + this.tests.count)
-    this.log('result', '# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log(
-      'result',
-      '# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass'
-    )
-    this.log('result', '# time = ' + this._timer() + 'ms')
-    this.log('padding')
-
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) {
-      this.log('result', '# ok')
-    } else {
-      this.log('result', '# not ok')
-    }
+    this.log('results', this.tests, this.assertions, this._timer())
   }
 
   assert(indent, ok, number, message, explanation, stealth) {
@@ -1064,7 +1070,7 @@ class Threads {
       current.output.on('data', ({ args, subtype }) => {
         if (subtype === 'start') {
           if (!tapVersionPrinted) {
-            console.log('TAP version 13')
+            this.runner.log('start')
             tapVersionPrinted = true
           }
           return
@@ -1073,17 +1079,11 @@ class Threads {
         if (subtype === 'assert') {
           const [indent, oknotok, number, message] = args
           const derivedNumber = indent === '' ? ++testCount : number
-          console.log(`${indent}${oknotok} ${derivedNumber} ${message}`)
+          this.runner.log(subtype, indent, oknotok, derivedNumber, message)
           return
         }
 
-        if (subtype === 'comment') {
-          const [indent, ...otherArgs] = args
-          console.log(`${indent}#`, ...otherArgs)
-          return
-        }
-
-        console.log(...args)
+        this.runner.log(subtype, ...args)
       })
       await current.done
       printIndex++
@@ -1095,11 +1095,11 @@ class Threads {
   async printResults() {
     return new Promise((resolve) => {
       setImmediate(async () => {
+        const results = await Promise.all(this.threads.map((t) => t.result))
+
         const tests = { pass: 0, count: 0 }
         const asserts = { pass: 0, count: 0 }
         let maxTime = 0
-
-        const results = await Promise.all(this.threads.map((t) => t.result))
         for (const result of results) {
           tests.pass += result.tests.pass
           tests.count += result.tests.count
@@ -1108,23 +1108,7 @@ class Threads {
           if (result.time > maxTime) maxTime = result.time
         }
 
-        if (this.runner.bail && this.runner.skipAll) {
-          console.log('Bail out!')
-        }
-
-        console.log()
-        console.log('1..' + tests.count)
-        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
-        console.log('# asserts = ' + asserts.pass + '/' + asserts.count + ' pass')
-        console.log('# time = ' + maxTime + 'ms')
-        console.log()
-
-        if (tests.count === tests.pass && asserts.count === asserts.pass) {
-          console.log('# ok')
-        } else {
-          console.log('# not ok')
-        }
-
+        this.runner.log('results', tests, asserts, maxTime)
         resolve()
       })
     })
