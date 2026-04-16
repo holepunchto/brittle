@@ -53,10 +53,10 @@ class Runner {
       this._file = file
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
       this._initialConfig = new Promise((resolve) => {
-        this._threadStream.on('data', (decoded) => {
-          if (decoded.type === 'config') {
-            this._updateConfig(decoded)
-            resolve(decoded)
+        this._threadStream.on('data', (data) => {
+          if (data.type === 'config') {
+            this._updateConfig(data)
+            resolve(data)
           }
         })
       })
@@ -80,14 +80,14 @@ class Runner {
 
     return (type, ...args) => {
       if (type === 'assert') {
-        const [ind, oknotok, number, message] = args
-        console.log(`${ind}${oknotok} ${number} ${message}`)
+        const [indent, oknotok, number, message] = args
+        console.log(`${indent}${oknotok} ${number} ${message}`)
         return
       }
 
       if (type === 'comment') {
-        const [ind, ...rest] = args
-        console.log(`${ind}#`, ...rest)
+        const [indent, ...rest] = args
+        console.log(`${indent}#`, ...rest)
         return
       }
 
@@ -1061,8 +1061,8 @@ class Threads {
     let tapVersionPrinted = false
     while (printIndex < this.threads.length) {
       const current = this.threads[printIndex]
-      current.output.on('data', (decoded) => {
-        if (decoded.subtype === 'start') {
+      current.output.on('data', ({ args, subtype }) => {
+        if (subtype === 'start') {
           if (!tapVersionPrinted) {
             console.log('TAP version 13')
             tapVersionPrinted = true
@@ -1070,20 +1070,20 @@ class Threads {
           return
         }
 
-        if (decoded.subtype === 'assert') {
-          const [ind, oknotok, number, message] = decoded.args
-          const derivedNumber = ind === '' ? ++testCount : number
-          console.log(`${ind}${oknotok} ${derivedNumber} ${message}`)
+        if (subtype === 'assert') {
+          const [indent, oknotok, number, message] = args
+          const derivedNumber = indent === '' ? ++testCount : number
+          console.log(`${indent}${oknotok} ${derivedNumber} ${message}`)
           return
         }
 
-        if (decoded.subtype === 'comment') {
-          const [ind, ...args] = decoded.args
-          console.log(`${ind}#`, ...args)
+        if (subtype === 'comment') {
+          const [indent, ...otherArgs] = args
+          console.log(`${indent}#`, ...otherArgs)
           return
         }
 
-        console.log(...decoded.args)
+        console.log(...args)
       })
       await current.done
       printIndex++
@@ -1155,8 +1155,8 @@ class Threads {
 
   add(thread, file, connection) {
     const output = new Readable()
-    connection.on('data', (decoded) => {
-      if (decoded.type === 'log') output.push(decoded)
+    connection.on('data', (data) => {
+      if (data.type === 'log') output.push(data)
     })
 
     const done = new Promise((resolve) => {
@@ -1164,21 +1164,21 @@ class Threads {
       connection.on('error', () => resolve('error'))
     })
     const initialConfig = new Promise((resolve) => {
-      connection.on('data', (decoded) => {
-        if (decoded.type === 'config') {
+      connection.on('data', (data) => {
+        if (data.type === 'config') {
           if (this.initialized) {
-            if (decoded.skipAll !== undefined) this.runner.skipAll = decoded.skipAll
-            this.broadcastConfig(decoded)
+            if (data.skipAll !== undefined) this.runner.skipAll = data.skipAll
+            this.broadcastConfig(data)
             return
           }
 
-          resolve(decoded)
+          resolve(data)
         }
       })
     })
     const result = new Promise((resolve) => {
-      connection.on('data', (decoded) => {
-        if (decoded.type === 'result') resolve(decoded)
+      connection.on('data', (data) => {
+        if (data.type === 'result') resolve(data)
       })
     })
 
