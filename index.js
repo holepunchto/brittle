@@ -1066,7 +1066,7 @@ class Threads {
     let tapVersionPrinted = false
     while (printIndex < this.threads.length) {
       const current = this.threads[printIndex]
-      current.output.on('data', ({ args, subtype }) => {
+      current.logs.on('data', ({ args, subtype }) => {
         if (subtype === 'start') {
           if (!tapVersionPrinted) {
             this.runner.log('start')
@@ -1140,9 +1140,9 @@ class Threads {
   }
 
   add(thread, file, connection) {
-    const output = new Readable()
+    const logs = new Readable()
     connection.on('data', (data) => {
-      if (data.type === 'log') output.push(data)
+      if (data.type === 'log') logs.push(data)
     })
 
     const done = new Promise((resolve) => {
@@ -1171,7 +1171,7 @@ class Threads {
     const threadBundle = {
       thread,
       file,
-      output,
+      logs,
       connection,
       done,
       isDone: false,
