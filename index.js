@@ -1077,6 +1077,9 @@ class Threads {
 
         if (subtype === 'assert') {
           const [indent, oknotok, number, message] = args
+
+          if (oknotok === 'not ok') global.Bare.exitCode = 1
+
           const derivedNumber = indent === '' ? ++testCount : number
           this.runner.log(subtype, indent, oknotok, derivedNumber, message)
           return

@@ -82,5 +82,5 @@ await spawner(
 
   # not ok
   `,
-  { exitCode: 0, stderr: '' }
+  { exitCode: 1, stderr: '' }
 )
