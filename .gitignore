@@ -2,3 +2,5 @@ node_modules
 package-lock.json
 sandbox
 coverage
+*.snapshot.cjs
+_testscript-*.js
