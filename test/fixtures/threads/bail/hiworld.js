@@ -10,8 +10,9 @@ test('hi world', (t) => {
 
 test('after hi world (should not run)', (t) => {
   t.plan(3)
-  for (let i = 1; i <= 3; i++)
+  for (let i = 1; i <= 3; i++) {
     setTimeout(() => {
       t.pass('after hi world')
     }, i * 100)
+  }
 })

@@ -1,4 +1,7 @@
+import { isBare } from 'which-runtime'
 import { spawner } from './helpers/index.js'
+
+if (!isBare) process.exit()
 
 await spawner(
   function (brittle) {
