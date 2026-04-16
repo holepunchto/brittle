@@ -50,13 +50,17 @@ class Runner {
 
     if (isChildThread) {
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
-      this._initialConfig = new Promise((resolve) => {
+      this._configSent = false
+      this._configReceived = new Promise((resolve) => {
         this._threadStream.on('data', (data) => {
           if (data.type === 'config') {
             this._updateConfig(data)
             resolve(data)
           }
         })
+      })
+      this._configReceived.then(() => {
+        this._threadStream.connection.unref()
       })
     }
 
@@ -136,7 +140,6 @@ class Runner {
   }
 
   _updateConfig(config) {
-    this.config = config
     if (config.timeout !== undefined) this.defaultTimeout = config.timeout
     if (config.bail !== undefined) this.bail = config.bail
     if (config.solo !== undefined) this.explicitSolo = config.solo
@@ -145,16 +148,11 @@ class Runner {
     if (config.skipAll !== undefined) this.skipAll = config.skipAll
   }
 
-  async syncConfig() {
-    if (this.config) return this.config
+  async _sendConfig() {
+    if (this._configSent) return
 
     this._threadStream.write({ type: 'config', solo: this.solos.size > 0 })
-
-    this._threadStream.connection.ref()
-    await this._initialConfig
-    this._threadStream.connection.unref()
-
-    return this.config
+    this._configSent = true
   }
 
   async queue(test) {
@@ -166,7 +164,10 @@ class Runner {
 
     await this._wait()
 
-    if (isChildThread) await this.syncConfig()
+    if (isChildThread) {
+      await this._sendConfig()
+      await this._configReceived
+    }
 
     if (this.explicitSolo && !test._isSolo) {
       return false
