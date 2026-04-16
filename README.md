@@ -128,7 +128,7 @@ node test/all.mjs
 ## API
 
 ```js
-import { test, solo, skip, hook, todo, configure } from 'brittle'
+import { test, solo, skip, hook, todo, configure, threadRun } from 'brittle'
 ```
 
 #### `test([name], [options], callback)`
@@ -418,6 +418,37 @@ It must be executed before any tests.
 import { configure } from 'brittle'
 
 configure({ timeout: 15000 }) // All tests will have a 15 seconds timeout
+```
+
+#### `threadRun(file)`
+
+Run a test file in a separate Bare thread. **Bare runtime only.**
+
+Each call spawns a new thread that runs the given file. Threads execute concurrently, but their TAP output is printed sequentially in the order `threadRun` was called. The runner automatically aggregates results (test counts, assertion counts, time) from all threads into a single TAP summary.
+
+Use `configure()` before `threadRun` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, and `source` to all threads.
+
+When `bail` is enabled, a failing assertion in one thread will cause other threads to stop executing, but only after their currently running test has finished. This means in-progress tests are not abruptly interrupted; they complete before the bail-out takes effect.
+
+```js
+import { threadRun, configure } from 'brittle'
+
+// Optional: configure before spawning threads
+configure({ bail: true })
+
+threadRun(require.resolve('./test/hello.js'))
+threadRun(require.resolve('./test/world.js'))
+```
+
+Each thread file is a normal brittle test file:
+
+```js
+// test/hello.js
+const test = require('brittle')
+
+test('hello', function (t) {
+  t.pass()
+})
 ```
 
 ### Assertions
