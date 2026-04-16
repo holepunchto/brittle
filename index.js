@@ -49,8 +49,7 @@ class Runner {
     this._resume = null
 
     if (isChildThread) {
-      const { receiver, sender } = global.Bare.Thread.self.data
-      this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
+      this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._initialConfig = new Promise((resolve) => {
         this._threadStream.on('data', (data) => {
           if (data.type === 'config') {
@@ -151,10 +150,9 @@ class Runner {
 
     this._threadStream.write({ type: 'config', solo: this.solos.size > 0 })
 
-    const stream = this._threadStream.rawStream
-    stream.recv.ref()
+    this._threadStream.connection.ref()
     await this._initialConfig
-    stream.recv.unref()
+    this._threadStream.connection.unref()
 
     return this.config
   }
@@ -1049,9 +1047,10 @@ class Threads {
 
   async init() {
     if (this.initializing) return this.initializing
+    this.keepAlive = setInterval(() => {}, 9999)
     this.initializing = new Promise((resolve) => {
       setImmediate(async () => {
-        this.printLogs()
+        this.printLogs().then(() => clearInterval(this.keepAlive))
         await this.sendInitialConfig()
         this.initialized = true
         resolve()
@@ -1193,7 +1192,6 @@ function threadRun(file) {
   if (!global[THREADS]) global[THREADS] = new Threads()
   const { Thread } = global.Bare
 
-  const { stream: connection, sender, receiver } = threadStreams.createStream()
-
-  global[THREADS].add(new Thread(file, { data: { sender, receiver } }), file, connection)
+  const { stream: connection, handle } = threadStreams.createStream()
+  global[THREADS].add(new Thread(file, { data: { handle } }), file, connection)
 }

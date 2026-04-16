@@ -26,11 +26,12 @@
   "dependencies": {
     "b4a": "^1.8.0",
     "bare-assert": "^1.2.0",
+    "bare-buffer": "^3.6.0",
+    "bare-channel": "^5.2.3",
     "bare-cov": "^1.2.1",
     "bare-fs": "^4.5.5",
     "bare-os": "^3.7.1",
     "bare-path": "^3.0.0",
-    "bare-pipe": "^4.1.5",
     "bare-process": "^4.3.0",
     "bare-subprocess": "^5.2.2",
     "bare-url": "^2.3.2",
