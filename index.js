@@ -1188,6 +1188,8 @@ class Threads {
 }
 
 function threadRun(file) {
+  if (!IS_BARE) throw new Error('threadRun is only supported in bare')
+
   if (!global[THREADS]) global[THREADS] = new Threads()
   const { Thread } = global.Bare
 
