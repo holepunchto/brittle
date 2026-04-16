@@ -5,6 +5,6 @@ test.solo('hi world', (t) => {
   for (let i = 1; i <= 3; i++) {
     setTimeout(() => {
       t.pass('hi world')
-    }, i * 10)
+    }, i * 100)
   }
 })

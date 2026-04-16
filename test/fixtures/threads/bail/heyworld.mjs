@@ -9,6 +9,6 @@ test('hey world (should not run)', (t) => {
   for (let i = 1; i <= 3; i++) {
     setTimeout(() => {
       t.pass('hey world')
-    }, i * 10)
+    }, i * 100)
   }
 })
