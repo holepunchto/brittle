@@ -110,3 +110,16 @@ await spawner(
   `,
   { exitCode: 'error', stderr: { includes: 'Error: Test timed out after 10 ms' } }
 )
+
+await spawner(
+  function (brittle) {
+    brittle.threadRun(require.resolve('./fixtures/threads/error/thrown.js'))
+    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
+  },
+  `
+  TAP version 13
+
+  # thrown
+  `,
+  { exitCode: 'error', stderr: { includes: 'Error: ERROR' } }
+)
