@@ -5,6 +5,6 @@ test('hello world', (t) => {
   for (let i = 1; i <= 3; i++) {
     setTimeout(() => {
       t.pass('hello world')
-    }, i * 100)
+    }, i * 10)
   }
 })
