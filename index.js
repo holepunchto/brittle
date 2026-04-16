@@ -1149,6 +1149,11 @@ class Threads {
       connection.on('end', () => resolve('done'))
       connection.on('error', () => resolve('error'))
     })
+    const result = new Promise((resolve) => {
+      connection.on('data', (data) => {
+        if (data.type === 'result') resolve(data)
+      })
+    })
     const initialConfig = new Promise((resolve) => {
       connection.on('data', (data) => {
         if (data.type === 'config') {
@@ -1160,11 +1165,6 @@ class Threads {
 
           resolve(data)
         }
-      })
-    })
-    const result = new Promise((resolve) => {
-      connection.on('data', (data) => {
-        if (data.type === 'result') resolve(data)
       })
     })
 
@@ -1191,8 +1191,7 @@ function threadRun(file) {
   if (!IS_BARE) throw new Error('threadRun is only supported in bare')
 
   if (!global[THREADS]) global[THREADS] = new Threads()
-  const { Thread } = global.Bare
 
   const { stream: connection, handle } = threadStreams.createStream()
-  global[THREADS].add(new Thread(file, { data: { handle } }), file, connection)
+  global[THREADS].add(new global.Bare.Thread(file, { data: { handle } }), file, connection)
 }
