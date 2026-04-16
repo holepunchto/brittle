@@ -84,3 +84,15 @@ await spawner(
   `,
   { exitCode: 1, stderr: '' }
 )
+
+await spawner(
+  function (brittle) {
+    brittle.threadRun(require.resolve('./fixtures/threads/error/plan.js'))
+  },
+  `
+  TAP version 13
+
+  # plan
+  `,
+  { exitCode: 'error', stderr: { includes: 'Error: Test did not end (plan)' } }
+)
