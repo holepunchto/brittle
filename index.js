@@ -52,10 +52,10 @@ class Runner {
       const { receiver, sender, file } = global.Bare.Thread.self.data
       this._file = file
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
-      this._initialState = new Promise((resolve) => {
+      this._initialConfig = new Promise((resolve) => {
         this._threadStream.on('data', (decoded) => {
-          if (decoded.type === 'state') {
-            this._updateState(decoded)
+          if (decoded.type === 'config') {
+            this._updateConfig(decoded)
             resolve(decoded)
           }
         })
@@ -113,27 +113,27 @@ class Runner {
     await this._paused
   }
 
-  _updateState(state) {
-    this.state = state
-    if (state.timeout !== undefined) this.defaultTimeout = state.timeout
-    if (state.bail !== undefined) this.bail = state.bail
-    if (state.solo !== undefined) this.explicitSolo = state.solo
-    if (state.unstealth !== undefined) this.unstealth = state.unstealth
-    if (state.source !== undefined) this.source = state.source
-    if (state.skipAll !== undefined) this.skipAll = state.skipAll
+  _updateConfig(config) {
+    this.config = config
+    if (config.timeout !== undefined) this.defaultTimeout = config.timeout
+    if (config.bail !== undefined) this.bail = config.bail
+    if (config.solo !== undefined) this.explicitSolo = config.solo
+    if (config.unstealth !== undefined) this.unstealth = config.unstealth
+    if (config.source !== undefined) this.source = config.source
+    if (config.skipAll !== undefined) this.skipAll = config.skipAll
   }
 
-  async syncState() {
-    if (this.state) return this.state
+  async syncConfig() {
+    if (this.config) return this.config
 
-    this._threadStream.write({ type: 'state', solo: this.solos.size > 0 })
+    this._threadStream.write({ type: 'config', solo: this.solos.size > 0 })
 
     const stream = this._threadStream.rawStream
     stream.recv.ref()
-    await this._initialState
+    await this._initialConfig
     stream.recv.unref()
 
-    return this.state
+    return this.config
   }
 
   async queue(test) {
@@ -145,7 +145,7 @@ class Runner {
 
     await this._wait()
 
-    if (isChildThread) await this.syncState()
+    if (isChildThread) await this.syncConfig()
 
     if (this.explicitSolo && !test._isSolo) {
       return false
@@ -289,7 +289,7 @@ class Runner {
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
-        if (isChildThread) this._threadStream.write({ type: 'state', skipAll: true })
+        if (isChildThread) this._threadStream.write({ type: 'config', skipAll: true })
         this.skipAll = true
       }
       if (!this.unstealth && stealth) {
@@ -1047,7 +1047,7 @@ class Threads {
     this.initializing = new Promise((resolve) => {
       setImmediate(async () => {
         this.printLogs()
-        await this.sendInitialState()
+        await this.sendInitialConfig()
         this.initialized = true
         resolve()
       })
@@ -1130,12 +1130,12 @@ class Threads {
     })
   }
 
-  async sendInitialState() {
+  async sendInitialConfig() {
     return new Promise((resolve) => {
       setImmediate(async () => {
-        const states = await Promise.all(this.threads.map((t) => t.initialState))
-        await this.broadcastState({
-          solo: states.some((s) => s.solo),
+        const configs = await Promise.all(this.threads.map((t) => t.initialConfig))
+        await this.broadcastConfig({
+          solo: configs.some((s) => s.solo),
           timeout: this.runner.defaultTimeout,
           bail: this.runner.bail,
           unstealth: this.runner.unstealth,
@@ -1146,10 +1146,10 @@ class Threads {
     })
   }
 
-  async broadcastState(state) {
+  async broadcastConfig(config) {
     for (const thread of this.threads) {
       if (thread.isDone) continue
-      thread.connection.write({ type: 'state', ...state })
+      thread.connection.write({ type: 'config', ...config })
     }
   }
 
@@ -1163,12 +1163,12 @@ class Threads {
       connection.on('end', () => resolve('done'))
       connection.on('error', () => resolve('error'))
     })
-    const initialState = new Promise((resolve) => {
+    const initialConfig = new Promise((resolve) => {
       connection.on('data', (decoded) => {
-        if (decoded.type === 'state') {
+        if (decoded.type === 'config') {
           if (this.initialized) {
             if (decoded.skipAll !== undefined) this.runner.skipAll = decoded.skipAll
-            this.broadcastState(decoded)
+            this.broadcastConfig(decoded)
             return
           }
 
@@ -1189,7 +1189,7 @@ class Threads {
       connection,
       done,
       isDone: false,
-      initialState,
+      initialConfig,
       result
     }
     done.then(() => {
