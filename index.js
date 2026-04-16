@@ -49,8 +49,7 @@ class Runner {
     this._resume = null
 
     if (isChildThread) {
-      const { receiver, sender, file } = global.Bare.Thread.self.data
-      this._file = file
+      const { receiver, sender } = global.Bare.Thread.self.data
       this._threadStream = threadStreams.createStreamFromFds(receiver, sender)
       this._initialConfig = new Promise((resolve) => {
         this._threadStream.on('data', (data) => {
@@ -74,7 +73,7 @@ class Runner {
   getLogger() {
     if (isChildThread) {
       return (type, ...args) => {
-        this._threadStream.write({ type: 'log', subtype: type, file: this._file, args })
+        this._threadStream.write({ type: 'log', subtype: type, args })
       }
     }
 
@@ -1189,11 +1188,7 @@ function threadRun(file) {
   if (!global[THREADS]) global[THREADS] = new Threads()
   const { Thread } = global.Bare
 
-  const { stream: connection, cReceiver, cSender } = threadStreams.createStream()
+  const { stream: connection, sender, receiver } = threadStreams.createStream()
 
-  global[THREADS].add(
-    new Thread(file, { data: { file: file, sender: cSender, receiver: cReceiver } }),
-    file,
-    connection
-  )
+  global[THREADS].add(new Thread(file, { data: { sender, receiver } }), file, connection)
 }
