@@ -1038,7 +1038,9 @@ class Threads {
   threads = []
   initializing = null
   initialized = false
-  constructor() {}
+  constructor() {
+    this.runner = getRunner()
+  }
 
   async init() {
     if (this.initializing) return this.initializing
@@ -1106,6 +1108,10 @@ class Threads {
           if (result.time > maxTime) maxTime = result.time
         }
 
+        if (this.runner.bail && this.runner.skipAll) {
+          console.log('Bail out!')
+        }
+
         console.log()
         console.log('1..' + tests.count)
         console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
@@ -1127,14 +1133,13 @@ class Threads {
   async sendInitialState() {
     return new Promise((resolve) => {
       setImmediate(async () => {
-        const runner = getRunner()
         const states = await Promise.all(this.threads.map((t) => t.initialState))
         await this.broadcastState({
           solo: states.some((s) => s.solo),
-          timeout: runner.defaultTimeout,
-          bail: runner.bail,
-          unstealth: runner.unstealth,
-          source: runner.source
+          timeout: this.runner.defaultTimeout,
+          bail: this.runner.bail,
+          unstealth: this.runner.unstealth,
+          source: this.runner.source
         })
         resolve()
       })
@@ -1162,6 +1167,7 @@ class Threads {
       connection.on('data', (decoded) => {
         if (decoded.type === 'state') {
           if (this.initialized) {
+            if (decoded.skipAll !== undefined) this.runner.skipAll = decoded.skipAll
             this.broadcastState(decoded)
             return
           }
