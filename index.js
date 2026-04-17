@@ -1188,7 +1188,9 @@ class Threads {
 }
 
 function load(file) {
-  if (!IS_BARE) throw new Error('load is only supported in bare')
+  if (!IS_BARE) {
+    return import(file)
+  }
 
   if (!global[THREADS]) global[THREADS] = new Threads()
 
