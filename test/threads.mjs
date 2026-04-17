@@ -5,9 +5,9 @@ if (!isBare) process.exit()
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
-    brittle.threadRun(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
-    brittle.threadRun(require.resolve('./fixtures/threads/solo/hiworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
+    brittle.load(require.resolve('./fixtures/threads/solo/hiworld.js'))
   },
   `
   TAP version 13
@@ -37,9 +37,9 @@ await spawner(
 await spawner(
   function (brittle) {
     brittle.configure({ bail: true })
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
-    brittle.threadRun(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
-    brittle.threadRun(require.resolve('./fixtures/threads/bail/hiworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
+    brittle.load(require.resolve('./fixtures/threads/bail/hiworld.js'))
   },
   `
   TAP version 13
@@ -87,8 +87,8 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/error/plan.js'))
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/error/plan.js'))
+    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
   `
   TAP version 13
@@ -100,8 +100,8 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/error/timeout.js'))
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/error/timeout.js'))
+    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
   `
   TAP version 13
@@ -113,8 +113,8 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.threadRun(require.resolve('./fixtures/threads/error/thrown.js'))
-    brittle.threadRun(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.load(require.resolve('./fixtures/threads/error/thrown.js'))
+    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
   `
   TAP version 13

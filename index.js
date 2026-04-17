@@ -849,7 +849,7 @@ exports.configure = configure
 exports.pause = pause
 exports.resume = resume
 exports.stealth = stealth
-exports.threadRun = threadRun
+exports.load = load
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
@@ -1187,8 +1187,8 @@ class Threads {
   }
 }
 
-function threadRun(file) {
-  if (!IS_BARE) throw new Error('threadRun is only supported in bare')
+function load(file) {
+  if (!IS_BARE) throw new Error('load is only supported in bare')
 
   if (!global[THREADS]) global[THREADS] = new Threads()
 
