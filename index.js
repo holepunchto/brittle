@@ -61,7 +61,7 @@ class Runner {
 
       this._threadStream.on('data', (data) => {
         if (data.type === 'start') threadStart()
-        if (data.type === 'state') this._updateState(data)
+        else if (data.type === 'state') this._updateState(data)
       })
       this._threadStarted.then(() => this._threadStream.connection.unref())
     }
@@ -85,22 +85,13 @@ class Runner {
     return (type, ...args) => {
       if (type === 'start') {
         console.log('TAP version 13')
-        return
-      }
-
-      if (type === 'assert') {
+      } else if (type === 'assert') {
         const [indent, oknotok, number, message] = args
         console.log(`${indent}${oknotok} ${number} ${message}`)
-        return
-      }
-
-      if (type === 'comment') {
+      } else if (type === 'comment') {
         const [indent, ...rest] = args
         console.log(`${indent}#`, ...rest)
-        return
-      }
-
-      if (type === 'results') {
+      } else if (type === 'results') {
         const [tests, assertions, time] = args
 
         if (this.bail && this.skipAll) console.log('Bail out!')
@@ -115,11 +106,9 @@ class Runner {
 
         const isOk = tests.count === tests.pass && assertions.count === assertions.pass
         console.log(`# ${isOk ? 'ok' : 'not ok'}`)
-
-        return
+      } else {
+        console.log(...args)
       }
-
-      console.log(...args)
     }
   }
 
