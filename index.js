@@ -9,7 +9,10 @@ const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 const program = IS_NODE ? process : global.Bare
-const isChildThread = global.Bare && !global.Bare.Thread.isMainThread
+const isBrittleChildThread =
+  global.Bare &&
+  !global.Bare.Thread.isMainThread &&
+  global.Bare.Thread.self.data.isBrittleThread === true
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -47,7 +50,7 @@ class Runner {
     this._paused = null
     this._resume = null
 
-    if (isChildThread) {
+    if (isBrittleChildThread) {
       const threadStreams = require('./lib/thread-streams')
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._configSent = false
@@ -72,7 +75,7 @@ class Runner {
   }
 
   getLogger() {
-    if (isChildThread) {
+    if (isBrittleChildThread) {
       return (type, ...args) => {
         this._threadStream.write({ type: 'log', subtype: type, args })
       }
@@ -162,7 +165,7 @@ class Runner {
 
     await this._wait()
 
-    if (isChildThread) {
+    if (isBrittleChildThread) {
       await this._sendConfig()
       await this._threadStarted
     }
@@ -264,7 +267,7 @@ class Runner {
       }
     }
 
-    if (isChildThread) {
+    if (isBrittleChildThread) {
       this._threadStream.write({
         type: 'result',
         bail: this.bail,
@@ -291,7 +294,7 @@ class Runner {
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
-        if (isChildThread) this._threadStream.write({ type: 'config', skipAll: true })
+        if (isBrittleChildThread) this._threadStream.write({ type: 'config', skipAll: true })
         this.skipAll = true
       }
       if (!this.unstealth && stealth) {
