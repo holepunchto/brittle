@@ -1039,8 +1039,10 @@ function load(file) {
   const runner = getRunner()
   if (runner.jobs === 1) return import(file)
 
-  const Threads = require('./lib/threads')
-  if (!global[THREADS]) global[THREADS] = new Threads(runner)
+  if (!global[THREADS]) {
+    const Threads = require('./lib/threads')
+    global[THREADS] = new Threads(runner)
+  }
 
   global[THREADS].add(file)
 }
