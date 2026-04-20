@@ -5,7 +5,6 @@ const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, THREADS, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
-const threadStreams = require('./lib/thread-streams')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
@@ -49,6 +48,7 @@ class Runner {
     this._resume = null
 
     if (isChildThread) {
+      const threadStreams = require('./lib/thread-streams')
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._configSent = false
 
