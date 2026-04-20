@@ -8,3 +8,7 @@ test.solo('hi world', (t) => {
     }, i * 100)
   }
 })
+
+test('hi world 2 (should not run)', (t) => {
+  t.fail('this should not run at all')
+})
