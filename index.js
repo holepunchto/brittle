@@ -57,10 +57,9 @@ class Runner {
 
       const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
       this._threadStarted = threadStarted
-      this._threadStart = threadStart
 
       this._threadStream.on('data', (data) => {
-        if (data.type === 'start') this._threadStart()
+        if (data.type === 'start') threadStart()
         if (data.type === 'config') this._updateConfig(data)
       })
       this._threadStarted.then(() => this._threadStream.connection.unref())
