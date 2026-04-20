@@ -1097,6 +1097,7 @@ class Threads {
     setImmediate(async () => {
       this.printLogs()
       await this.sendInitialConfig()
+      this.threads.forEach((t) => t.start())
       this.initialized = true
     })
   }
@@ -1186,7 +1187,6 @@ class Threads {
       if (this.initialized) this.broadcastConfig(data)
     }
     const threadHandler = new ThreadHandler({ thread, file, connection, onConfig })
-    threadHandler.start()
 
     this.threads.push(threadHandler)
     this.init()
