@@ -1084,9 +1084,12 @@ class ThreadHandler {
 }
 
 class Threads {
+  _currentIndex = 0
   threads = []
+  threadCount = 8
   running = false
   initialized = false
+  done = undefined
   constructor() {
     this.runner = getRunner()
   }
@@ -1096,10 +1099,24 @@ class Threads {
     this.running = true
     setImmediate(async () => {
       this.printLogs()
+
       await this.sendInitialConfig()
-      this.threads.forEach((t) => t.start())
       this.initialized = true
+
+      this.start()
     })
+  }
+
+  start() {
+    const worker = async () => {
+      while (this._currentIndex < this.threads.length) {
+        const thread = this.threads[this._currentIndex++]
+        thread.start()
+        await thread.done
+      }
+    }
+
+    this.done = Promise.all(Array.from({ length: this.threadCount }, () => worker()))
   }
 
   async printLogs() {
