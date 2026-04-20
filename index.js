@@ -2,7 +2,7 @@ const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
-const { INDENT, RUNNER, THREADS, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
+const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
 const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
@@ -44,6 +44,7 @@ class Runner {
     this.explicitSolo = false
     this.source = true
     this.jobs = 1
+    this.threads = null
 
     this._timer = highDefTimer()
     this._log = this.getLogger()
@@ -68,7 +69,7 @@ class Runner {
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      if (!global[THREADS]) this.end()
+      if (!this.threads) this.end()
     }
 
     program.on('beforeExit', ondeadlock)
@@ -1037,10 +1038,10 @@ function load(file) {
   const runner = getRunner()
   if (!IS_BARE || runner.jobs <= 1) return import(file)
 
-  if (!global[THREADS]) {
+  if (!runner.threads) {
     const Threads = require('./lib/threads')
-    global[THREADS] = new Threads(runner)
+    runner.threads = new Threads(runner)
   }
 
-  global[THREADS].add(file)
+  runner.threads.add(file)
 }
