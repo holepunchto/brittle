@@ -55,9 +55,10 @@ class Runner {
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._configSent = false
 
-      this._threadStarted = new Promise((resolve) => {
-        this._threadStart = resolve
-      })
+      const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
+      this._threadStarted = threadStarted
+      this._threadStart = threadStart
+
       this._threadStream.on('data', (data) => {
         if (data.type === 'start') this._threadStart()
         if (data.type === 'config') this._updateConfig(data)
