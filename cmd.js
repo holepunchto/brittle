@@ -62,7 +62,7 @@ if (trace && !mine) {
 }
 
 if (argv.runner) {
-  require('./make-tests.js')
+  require('./make-test.js')
   process.exit(0)
 }
 
