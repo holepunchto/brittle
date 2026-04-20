@@ -1092,8 +1092,8 @@ class Threads {
   running = false
   initialized = false
   done = undefined
-  constructor() {
-    this.runner = getRunner()
+  constructor(runner) {
+    this.runner = runner
   }
 
   async init() {
@@ -1213,11 +1213,12 @@ class Threads {
 }
 
 function load(file) {
-  if (!IS_BARE) {
-    return import(file)
-  }
+  if (!IS_BARE) return import(file)
 
-  if (!global[THREADS]) global[THREADS] = new Threads()
+  const runner = getRunner()
+  if (runner.jobs === 1) return import(file)
+
+  if (!global[THREADS]) global[THREADS] = new Threads(runner)
 
   const { stream: connection, handle } = threadStreams.createStream()
   global[THREADS].add(new global.Bare.Thread(file, { data: { handle } }), file, connection)
