@@ -53,14 +53,14 @@ class Runner {
     if (isBrittleChildThread) {
       const threadStreams = require('./lib/thread-streams')
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
-      this._configSent = false
+      this._stateSent = false
 
       const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
       this._threadStarted = threadStarted
 
       this._threadStream.on('data', (data) => {
         if (data.type === 'start') threadStart()
-        if (data.type === 'config') this._updateConfig(data)
+        if (data.type === 'state') this._updateState(data)
       })
       this._threadStarted.then(() => this._threadStream.connection.unref())
     }
@@ -140,20 +140,20 @@ class Runner {
     await this._paused
   }
 
-  _updateConfig(config) {
-    if (config.timeout !== undefined) this.defaultTimeout = config.timeout
-    if (config.bail !== undefined) this.bail = config.bail
-    if (config.solo !== undefined) this.explicitSolo = config.solo
-    if (config.unstealth !== undefined) this.unstealth = config.unstealth
-    if (config.source !== undefined) this.source = config.source
-    if (config.skipAll !== undefined) this.skipAll = config.skipAll
+  _updateState(state) {
+    if (state.timeout !== undefined) this.defaultTimeout = state.timeout
+    if (state.bail !== undefined) this.bail = state.bail
+    if (state.solo !== undefined) this.explicitSolo = state.solo
+    if (state.unstealth !== undefined) this.unstealth = state.unstealth
+    if (state.source !== undefined) this.source = state.source
+    if (state.skipAll !== undefined) this.skipAll = state.skipAll
   }
 
-  async _sendConfig() {
-    if (this._configSent) return
+  async _sendState() {
+    if (this._stateSent) return
 
-    this._threadStream.write({ type: 'config', solo: this.solos.size > 0 })
-    this._configSent = true
+    this._threadStream.write({ type: 'state', solo: this.solos.size > 0 })
+    this._stateSent = true
   }
 
   async queue(test) {
@@ -166,7 +166,7 @@ class Runner {
     await this._wait()
 
     if (isBrittleChildThread) {
-      await this._sendConfig()
+      await this._sendState()
       await this._threadStarted
     }
 
@@ -294,7 +294,7 @@ class Runner {
       this.log('assert', ind, 'not ok', number, message)
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
-        if (isBrittleChildThread) this._threadStream.write({ type: 'config', skipAll: true })
+        if (isBrittleChildThread) this._threadStream.write({ type: 'state', skipAll: true })
         this.skipAll = true
       }
       if (!this.unstealth && stealth) {
