@@ -42,6 +42,7 @@ class Runner {
     this.skipAll = false
     this.explicitSolo = false
     this.source = true
+    this.jobs = 1
 
     this._timer = highDefTimer()
     this._log = this.getLogger()
@@ -858,7 +859,8 @@ function configure({
   solo = false,
   unstealth = false,
   source = true,
-  coverage = false
+  coverage = false,
+  jobs
 } = {}) {
   const runner = getRunner()
 
@@ -873,6 +875,7 @@ function configure({
   runner.explicitSolo = solo
   runner.unstealth = unstealth
   runner.source = source
+  if (jobs !== undefined) runner.jobs = jobs
 }
 
 function highDefTimerNode() {
@@ -1086,7 +1089,6 @@ class ThreadHandler {
 class Threads {
   _currentIndex = 0
   threads = []
-  threadCount = 8
   running = false
   initialized = false
   done = undefined
@@ -1116,7 +1118,7 @@ class Threads {
       }
     }
 
-    this.done = Promise.all(Array.from({ length: this.threadCount }, () => worker()))
+    this.done = Promise.all(Array.from({ length: this.runner.jobs }, () => worker()))
   }
 
   async printLogs() {

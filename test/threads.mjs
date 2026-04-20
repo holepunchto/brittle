@@ -5,6 +5,7 @@ if (!isBare) process.exit()
 
 await spawner(
   function (brittle) {
+    brittle.configure({ jobs: 3 })
     brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.load(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
     brittle.load(require.resolve('./fixtures/threads/solo/hiworld.js'))
@@ -36,7 +37,7 @@ await spawner(
 
 await spawner(
   function (brittle) {
-    brittle.configure({ bail: true })
+    brittle.configure({ bail: true, jobs: 3 })
     brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.load(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
     brittle.load(require.resolve('./fixtures/threads/bail/hiworld.js'))
@@ -87,6 +88,7 @@ await spawner(
 
 await spawner(
   function (brittle) {
+    brittle.configure({ jobs: 2 })
     brittle.load(require.resolve('./fixtures/threads/error/plan.js'))
     brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
@@ -100,6 +102,7 @@ await spawner(
 
 await spawner(
   function (brittle) {
+    brittle.configure({ jobs: 2 })
     brittle.load(require.resolve('./fixtures/threads/error/timeout.js'))
     brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
@@ -113,6 +116,7 @@ await spawner(
 
 await spawner(
   function (brittle) {
+    brittle.configure({ jobs: 2 })
     brittle.load(require.resolve('./fixtures/threads/error/thrown.js'))
     brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
   },
