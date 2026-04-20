@@ -56,7 +56,7 @@ function runner(file, files, { bail, solo, unstealth, timeout }) {
 
     let r = path.relative(dir, t).replace(/\\/g, '/')
     if (r[0] !== '.') r = './' + r
-    s += "  await import('" + r + "')\n"
+    s += "  await test.load('" + r + "')\n"
   }
 
   s = s.trimRight()
