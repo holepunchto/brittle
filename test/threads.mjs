@@ -4,11 +4,11 @@ import { spawner } from './helpers/index.js'
 if (!isBare) process.exit()
 
 await spawner(
-  function (brittle) {
+  async function (brittle) {
     brittle.configure({ jobs: 3 })
-    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
-    brittle.load(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
-    brittle.load(require.resolve('./fixtures/threads/solo/hiworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/solo/heyworld.mjs'))
+    await brittle.load(require.resolve('./fixtures/threads/solo/hiworld.js'))
   },
   `
   TAP version 13
@@ -36,11 +36,13 @@ await spawner(
 )
 
 await spawner(
-  function (brittle) {
+  async function (brittle) {
     brittle.configure({ bail: true, jobs: 3 })
-    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
-    brittle.load(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
-    brittle.load(require.resolve('./fixtures/threads/bail/hiworld.js'))
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/heyworld.mjs'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/hiworld.js'))
+    brittle.resume()
   },
   `
   TAP version 13
@@ -87,10 +89,12 @@ await spawner(
 )
 
 await spawner(
-  function (brittle) {
+  async function (brittle) {
     brittle.configure({ jobs: 2 })
-    brittle.load(require.resolve('./fixtures/threads/error/plan.js'))
-    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/plan.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
   },
   `
   TAP version 13
@@ -101,10 +105,12 @@ await spawner(
 )
 
 await spawner(
-  function (brittle) {
+  async function (brittle) {
     brittle.configure({ jobs: 2 })
-    brittle.load(require.resolve('./fixtures/threads/error/timeout.js'))
-    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/timeout.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
   },
   `
   TAP version 13
@@ -115,10 +121,12 @@ await spawner(
 )
 
 await spawner(
-  function (brittle) {
+  async function (brittle) {
     brittle.configure({ jobs: 2 })
-    brittle.load(require.resolve('./fixtures/threads/error/thrown.js'))
-    brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/thrown.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
   },
   `
   TAP version 13
