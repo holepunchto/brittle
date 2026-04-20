@@ -855,15 +855,7 @@ exports.load = load
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure({
-  timeout = DEFAULT_TIMEOUT,
-  bail = false,
-  solo = false,
-  unstealth = false,
-  source = true,
-  coverage = false,
-  jobs
-} = {}) {
+function configure({ timeout, bail, solo, unstealth, source, coverage, jobs } = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
@@ -872,11 +864,11 @@ function configure({
 
   if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
 
-  runner.defaultTimeout = timeout
-  runner.bail = bail
-  runner.explicitSolo = solo
-  runner.unstealth = unstealth
-  runner.source = source
+  if (timeout !== undefined) runner.defaultTimeout = timeout
+  if (bail !== undefined) runner.bail = bail
+  if (solo !== undefined) runner.explicitSolo = solo
+  if (unstealth !== undefined) runner.unstealth = unstealth
+  if (source !== undefined) runner.source = source
   if (jobs !== undefined) runner.jobs = jobs
 }
 
