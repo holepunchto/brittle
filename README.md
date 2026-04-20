@@ -432,8 +432,8 @@ import { load, configure } from 'brittle'
 
 configure({ bail: true })
 
-load('./test/hello.js')
-load('./test/world.js')
+load(import.meta.resolve('./hello.js'))
+load(import.meta.resolve('./world.js'))
 ```
 
 Each loaded file is a normal brittle test file:
