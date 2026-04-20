@@ -1034,10 +1034,8 @@ function stealth(name, opts, fn) {
 }
 
 function load(file) {
-  if (!IS_BARE) return import(file)
-
   const runner = getRunner()
-  if (runner.jobs === 1) return import(file)
+  if (!IS_BARE || runner.jobs <= 1) return import(file)
 
   if (!global[THREADS]) {
     const Threads = require('./lib/threads')
