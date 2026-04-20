@@ -51,17 +51,15 @@ class Runner {
     if (isChildThread) {
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._configSent = false
-      this._configReceived = new Promise((resolve) => {
-        this._threadStream.on('data', (data) => {
-          if (data.type === 'config') {
-            this._updateConfig(data)
-            resolve(data)
-          }
-        })
+
+      this._threadStarted = new Promise((resolve) => {
+        this._threadStart = resolve
       })
-      this._configReceived.then(() => {
-        this._threadStream.connection.unref()
+      this._threadStream.on('data', (data) => {
+        if (data.type === 'start') this._threadStart()
+        if (data.type === 'config') this._updateConfig(data)
       })
+      this._threadStarted.then(() => this._threadStream.connection.unref())
     }
 
     const ondeadlock = () => {
@@ -166,7 +164,7 @@ class Runner {
 
     if (isChildThread) {
       await this._sendConfig()
-      await this._configReceived
+      await this._threadStarted
     }
 
     if (this.explicitSolo && !test._isSolo) {
@@ -1038,26 +1036,69 @@ function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
 }
 
+class ThreadHandler {
+  isDone = false
+  constructor({ thread, file, connection, onConfig }) {
+    this.thread = thread
+    this.file = file
+    this.connection = connection
+    this.onConfig = onConfig
+
+    this.initialConfig = new Promise((resolve) => {
+      this.setInitialConfig = resolve
+    })
+    this.result = new Promise((resolve) => {
+      this.setResult = resolve
+    })
+    this.logs = new Readable()
+    this.connection.on('data', (data) => {
+      if (data.type === 'log') this.logs.push(data)
+      if (data.type === 'result') this.setResult(data)
+      if (data.type === 'config') {
+        this.setInitialConfig(data)
+        this.onConfig(data)
+      }
+    })
+
+    this.done = new Promise((resolve) => {
+      connection.on('end', () => resolve('done'))
+      connection.on('error', () => resolve('error'))
+    }).then(() => {
+      this.isDone = true
+    })
+
+    this.result = new Promise((resolve) => {
+      connection.on('data', (data) => {
+        if (data.type === 'result') resolve(data)
+      })
+    })
+  }
+
+  start() {
+    this.connection.write({ type: 'start' })
+  }
+
+  configure(config) {
+    this.connection.write({ ...config, type: 'config' })
+  }
+}
+
 class Threads {
   threads = []
-  initializing = null
+  running = false
   initialized = false
   constructor() {
     this.runner = getRunner()
   }
 
   async init() {
-    if (this.initializing) return this.initializing
-    this.keepAlive = setInterval(() => {}, 9999)
-    this.initializing = new Promise((resolve) => {
-      setImmediate(async () => {
-        this.printLogs().then(() => clearInterval(this.keepAlive))
-        await this.sendInitialConfig()
-        this.initialized = true
-        resolve()
-      })
+    if (this.running) return this.running
+    this.running = true
+    setImmediate(async () => {
+      this.printLogs()
+      await this.sendInitialConfig()
+      this.initialized = true
     })
-    return this.initializing
   }
 
   async printLogs() {
@@ -1135,54 +1176,19 @@ class Threads {
   async broadcastConfig(config) {
     for (const thread of this.threads) {
       if (thread.isDone) continue
-      thread.connection.write({ type: 'config', ...config })
+      thread.configure(config)
     }
   }
 
   add(thread, file, connection) {
-    const logs = new Readable()
-    connection.on('data', (data) => {
-      if (data.type === 'log') logs.push(data)
-    })
-
-    const done = new Promise((resolve) => {
-      connection.on('end', () => resolve('done'))
-      connection.on('error', () => resolve('error'))
-    })
-    const result = new Promise((resolve) => {
-      connection.on('data', (data) => {
-        if (data.type === 'result') resolve(data)
-      })
-    })
-    const initialConfig = new Promise((resolve) => {
-      connection.on('data', (data) => {
-        if (data.type === 'config') {
-          if (this.initialized) {
-            if (data.skipAll !== undefined) this.runner.skipAll = data.skipAll
-            this.broadcastConfig(data)
-            return
-          }
-
-          resolve(data)
-        }
-      })
-    })
-
-    const threadBundle = {
-      thread,
-      file,
-      logs,
-      connection,
-      done,
-      isDone: false,
-      initialConfig,
-      result
+    const onConfig = (data) => {
+      if (data.skipAll !== undefined) this.runner.skipAll = data.skipAll
+      if (this.initialized) this.broadcastConfig(data)
     }
-    done.then(() => {
-      threadBundle.isDone = true
-    })
+    const threadHandler = new ThreadHandler({ thread, file, connection, onConfig })
+    threadHandler.start()
 
-    this.threads.push(threadBundle)
+    this.threads.push(threadHandler)
     this.init()
   }
 }
