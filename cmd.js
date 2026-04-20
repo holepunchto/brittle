@@ -26,6 +26,7 @@ const cmd = command(
   flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
+  flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -45,7 +46,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
 
 process.title = 'brittle'
 
@@ -78,14 +79,24 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout) {
-    brittle.configure({ bail, solo, unstealth, timeout: timeout ? Number(timeout) : undefined })
+  if (bail || solo || unstealth || timeout || jobs) {
+    brittle.configure({
+      bail,
+      solo,
+      unstealth,
+      timeout: timeout ? Number(timeout) : undefined,
+      jobs: jobs ? Number(jobs) : undefined
+    })
   }
 
   brittle.pause()
 
-  for (const f of files) {
-    await import('file://' + path.resolve(f))
+  if (files.length === 1) {
+    await import('file://' + path.resolve(files[0]))
+  } else {
+    for (const f of files) {
+      await brittle.load('file://' + path.resolve(f))
+    }
   }
 
   brittle.resume()
@@ -98,6 +109,7 @@ async function startMining() {
     .concat(unstealth ? ['--unstealth'] : [])
     .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
+    .concat(jobs ? ['--jobs', jobs] : [])
     .concat(files)
 
   const running = new Set()
