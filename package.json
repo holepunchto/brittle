@@ -36,7 +36,6 @@
     "bare-subprocess": "^5.2.2",
     "bare-url": "^2.3.2",
     "error-stack-parser": "^2.1.4",
-    "framed-stream": "^1.0.1",
     "globbie": "^1.0.3",
     "paparam": "^1.10.0",
     "same-object": "^1.0.2",
