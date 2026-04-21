@@ -869,7 +869,7 @@ exports.load = load
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure(config) {
+function configure(config = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
