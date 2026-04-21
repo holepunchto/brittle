@@ -46,9 +46,7 @@ class Runner {
     this.source = true
     this.jobs = 1
     this.threads = null
-    this.config = {}
 
-    this._configApplied = false
     this._timer = highDefTimer()
     this._log = this.getLogger()
     this._paused = null
@@ -58,11 +56,18 @@ class Runner {
       const threadStreams = require('./lib/thread-streams')
       this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
       this._stateSent = false
+      this._configApplied = false
+
+      this.pendingConfig = {}
 
       const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
       this._threadStarted = threadStarted.then(() => {
         this._threadStream.connection.unref()
-        this.applyConfig()
+        if (!this._configApplied) {
+          this.applyConfig(this.pendingConfig)
+          this.pendingConfig = {}
+          this._configApplied = true
+        }
       })
 
       this._threadStream.on('data', (data) => {
@@ -117,11 +122,8 @@ class Runner {
     }
   }
 
-  applyConfig() {
-    if (this._configApplied) return
-    this._configApplied = true
-
-    const { timeout, bail, solo, unstealth, source, jobs, coverage } = this.config
+  applyConfig(config) {
+    const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
     if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
     if (timeout !== undefined) this.defaultTimeout = timeout
     if (bail !== undefined) this.bail = bail
@@ -874,8 +876,12 @@ function configure(config) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  runner.config = { ...runner.config, ...config }
-  if (!isBrittleChildThread) runner.applyConfig()
+  if (isBrittleChildThread) {
+    runner.pendingConfig = { ...runner.pendingConfig, ...config }
+    return
+  }
+
+  runner.applyConfig(config)
 }
 
 function highDefTimerNode() {
