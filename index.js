@@ -42,6 +42,7 @@ class Runner {
     this.unstealth = false
     this.skipAll = false
     this.explicitSolo = false
+    this.assumeSolo = false
     this.source = true
     this.jobs = 1
     this.threads = null
@@ -133,7 +134,7 @@ class Runner {
   _updateState(state) {
     if (state.timeout !== undefined) this.defaultTimeout = state.timeout
     if (state.bail !== undefined) this.bail = state.bail
-    if (state.solo !== undefined) this.explicitSolo = state.solo
+    if (state.solo !== undefined) this.assumeSolo = state.solo
     if (state.unstealth !== undefined) this.unstealth = state.unstealth
     if (state.source !== undefined) this.source = state.source
     if (state.skipAll !== undefined) this.skipAll = state.skipAll
@@ -206,7 +207,10 @@ class Runner {
   }
 
   _shouldTest(test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    return (
+      test._isHook ||
+      (!this.skipAll && ((this.solos.size === 0 && !this.assumeSolo) || this.solos.has(test)))
+    )
   }
 
   async _autoExit(test) {
