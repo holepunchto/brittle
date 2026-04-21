@@ -12,3 +12,7 @@ test.solo('hi world', (t) => {
 test('hi world 2 (should not run)', (t) => {
   t.fail('this should not run at all')
 })
+
+test.hook('hi world post hook', (t) => {
+  t.comment('hi world hook')
+})

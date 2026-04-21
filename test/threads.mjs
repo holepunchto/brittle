@@ -13,22 +13,30 @@ await spawner(
   `
   TAP version 13
 
+  # hey world pre hook
+      # hey world hook
+  ok 1 - hey world pre hook # time = 0ms
+
   # hey world
       ok 1 - hey world
       ok 2 - hey world
       ok 3 - hey world
-  ok 1 - hey world # time = 3002ms
+  ok 2 - hey world # time = 300ms
 
   # hi world
       ok 1 - hi world
       ok 2 - hi world
       ok 3 - hi world
-  ok 2 - hi world # time = 3002ms
+  ok 3 - hi world # time = 300ms
 
-  1..2
-  # tests = 2/2 pass
+  # hi world post hook
+      # hi world hook
+  ok 4 - hi world post hook # time = 0ms
+
+  1..4
+  # tests = 4/4 pass
   # asserts = 6/6 pass
-  # time = 3018ms
+  # time = 327ms
 
   # ok
   `,
