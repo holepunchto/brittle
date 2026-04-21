@@ -44,6 +44,7 @@ class Runner {
     this.explicitSolo = false
     this.assumeSolo = false
     this.source = true
+    this.coverage = false
     this.jobs = 1
     this.threads = null
 
@@ -124,7 +125,10 @@ class Runner {
 
   applyConfig(config) {
     const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
-    if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+    if (coverage && !this.coverage) {
+      this.coverage = coverage
+      require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+    }
     if (timeout !== undefined) this.defaultTimeout = timeout
     if (bail !== undefined) this.bail = bail
     if (solo !== undefined) this.explicitSolo = solo
