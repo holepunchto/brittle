@@ -428,12 +428,14 @@ Load a test file. This is the recommended way to compose test suites.
 By default, `load` simply imports the file and tests run sequentially. On Bare, when `jobs` is greater than `1`, each loaded file runs in its own thread for parallel execution. See [Threads](#threads) for details.
 
 ```js
-import { load, configure } from 'brittle'
+import test from 'brittle'
 
 configure({ bail: true })
 
-load(import.meta.resolve('./hello.js'))
-load(import.meta.resolve('./world.js'))
+test.pause()
+await load(import.meta.resolve('./hello.js'))
+await load(import.meta.resolve('./world.js'))
+test.resume()
 ```
 
 Each loaded file is a normal brittle test file:
@@ -675,11 +677,13 @@ The number of assertions that were executed within the test.
 
 ## Threads
 
-On Bare, `load()` supports running test files concurrently in threads. Set `jobs` to a value greater than `1` via `configure({ jobs: n })` or the `--jobs n` CLI flag to enable this.
+On Bare, `load()` supports running test files concurrently in threads. Set `jobs` to a value greater than `1` via the `--jobs n` CLI flag or via `configure()` to enable this.
 
 TAP output is always printed sequentially in the order `load` was called, and the runner aggregates results (test counts, assertion counts, time) into a single TAP summary.
 
-Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `source`, and `jobs` to all threads.
+Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `coverage`, and `source` to all threads.
+
+A thread may also set its own options by calling `configure()` within the thread which will override options set by the parent.
 
 When `bail` is enabled, a failing assertion in one thread will cause other threads to stop after their currently running test finishes.
 
