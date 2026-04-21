@@ -46,7 +46,9 @@ class Runner {
     this.source = true
     this.jobs = 1
     this.threads = null
+    this.config = {}
 
+    this._configApplied = false
     this._timer = highDefTimer()
     this._log = this.getLogger()
     this._paused = null
@@ -58,13 +60,15 @@ class Runner {
       this._stateSent = false
 
       const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
-      this._threadStarted = threadStarted
+      this._threadStarted = threadStarted.then(() => {
+        this._threadStream.connection.unref()
+        this.applyConfig()
+      })
 
       this._threadStream.on('data', (data) => {
         if (data.type === 'start') threadStart()
         else if (data.type === 'state') this._updateState(data)
       })
-      this._threadStarted.then(() => this._threadStream.connection.unref())
     }
 
     const ondeadlock = () => {
@@ -111,6 +115,20 @@ class Runner {
         console.log(...args)
       }
     }
+  }
+
+  applyConfig() {
+    if (this._configApplied) return
+    this._configApplied = true
+
+    const { timeout, bail, solo, unstealth, source, jobs, coverage } = this.config
+    if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+    if (timeout !== undefined) this.defaultTimeout = timeout
+    if (bail !== undefined) this.bail = bail
+    if (solo !== undefined) this.explicitSolo = solo
+    if (unstealth !== undefined) this.unstealth = unstealth
+    if (source !== undefined) this.source = source
+    if (jobs !== undefined) this.jobs = jobs
   }
 
   resume() {
@@ -849,21 +867,15 @@ exports.load = load
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure({ timeout, bail, solo, unstealth, source, coverage, jobs } = {}) {
+function configure(config) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
-
-  if (timeout !== undefined) runner.defaultTimeout = timeout
-  if (bail !== undefined) runner.bail = bail
-  if (solo !== undefined) runner.explicitSolo = solo
-  if (unstealth !== undefined) runner.unstealth = unstealth
-  if (source !== undefined) runner.source = source
-  if (jobs !== undefined) runner.jobs = jobs
+  runner.config = { ...runner.config, ...config }
+  if (!isBrittleChildThread) runner.applyConfig()
 }
 
 function highDefTimerNode() {
