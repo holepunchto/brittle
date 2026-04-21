@@ -207,10 +207,10 @@ class Runner {
   }
 
   _shouldTest(test) {
-    return (
-      test._isHook ||
-      (!this.skipAll && ((this.solos.size === 0 && !this.assumeSolo) || this.solos.has(test)))
-    )
+    if (test._isHook) return true
+    else if (this.skipAll) return false
+    else if (this.solos.size > 0 || this.assumeSolo) return this.solos.has(test)
+    else return true
   }
 
   async _autoExit(test) {
