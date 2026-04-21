@@ -128,7 +128,7 @@ node test/all.mjs
 ## API
 
 ```js
-import { test, solo, skip, hook, todo, configure } from 'brittle'
+import { test, solo, skip, hook, todo, configure, load } from 'brittle'
 ```
 
 #### `test([name], [options], callback)`
@@ -413,11 +413,40 @@ It must be executed before any tests.
 - `source` (`true`) - shows error `source` information
 - `unstealth` (`false`) - show assertions even if `stealth` is used
 - `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
+- `jobs` (`1`) - number of test files to run concurrently (Bare-only)
 
 ```js
 import { configure } from 'brittle'
 
 configure({ timeout: 15000 }) // All tests will have a 15 seconds timeout
+```
+
+#### `load(file)`
+
+Load a test file. This is the recommended way to compose test suites.
+
+By default, `load` simply imports the file and tests run sequentially. On Bare, when `jobs` is greater than `1`, each loaded file runs in its own thread for parallel execution. See [Threads](#threads) for details.
+
+```js
+import test from 'brittle'
+
+configure({ bail: true })
+
+test.pause()
+await load(import.meta.resolve('./hello.js'))
+await load(import.meta.resolve('./world.js'))
+test.resume()
+```
+
+Each loaded file is a normal brittle test file:
+
+```js
+// test/hello.js
+const test = require('brittle')
+
+test('hello', function (t) {
+  t.pass()
+})
 ```
 
 ### Assertions
@@ -646,6 +675,31 @@ The number of assertions that failed within the test.
 
 The number of assertions that were executed within the test.
 
+## Threads
+
+On Bare, `load()` supports running test files concurrently in threads. Set `jobs` to a value greater than `1` via the `--jobs n` CLI flag or via `configure()` to enable this.
+
+TAP output is always printed sequentially in the order `load` was called, and the runner aggregates results (test counts, assertion counts, time) into a single TAP summary.
+
+Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `coverage`, and `source` to all threads.
+
+A thread may also set its own options by calling `configure()` within the thread which will override options set by the parent.
+
+When `bail` is enabled, a failing assertion in one thread will cause other threads to stop after their currently running test finishes.
+
+```js
+import { load, configure } from 'brittle'
+
+configure({ jobs: 4 })
+
+load('./test/hello.js')
+load('./test/world.js')
+load('./test/foo.js')
+load('./test/bar.js')
+```
+
+On Node.js or when `jobs` is `1`, `load` falls back to a sequential import — no threads are used.
+
 ## Runner
 
 ### Default timeout
@@ -722,6 +776,7 @@ Flags:
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --runner, -r <runner>     Generates an out file that contains all target tests
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
+  --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
   --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```

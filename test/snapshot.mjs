@@ -787,3 +787,5 @@ await tester(
   { exitCode: 1, stderr: '' },
   { scriptFile }
 )
+
+rmSync(snapshotFile, { force: true })

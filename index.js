@@ -9,6 +9,10 @@ const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 const program = IS_NODE ? process : global.Bare
+const isBrittleChildThread =
+  global.Bare &&
+  !global.Bare.Thread.isMainThread &&
+  global.Bare.Thread.self.data.isBrittleThread === true
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
@@ -38,20 +42,99 @@ class Runner {
     this.unstealth = false
     this.skipAll = false
     this.explicitSolo = false
+    this.assumeSolo = false
     this.source = true
+    this.coverage = false
+    this.jobs = 1
+    this.threads = null
 
     this._timer = highDefTimer()
-    this._log = console.log.bind(console)
+    this._log = this.getLogger()
     this._paused = null
     this._resume = null
+
+    if (isBrittleChildThread) {
+      const threadStreams = require('./lib/thread-streams')
+      this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
+      this._stateSent = false
+      this._configApplied = false
+
+      this.pendingConfig = {}
+
+      const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
+      this._threadStarted = threadStarted.then(() => {
+        this._threadStream.connection.unref()
+        if (!this._configApplied) {
+          this.applyConfig(this.pendingConfig)
+          this.pendingConfig = {}
+          this._configApplied = true
+        }
+      })
+
+      this._threadStream.on('data', (data) => {
+        if (data.type === 'start') threadStart()
+        else if (data.type === 'state') this._updateState(data)
+      })
+    }
 
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      this.end()
+      if (!this.threads) this.end()
     }
 
     program.on('beforeExit', ondeadlock)
+  }
+
+  getLogger() {
+    if (isBrittleChildThread) {
+      return (type, ...args) => {
+        this._threadStream.write({ type: 'log', subtype: type, args })
+      }
+    }
+
+    return (type, ...args) => {
+      if (type === 'start') {
+        console.log('TAP version 13')
+      } else if (type === 'assert') {
+        const [indent, oknotok, number, message] = args
+        console.log(`${indent}${oknotok} ${number} ${message}`)
+      } else if (type === 'comment') {
+        const [indent, ...rest] = args
+        console.log(`${indent}#`, ...rest)
+      } else if (type === 'results') {
+        const [tests, assertions, time] = args
+
+        if (this.bail && this.skipAll) console.log('Bail out!')
+
+        this.padding()
+
+        console.log('1..' + tests.count)
+        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
+        console.log('# asserts = ' + assertions.pass + '/' + assertions.count + ' pass')
+        console.log('# time = ' + time + 'ms')
+        console.log()
+
+        const isOk = tests.count === tests.pass && assertions.count === assertions.pass
+        console.log(`# ${isOk ? 'ok' : 'not ok'}`)
+      } else {
+        console.log(...args)
+      }
+    }
+  }
+
+  applyConfig(config) {
+    const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
+    if (coverage && !this.coverage) {
+      this.coverage = coverage
+      require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+    }
+    if (timeout !== undefined) this.defaultTimeout = timeout
+    if (bail !== undefined) this.bail = bail
+    if (solo !== undefined) this.explicitSolo = solo
+    if (unstealth !== undefined) this.unstealth = unstealth
+    if (source !== undefined) this.source = source
+    if (jobs !== undefined) this.jobs = jobs
   }
 
   resume() {
@@ -72,6 +155,22 @@ class Runner {
     await this._paused
   }
 
+  _updateState(state) {
+    if (state.timeout !== undefined) this.defaultTimeout = state.timeout
+    if (state.bail !== undefined) this.bail = state.bail
+    if (state.solo !== undefined) this.assumeSolo = state.solo
+    if (state.unstealth !== undefined) this.unstealth = state.unstealth
+    if (state.source !== undefined) this.source = state.source
+    if (state.skipAll !== undefined) this.skipAll = state.skipAll
+  }
+
+  async _sendState() {
+    if (this._stateSent) return
+
+    this._threadStream.write({ type: 'state', solo: this.solos.size > 0 })
+    this._stateSent = true
+  }
+
   async queue(test) {
     this.start()
 
@@ -80,6 +179,11 @@ class Runner {
     }
 
     await this._wait()
+
+    if (isBrittleChildThread) {
+      await this._sendState()
+      await this._threadStarted
+    }
 
     if (this.explicitSolo && !test._isSolo) {
       return false
@@ -127,7 +231,10 @@ class Runner {
   }
 
   _shouldTest(test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+    if (test._isHook) return true
+    else if (this.skipAll) return false
+    else if (this.solos.size > 0 || this.assumeSolo) return this.solos.has(test)
+    else return true
   }
 
   async _autoExit(test) {
@@ -148,17 +255,17 @@ class Runner {
   padding() {
     if (this.padded) return
     this.padded = true
-    this.log()
+    this.log('padding')
   }
 
   start() {
     if (this.started) return
     this.started = true
-    this.log('TAP version 13')
+    this.log('start')
   }
 
   comment(...message) {
-    this.log('#', ...message)
+    this.log('comment', '', ...message)
   }
 
   end() {
@@ -178,35 +285,36 @@ class Runner {
       }
     }
 
-    if (this.bail && this.skipAll) {
-      this.log('Bail out!')
+    if (isBrittleChildThread) {
+      this._threadStream.write({
+        type: 'result',
+        bail: this.bail,
+        skipAll: this.skipAll,
+        tests: { pass: this.tests.pass, count: this.tests.count },
+        asserts: { pass: this.assertions.pass, count: this.assertions.count },
+        time: this._timer()
+      })
+
+      return
     }
 
-    this.padding()
-    this.log('1..' + this.tests.count)
-    this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
-    this.log('# time = ' + this._timer() + 'ms')
-    this.log()
-
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) {
-      this.log('# ok')
-    } else {
-      this.log('# not ok')
-    }
+    this.log('results', this.tests, this.assertions, this._timer())
   }
 
   assert(indent, ok, number, message, explanation, stealth) {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      if (!stealth || this.unstealth) this.log(ind + 'ok ' + number, message)
+      if (!stealth || this.unstealth) this.log('assert', ind, 'ok', number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
-      this.log(ind + 'not ok ' + number, message)
-      if (explanation) this.log(lazy.errors.stringify(explanation))
-      if (this.bail && !this.skipAll) this.skipAll = true
+      this.log('assert', ind, 'not ok', number, message)
+      if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
+      if (this.bail && !this.skipAll) {
+        if (isBrittleChildThread) this._threadStream.write({ type: 'state', skipAll: true })
+        this.skipAll = true
+      }
       if (!this.unstealth && stealth) {
         throw new AssertionError({ message: 'Stealth assertion failed' })
       }
@@ -355,7 +463,7 @@ class Test {
 
   _comment(...m) {
     if (this._isResolved) throw new Error("Can't comment after end")
-    this._runner.log(INDENT + '#', ...m)
+    this._runner.log('comment', INDENT, ...m)
   }
 
   _message(message) {
@@ -760,31 +868,24 @@ exports.configure = configure
 exports.pause = pause
 exports.resume = resume
 exports.stealth = stealth
+exports.load = load
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure({
-  timeout = DEFAULT_TIMEOUT,
-  bail = false,
-  solo = false,
-  unstealth = false,
-  source = true,
-  coverage = false
-} = {}) {
+function configure(config = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+  if (isBrittleChildThread) {
+    runner.pendingConfig = { ...runner.pendingConfig, ...config }
+    return
+  }
 
-  runner.defaultTimeout = timeout
-  runner.bail = bail
-  runner.explicitSolo = solo
-  runner.unstealth = unstealth
-  runner.source = source
+  runner.applyConfig(config)
 }
 
 function highDefTimerNode() {
@@ -946,4 +1047,16 @@ function prematureEnd(t, message) {
 
 function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
+}
+
+function load(file) {
+  const runner = getRunner()
+  if (!IS_BARE || runner.jobs <= 1) return import(file)
+
+  if (!runner.threads) {
+    const Threads = require('./lib/threads')
+    runner.threads = new Threads(runner)
+  }
+
+  runner.threads.add(file)
 }
