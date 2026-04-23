@@ -4,9 +4,13 @@ await spawner(
   function ({ hook, solo }) {
     const state = { value: 0 }
 
-    const unhook = hook('setup state', function () { state.value = 42 })
+    const unhook = hook('setup state', function () {
+      state.value = 42
+    })
 
-    const unhook2 = hook('setup state unhooked', function () { state.value = 24 })
+    const unhook2 = hook('setup state unhooked', function () {
+      state.value = 24
+    })
     unhook2()
 
     solo('should not execute unhooked hooks', function (t) {
@@ -39,7 +43,9 @@ await spawner(
   function ({ hook, solo }) {
     const state = { values: [] }
 
-    const unhook = hook('setup', function () { state.values.push('first') })
+    const unhook = hook('setup', function () {
+      state.values.push('first')
+    })
 
     solo('should execute hooks and cleanup', function (t) {
       t.is(state.values.length, 1, 'only one hook should execute')
@@ -50,8 +56,12 @@ await spawner(
       console.log('unhook cleanup should execute')
     })
 
-    const unhookUnused = hook('unused hook', function () { console.log('unused hook should not execute') })
-    unhookUnused('unused hook teardown', function () { console.log('unused hook teardown should not execute') })
+    const unhookUnused = hook('unused hook', function () {
+      console.log('unused hook should not execute')
+    })
+    unhookUnused('unused hook teardown', function () {
+      console.log('unused hook teardown should not execute')
+    })
   },
   `
   TAP version 13
@@ -82,9 +92,15 @@ await spawner(
   function ({ hook, solo }) {
     const state = { hooks: [] }
 
-    const unhook1 = hook('first hook', function () { state.hooks.push('first') })
-    const unhook2 = hook('second hook', function () { state.hooks.push('second') })
-    const unhook3 = hook('third hook', function () { state.hooks.push('third') })
+    const unhook1 = hook('first hook', function () {
+      state.hooks.push('first')
+    })
+    const unhook2 = hook('second hook', function () {
+      state.hooks.push('second')
+    })
+    const unhook3 = hook('third hook', function () {
+      state.hooks.push('third')
+    })
 
     solo('should execute multiple hooks in order', function (t) {
       t.is(state.hooks.length, 3, 'all hooks should execute')
@@ -130,8 +146,12 @@ await spawner(
   function ({ hook, solo }) {
     const state = { executed: [] }
 
-    const unhook1 = hook('first hook to remove', function () { state.executed.push('removed') })
-    const unhook2 = hook('second hook to keep', function () { state.executed.push('stayed') })
+    const unhook1 = hook('first hook to remove', function () {
+      state.executed.push('removed')
+    })
+    const unhook2 = hook('second hook to keep', function () {
+      state.executed.push('stayed')
+    })
 
     unhook1()
 
