@@ -103,7 +103,7 @@ class Runner {
         const [indent, ...rest] = args
         console.log(`${indent}#`, ...rest)
       } else if (type === 'results') {
-        const [tests, assertions, time] = args
+        const [tests, assertions] = args
 
         if (this.bail && this.skipAll) console.log('Bail out!')
 
@@ -112,7 +112,7 @@ class Runner {
         console.log('1..' + tests.count)
         console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
         console.log('# asserts = ' + assertions.pass + '/' + assertions.count + ' pass')
-        console.log('# time = ' + time + 'ms')
+        console.log('# time = ' + this._timer() + 'ms')
         console.log()
 
         const isOk = tests.count === tests.pass && assertions.count === assertions.pass
@@ -291,14 +291,13 @@ class Runner {
         bail: this.bail,
         skipAll: this.skipAll,
         tests: { pass: this.tests.pass, count: this.tests.count },
-        asserts: { pass: this.assertions.pass, count: this.assertions.count },
-        time: this._timer()
+        asserts: { pass: this.assertions.pass, count: this.assertions.count }
       })
 
       return
     }
 
-    this.log('results', this.tests, this.assertions, this._timer())
+    this.log('results', this.tests, this.assertions)
   }
 
   assert(indent, ok, number, message, explanation, stealth) {
