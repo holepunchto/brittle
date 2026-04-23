@@ -233,8 +233,7 @@ class Runner {
   }
 
   _shouldTest(test) {
-    if (test._isHook) return true
-    else if (this.skipAll) return false
+    if (this.skipAll && !test._isHook) return false
     else if (this.solos.size > 0 || this.assumeSolo) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
       if (test._isHook) return this.hooks.has(test)
