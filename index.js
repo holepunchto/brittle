@@ -443,7 +443,7 @@ class Test {
 
     const ontimeout = () => {
       this._to = null
-      this._onend(new Error('Test timed out after ' + ms + ' ms'))
+      this._onend(new Error(`Test "${this.name}" timed out after ` + ms + ' ms'))
     }
 
     if (this._to) clearTimeout(this._to)
