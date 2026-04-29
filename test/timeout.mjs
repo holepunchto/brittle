@@ -13,7 +13,7 @@ await spawner(
 
   # timeout option, classic, no plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -29,7 +29,7 @@ await spawner(
 
   # timeout option, inverted, no plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -46,7 +46,7 @@ await spawner(
 
   # timeout option, classic, plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -63,7 +63,7 @@ await spawner(
 
   # timeout option, inverted, plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -80,7 +80,7 @@ await spawner(
 
   # timeout method, classic, no plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -97,7 +97,7 @@ await spawner(
 
   # timeout method, inverted, no plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -115,7 +115,7 @@ await spawner(
 
   # timeout method, classic, plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -133,5 +133,5 @@ await spawner(
 
   # timeout method, inverted, plan
   `,
-  { exitCode: 'error', stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )

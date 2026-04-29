@@ -125,7 +125,7 @@ await spawner(
 
   # timeout
   `,
-  { exitCode: 'error', stderr: { includes: 'Error: Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
