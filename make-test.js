@@ -42,7 +42,7 @@ function runner(file, files, { bail, solo, unstealth, timeout }) {
   let s = ''
 
   s +=
-    "runTests()\n\nasync function runTests () {\n  const test = (await import('brittle')).default\n\n"
+    "await runTests()\n\nasync function runTests () {\n  const test = (await import('brittle')).default\n\n"
 
   if (bail || solo || unstealth || timeout) {
     s += `  test.configure({ bail: ${!!bail}, solo: ${!!solo}, unstealth: ${!!unstealth}, timeout: ${timeout} })\n`
