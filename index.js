@@ -1048,7 +1048,7 @@ function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
 }
 
-async function load(file) {
+function load(file) {
   const runner = getRunner()
   if (!IS_BARE || runner.jobs <= 1) return import(file)
 
