@@ -6,6 +6,8 @@ A TAP test runner built for [Bare](https://github.com/holepunchto/bare) runtime 
 
 <img width=300 height=200 src=brittle.png>
 
+> Upgrading from v3? See the [V3 to V4 Migration](#v3-to-v4-migration) guide.
+
 ## Usage
 
 Install brittle into the project as a development dependency:
@@ -844,6 +846,16 @@ Istanbul can be used to convert the istanbul json report into other formats. e.g
 ```sh
 npx istanbul report html
 ```
+
+### V3 to V4 Migration
+- The `brittle` command is deprecated. Use `brittle-bare` and/or `brittle-node` instead.
+- Generating a test entrypoint file with `brittle -r` is deprecated. Use `brittle-make-test` instead.
+- Hooks return an unhook function (`unhook = hook()`) it must be called (`unhook(teardownFunction)`) to mark the end of the hook range.
+- `brittle-make-test` must be run to regenerate the test entrypoint (`all.mjs`)
+- test entrypoint must:
+  - use Brittle load method to include test files (v3 uses `import()`) in order to support concurrent threads in `brittle-bare`. Example: `brittle-bare -j 4` to run tests across four threads.
+  - be an `.mjs` file
+  - `await` the Brittle `runtests()` function
 
 ## License
 
