@@ -9,23 +9,27 @@ const Promise = TracingPromise.Untraced // never trace internal onces
 
 const highDefTimer = IS_NODE ? highDefTimerNode : highDefTimerFallback
 const program = IS_NODE ? process : global.Bare
+const isBrittleChildThread =
+  global.Bare &&
+  !global.Bare.Thread.isMainThread &&
+  global.Bare.Thread.self.data.isBrittleThread === true
 
 // loaded on demand since it's error flow and we want ultra fast positive test runs
 const lazy = {
   _errors: null,
   _tmatch: null,
-  get errors () {
+  get errors() {
     if (!lazy._errors) lazy._errors = require('./lib/errors.js')
     return lazy._errors
   },
-  get tmatch () {
+  get tmatch() {
     if (!lazy._tmatch) lazy._tmatch = require('tmatch')
     return lazy._tmatch
   }
 }
 
 class Runner {
-  constructor () {
+  constructor() {
     this.tests = { count: 0, pass: 0 }
     this.assertions = { count: 0, pass: 0 }
 
@@ -38,39 +42,138 @@ class Runner {
     this.unstealth = false
     this.skipAll = false
     this.explicitSolo = false
+    this.assumeSolo = false
     this.source = true
+    this.coverage = false
+    this.jobs = 1
+    this.threads = null
+
+    this.hooks = new Set()
 
     this._timer = highDefTimer()
-    this._log = console.log.bind(console)
+    this._log = this.getLogger()
     this._paused = null
     this._resume = null
+
+    if (isBrittleChildThread) {
+      const threadStreams = require('./lib/thread-streams')
+      this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
+      this._stateSent = false
+      this._configApplied = false
+
+      this.pendingConfig = {}
+
+      const { promise: threadStarted, resolve: threadStart } = Promise.withResolvers()
+      this._threadStarted = threadStarted.then(() => {
+        this._threadStream.connection.unref()
+        if (!this._configApplied) {
+          this.applyConfig(this.pendingConfig)
+          this.pendingConfig = {}
+          this._configApplied = true
+        }
+      })
+
+      this._threadStream.on('data', (data) => {
+        if (data.type === 'start') threadStart()
+        else if (data.type === 'state') this._updateState(data)
+      })
+    }
 
     const ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
       program.off('beforeExit', ondeadlock)
-      this.end()
+      if (!this.threads) this.end()
     }
 
     program.on('beforeExit', ondeadlock)
   }
 
-  resume () {
+  getLogger() {
+    if (isBrittleChildThread) {
+      return (type, ...args) => {
+        this._threadStream.write({ type: 'log', subtype: type, args })
+      }
+    }
+
+    return (type, ...args) => {
+      if (type === 'start') {
+        console.log('TAP version 13')
+      } else if (type === 'assert') {
+        const [indent, oknotok, number, message] = args
+        console.log(`${indent}${oknotok} ${number} ${message}`)
+      } else if (type === 'comment') {
+        const [indent, ...rest] = args
+        console.log(`${indent}#`, ...rest)
+      } else if (type === 'results') {
+        const [tests, assertions] = args
+
+        if (this.bail && this.skipAll) console.log('Bail out!')
+
+        this.padding()
+
+        console.log('1..' + tests.count)
+        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
+        console.log('# asserts = ' + assertions.pass + '/' + assertions.count + ' pass')
+        console.log('# time = ' + this._timer() + 'ms')
+        console.log()
+
+        const isOk = tests.count === tests.pass && assertions.count === assertions.pass
+        console.log(`# ${isOk ? 'ok' : 'not ok'}`)
+      } else {
+        console.log(...args)
+      }
+    }
+  }
+
+  applyConfig(config) {
+    const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
+    if (coverage && !this.coverage) {
+      this.coverage = coverage
+      require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+    }
+    if (timeout !== undefined) this.defaultTimeout = timeout
+    if (bail !== undefined) this.bail = bail
+    if (solo !== undefined) this.explicitSolo = solo
+    if (unstealth !== undefined) this.unstealth = unstealth
+    if (source !== undefined) this.source = source
+    if (jobs !== undefined) this.jobs = jobs
+  }
+
+  resume() {
     if (!this._paused) return
     this._resume()
     this._resume = this._paused = null
   }
 
-  pause () {
+  pause() {
     if (this._paused) return
-    this._paused = new Promise((resolve) => { this._resume = resolve })
+    this._paused = new Promise((resolve) => {
+      this._resume = resolve
+    })
   }
 
-  async _wait () {
+  async _wait() {
     await wait()
     await this._paused
   }
 
-  async queue (test) {
+  _updateState(state) {
+    if (state.timeout !== undefined) this.defaultTimeout = state.timeout
+    if (state.bail !== undefined) this.bail = state.bail
+    if (state.solo !== undefined) this.assumeSolo = state.solo
+    if (state.unstealth !== undefined) this.unstealth = state.unstealth
+    if (state.source !== undefined) this.source = state.source
+    if (state.skipAll !== undefined) this.skipAll = state.skipAll
+  }
+
+  async _sendState() {
+    if (this._stateSent) return
+
+    this._threadStream.write({ type: 'state', solo: this.solos.size > 0 })
+    this._stateSent = true
+  }
+
+  async queue(test) {
     this.start()
 
     if (test._isSolo) {
@@ -78,6 +181,11 @@ class Runner {
     }
 
     await this._wait()
+
+    if (isBrittleChildThread) {
+      await this._sendState()
+      await this._threadStarted
+    }
 
     if (this.explicitSolo && !test._isSolo) {
       return false
@@ -115,7 +223,7 @@ class Runner {
     return false
   }
 
-  _skip (reason, test) {
+  _skip(reason, test) {
     if (this._shouldTest(test)) {
       test._header()
       this.tests.pass++
@@ -124,11 +232,16 @@ class Runner {
     }
   }
 
-  _shouldTest (test) {
-    return test._isHook || (!this.skipAll && (this.solos.size === 0 || this.solos.has(test)))
+  _shouldTest(test) {
+    if (this.skipAll && !test._isHook) return false
+    else if (this.solos.size > 0 || this.assumeSolo) {
+      if (test._parentHook) return this.hooks.has(test._parentHook)
+      if (test._isHook) return this.hooks.has(test)
+      return this.solos.has(test)
+    } else return true
   }
 
-  async _autoExit (test) {
+  async _autoExit(test) {
     try {
       await test
       await wait(10) // wait 10 ticks...
@@ -138,28 +251,28 @@ class Runner {
     } catch {}
   }
 
-  log (...message) {
+  log(...message) {
     this._log(...message)
     this.padded = false
   }
 
-  padding () {
+  padding() {
     if (this.padded) return
     this.padded = true
-    this.log()
+    this.log('padding')
   }
 
-  start () {
+  start() {
     if (this.started) return
     this.started = true
-    this.log('TAP version 13')
+    this.log('start')
   }
 
-  comment (...message) {
-    this.log('#', ...message)
+  comment(...message) {
+    this.log('comment', '', ...message)
   }
 
-  end () {
+  end() {
     if (this.next) {
       if (!this.next._isEnded && !(this.next._hasPlan && this.next._planned === 0)) {
         this.next._onend(prematureEnd(this.next, 'Test did not end (' + this.next.name + ')'))
@@ -176,39 +289,50 @@ class Runner {
       }
     }
 
-    if (this.bail && this.skipAll) {
-      this.log('Bail out!')
+    if (isBrittleChildThread) {
+      this._threadStream.write({
+        type: 'result',
+        bail: this.bail,
+        skipAll: this.skipAll,
+        tests: { pass: this.tests.pass, count: this.tests.count },
+        asserts: { pass: this.assertions.pass, count: this.assertions.count }
+      })
+
+      return
     }
 
-    this.padding()
-    this.log('1..' + this.tests.count)
-    this.log('# tests = ' + this.tests.pass + '/' + this.tests.count + ' pass')
-    this.log('# asserts = ' + this.assertions.pass + '/' + this.assertions.count + ' pass')
-    this.log('# time = ' + this._timer() + 'ms')
-    this.log()
-
-    if (this.tests.count === this.tests.pass && this.assertions.count === this.assertions.pass) this.log('# ok')
-    else this.log('# not ok')
+    this.log('results', this.tests, this.assertions)
   }
 
-  assert (indent, ok, number, message, explanation, stealth) {
+  assert(indent, ok, number, message, explanation, stealth) {
     const ind = indent ? INDENT : ''
 
     if (ok) {
-      if (!stealth || this.unstealth) this.log(ind + 'ok ' + number, message)
+      if (!stealth || this.unstealth) this.log('assert', ind, 'ok', number, message)
     } else {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
-      this.log(ind + 'not ok ' + number, message)
-      if (explanation) this.log(lazy.errors.stringify(explanation))
-      if (this.bail && !this.skipAll) this.skipAll = true
-      if (!this.unstealth && stealth) throw new AssertionError({ message: 'Stealth assertion failed' })
+      this.log('assert', ind, 'not ok', number, message)
+      if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
+      if (this.bail && !this.skipAll) {
+        if (isBrittleChildThread) this._threadStream.write({ type: 'state', skipAll: true })
+        this.skipAll = true
+      }
+      if (!this.unstealth && stealth) {
+        throw new AssertionError({ message: 'Stealth assertion failed' })
+      }
     }
   }
 }
 
 class Test {
-  constructor (name, parent, opts = {}) {
+  static currentHooks = new Set()
+
+  static unhook(t) {
+    return this.currentHooks.delete(t)
+  }
+
+  constructor(name, parent, opts = {}) {
     this._resolve = null
     this._reject = null
 
@@ -236,6 +360,8 @@ class Test {
     this._isMain = this._main === this
     this._isStealth = opts?.stealth || parent?._isStealth || false
     this._checkDeadlock = opts?.deadlock !== false
+
+    this._parentHook = opts?.parentHook || null
 
     // allow destructuring by binding the functions
     this.comment = this._comment.bind(this)
@@ -286,25 +412,31 @@ class Test {
     this._teardowns = []
     this._tickers = new Map()
 
+    if (this._isHook) this.constructor.currentHooks.add(this)
+
+    if (this._isSolo) {
+      this.constructor.currentHooks.forEach((hook) => this._runner.hooks.add(hook))
+    }
+
     while (parent) {
       this._parents.push(parent)
       parent = parent._parent
     }
   }
 
-  then (...args) {
+  then(...args) {
     return this._promise.then(...args)
   }
 
-  catch (...args) {
+  catch(...args) {
     return this._promise.catch(...args)
   }
 
-  finally (...args) {
+  finally(...args) {
     return this._promise.finally(...args)
   }
 
-  _header () {
+  _header() {
     if (this._headerLogged) return
     this._headerLogged = true
     this._runner.start()
@@ -312,13 +444,19 @@ class Test {
     this._runner.comment(this.name || 'test')
   }
 
-  tmp () { return tmp(this) }
+  tmp() {
+    return tmp(this)
+  }
 
-  _planDoneOrEnd () {
+  unhook() {
+    return this.constructor.unhook(this)
+  }
+
+  _planDoneOrEnd() {
     return this._isEnded || (this._hasPlan && this._planned === 0)
   }
 
-  _timeout (ms) {
+  _timeout(ms) {
     if (!ms) {
       if (this._to) clearTimeout(this._to)
       this._to = null
@@ -327,7 +465,7 @@ class Test {
 
     const ontimeout = () => {
       this._to = null
-      this._onend(new Error('Test timed out after ' + ms + ' ms'))
+      this._onend(new Error(`Test "${this.name}" timed out after ` + ms + ' ms'))
     }
 
     if (this._to) clearTimeout(this._to)
@@ -335,7 +473,7 @@ class Test {
     if (this._to.unref) this._to.unref()
   }
 
-  _plan (n) {
+  _plan(n) {
     if (typeof n !== 'number' || n < 0) {
       throw new Error('Plan takes a positive whole number only')
     }
@@ -344,12 +482,12 @@ class Test {
     this._planned = n
   }
 
-  _comment (...m) {
-    if (this._isResolved) throw new Error('Can\'t comment after end')
-    this._runner.log(INDENT + '#', ...m)
+  _comment(...m) {
+    if (this._isResolved) throw new Error("Can't comment after end")
+    this._runner.log('comment', INDENT, ...m)
   }
 
-  _message (message) {
+  _message(message) {
     let m = '- '
 
     if (!this._isMain) {
@@ -370,13 +508,13 @@ class Test {
     return m
   }
 
-  _tick (ok) {
+  _tick(ok) {
     if (ok) this.passes++
     else this.fails++
     this.assertions++
   }
 
-  _track (topLevel, ok) {
+  _track(topLevel, ok) {
     if (topLevel) {
       this._runner.tests.count++
       if (ok) this._runner.tests.pass++
@@ -394,8 +532,15 @@ class Test {
     return this._main.assertions
   }
 
-  _assertion (ok, message, explanation, caller, top, isStealth = this._isStealth) {
-    this._runner.assert(!this._main._isResolved, ok, this._track(false, ok), this._message(message), explanation, isStealth)
+  _assertion(ok, message, explanation, caller, top, isStealth = this._isStealth) {
+    this._runner.assert(
+      !this._main._isResolved,
+      ok,
+      this._track(false, ok),
+      this._message(message),
+      explanation,
+      isStealth
+    )
 
     if (this._isEnded || this._isDone) {
       throw new AssertionError({ message: 'Assertion after end' })
@@ -410,57 +555,57 @@ class Test {
     }
   }
 
-  _fail (message = 'failed') {
+  _fail(message = 'failed') {
     const explanation = explain(false, message, 'fail', this._fail)
     this._assertion(false, message, explanation, this._fail, undefined)
   }
 
-  _pass (message = 'passed') {
+  _pass(message = 'passed') {
     this._assertion(true, message, null, this._pass, undefined)
   }
 
-  _ok (assertion, message = 'expected truthy value') {
+  _ok(assertion, message = 'expected truthy value') {
     const ok = assertion
     const explanation = explain(ok, message, 'ok', this._ok)
     this._assertion(ok, message, explanation, this._ok, undefined)
   }
 
-  _absent (assertion, message = 'expected falsy value') {
+  _absent(assertion, message = 'expected falsy value') {
     const ok = !assertion
     const explanation = explain(ok, message, 'absent', this._absent)
     this._assertion(ok, message, explanation, this._absent, undefined)
   }
 
-  _is (strict, actual, expected, message = 'should be equal') {
+  _is(strict, actual, expected, message = 'should be equal') {
     const ok = strict ? actual === expected : actual == expected // eslint-disable-line
     const explanation = explain(ok, message, 'is', this._is, actual, expected)
     this._assertion(ok, message, explanation, this._is, undefined)
   }
 
-  _not (strict, actual, expected, message = 'should not be equal') {
+  _not(strict, actual, expected, message = 'should not be equal') {
     const ok = strict ? actual !== expected : actual != expected // eslint-disable-line
     const explanation = explain(ok, message, 'not', this._not, actual, expected)
     this._assertion(ok, message, explanation, this._not, undefined)
   }
 
-  _alike (strict, actual, expected, message = 'should deep equal') {
+  _alike(strict, actual, expected, message = 'should deep equal') {
     const ok = sameObject(actual, expected, { strict })
     const explanation = explain(ok, message, 'alike', this._alike, actual, expected)
     this._assertion(ok, message, explanation, this._alike, undefined)
   }
 
-  _unlike (strict, actual, expected, message = 'should not deep equal') {
+  _unlike(strict, actual, expected, message = 'should not deep equal') {
     const ok = sameObject(actual, expected, { strict }) === false
     const explanation = explain(ok, message, 'unlike', this._unlike, actual, expected)
     this._assertion(ok, message, explanation, this._unlike, undefined)
   }
 
-  _teardown (fn, opts = {}) {
-    if (this._isDone) throw new Error('Can\'t add teardown after end')
+  _teardown(fn, opts = {}) {
+    if (this._isDone) throw new Error("Can't add teardown after end")
     this._teardowns.push([opts.order || 0, !!opts.force, fn])
   }
 
-  async _exception (natives, functionOrPromise, expectedError, message) {
+  async _exception(natives, functionOrPromise, expectedError, message) {
     if (typeof expectedError === 'string') {
       message = expectedError
       expectedError = undefined
@@ -497,12 +642,20 @@ class Test {
       this._active--
     }
 
-    const explanation = explain(ok, message, 'exception', this._exception, actual, expectedError, top)
+    const explanation = explain(
+      ok,
+      message,
+      'exception',
+      this._exception,
+      actual,
+      expectedError,
+      top
+    )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
   }
 
-  async _execution (functionOrPromise, message) {
+  async _execution(functionOrPromise, message) {
     const top = originFrame(this._execution)
     const pristineMessage = message === undefined
 
@@ -536,14 +689,14 @@ class Test {
     return elapsed
   }
 
-  _stealth (name, opts, fn) {
+  _stealth(name, opts, fn) {
     if (typeof name === 'function') return this.stealth(null, null, name)
     if (typeof opts === 'function') return this.stealth(name, null, opts)
 
     return this.test(name, { ...opts, stealth: true }, fn)
   }
 
-  _snapshot (actual, message = 'should match snapshot') {
+  _snapshot(actual, message = 'should match snapshot') {
     const top = originFrame(this._snapshot)
 
     if (!top) {
@@ -565,13 +718,13 @@ class Test {
     this._assertion(ok, message, explanation, this._snapshot, undefined)
   }
 
-  _getTick (key) {
+  _getTick(key) {
     const tick = this._tickers.get(key) || 0
     this._tickers.set(key, 1 + tick)
     return tick
   }
 
-  _test (name, opts, fn) {
+  _test(name, opts, fn) {
     if (typeof name === 'function') return this.test(null, null, name)
     if (typeof opts === 'function') return this.test(name, null, opts)
 
@@ -583,7 +736,7 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
-  async _run (fn, opts) {
+  async _run(fn, opts) {
     this._isQueued = true
 
     if (!this._parent) {
@@ -596,7 +749,11 @@ class Test {
     try {
       await fn(this)
     } catch (err) {
-      if (!(err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed')) {
+      if (
+        !(
+          err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed'
+        )
+      ) {
         this._wait = false
         await this._runTeardown(err)
         throw err
@@ -611,7 +768,7 @@ class Test {
     return await this
   }
 
-  _end () {
+  _end() {
     this._isEnded = true
 
     if (this._hasPlan && this._planned > 0) {
@@ -621,12 +778,12 @@ class Test {
     this._checkEnd()
   }
 
-  _checkEnd () {
+  _checkEnd() {
     if (this._active || this._wait) return
     if (this._isEnded || (this._hasPlan && this._planned === 0)) this._done()
   }
 
-  _done () {
+  _done() {
     if (this._isDone) return
     this._isDone = true
 
@@ -647,7 +804,7 @@ class Test {
     }
   }
 
-  async _runTeardown (error) {
+  async _runTeardown(error) {
     const forced = !!error
 
     let fired = false
@@ -674,9 +831,11 @@ class Test {
     this._onend(error)
   }
 
-  _onstart (opts) {
+  _onstart(opts) {
     const to = this._isMain
-      ? (opts && opts.timeout !== undefined) ? opts.timeout : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
+      ? opts && opts.timeout !== undefined
+        ? opts.timeout
+        : this._runner.defaultTimeout // main tests need a default timeout, unless opt-out
       : opts && opts.timeout // non main ones do not
 
     if (this._isMain) {
@@ -691,12 +850,12 @@ class Test {
     if (to) this._timeout(to)
   }
 
-  _onend (err) {
+  _onend(err) {
     if (this._isResolved) return
 
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
-    const ok = (this.fails === 0)
+    const ok = this.fails === 0
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
@@ -730,27 +889,27 @@ exports.configure = configure
 exports.pause = pause
 exports.resume = resume
 exports.stealth = stealth
+exports.load = load
 
 // Used by snapshots
 exports.createTypedArray = createTypedArray
 
-function configure ({ timeout = DEFAULT_TIMEOUT, bail = false, solo = false, unstealth = false, source = true, coverage = false } = {}) {
+function configure(config = {}) {
   const runner = getRunner()
 
   if (runner.tests.count > 0 || runner.assertions.count > 0) {
     throw new Error('Configuration must happen prior to registering any tests')
   }
 
-  if (coverage) require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
+  if (isBrittleChildThread) {
+    runner.pendingConfig = { ...runner.pendingConfig, ...config }
+    return
+  }
 
-  runner.defaultTimeout = timeout
-  runner.bail = bail
-  runner.explicitSolo = solo
-  runner.unstealth = unstealth
-  runner.source = source
+  runner.applyConfig(config)
 }
 
-function highDefTimerNode () {
+function highDefTimerNode() {
   const then = process.hrtime.bigint()
   return function () {
     const now = process.hrtime.bigint()
@@ -758,7 +917,7 @@ function highDefTimerNode () {
   }
 }
 
-function highDefTimerFallback () {
+function highDefTimerFallback() {
   const then = Date.now()
   return function () {
     const now = Date.now()
@@ -766,17 +925,31 @@ function highDefTimerFallback () {
   }
 }
 
-function cmp (a, b) {
+function cmp(a, b) {
   return a[0] - b[0]
 }
 
-function test (name, opts, fn, overrides) {
+function test(name, opts, fn, overrides) {
   if (typeof name === 'function') return test(null, null, name, overrides)
   if (typeof opts === 'function') return test(name, null, opts, overrides)
 
   opts = { ...opts, ...overrides }
 
   const t = new Test(name, null, opts)
+
+  if (t._isHook) {
+    const unhook = (name, opts, fn, overrides) => {
+      t.unhook()
+
+      if (name || opts || fn || overrides) {
+        return test(name, opts, fn, { ...overrides, parentHook: t })
+      }
+    }
+
+    if (fn) t._run(fn, opts)
+
+    return unhook
+  }
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
@@ -793,54 +966,75 @@ function test (name, opts, fn, overrides) {
   return t
 }
 
-function hook (name, opts, fn) {
+function hook(name, opts, fn) {
   return test(name, opts, fn, { hook: true })
 }
 
-function solo (name, opts, fn) {
+function solo(name, opts, fn) {
   if (!name && !opts && !fn) return test.configure({ solo: true })
   return test(name, opts, fn, { solo: true })
 }
 
-function skip (name, opts, fn) {
+function skip(name, opts, fn) {
   return test(name, opts, fn, { skip: true })
 }
 
-function todo (name, opts, fn) {
+function todo(name, opts, fn) {
   return test(name, opts, fn, { todo: true })
 }
 
-function pause () {
+function pause() {
   getRunner().pause()
 }
 
-function resume () {
+function resume() {
   getRunner().resume()
 }
 
-function wait (ticks = 1) {
-  return new Promise(resolve => {
-    tickish(function loop () {
+function wait(ticks = 1) {
+  return new Promise((resolve) => {
+    tickish(function loop() {
       if (--ticks <= 0) return resolve()
       tickish(loop)
     })
   })
 }
 
-function tickish (fn) {
-  if (IS_NODE) { // do both types of tick in node to flush both queues
+function tickish(fn) {
+  if (IS_NODE) {
+    // do both types of tick in node to flush both queues
     process.nextTick(queueMicrotask, fn)
   } else {
     queueMicrotask(fn)
   }
 }
 
-function explain (ok, message, assert, stackStartFunction, actual, expected, top = !ok && originFrame(stackStartFunction), extra) {
+function explain(
+  ok,
+  message,
+  assert,
+  stackStartFunction,
+  actual,
+  expected,
+  top = !ok && originFrame(stackStartFunction),
+  extra
+) {
   const runner = getRunner()
-  return ok ? null : lazy.errors.explain(ok, message, assert, stackStartFunction, actual, expected, runner.source ? top : null, extra)
+  return ok
+    ? null
+    : lazy.errors.explain(
+        ok,
+        message,
+        assert,
+        stackStartFunction,
+        actual,
+        expected,
+        runner.source ? top : null,
+        extra
+      )
 }
 
-function originFrame (stackStartFunction) {
+function originFrame(stackStartFunction) {
   if (!Error.captureStackTrace) return undefined
   const { prepareStackTrace } = Error
   Error.prepareStackTrace = (_, stack) => {
@@ -855,31 +1049,49 @@ function originFrame (stackStartFunction) {
   return top
 }
 
-function isPromise (p) {
+function isPromise(p) {
   return !!(p && typeof p.then === 'function')
 }
 
-function isUncaught (err) {
-  return err instanceof SyntaxError ||
+function isUncaught(err) {
+  return (
+    err instanceof SyntaxError ||
     err instanceof ReferenceError ||
     err instanceof TypeError ||
     err instanceof EvalError ||
     err instanceof RangeError
+  )
 }
 
-function getRunner () {
+function getRunner() {
   if (!global[RUNNER]) global[RUNNER] = new Runner()
   return global[RUNNER]
 }
 
-function prematureEnd (t, message) {
+function prematureEnd(t, message) {
   const details = t._hasPlan
-    ? ' [assertion count (' + t.assertions + ') did not reach plan (' + (t.assertions + t._planned) + ')]'
+    ? ' [assertion count (' +
+      t.assertions +
+      ') did not reach plan (' +
+      (t.assertions + t._planned) +
+      ')]'
     : ''
 
   return new Error(message + details)
 }
 
-function stealth (name, opts, fn) {
+function stealth(name, opts, fn) {
   return test(name, opts, fn, { stealth: true })
+}
+
+function load(file) {
+  const runner = getRunner()
+  if (!IS_BARE || runner.jobs <= 1) return import(file)
+
+  if (!runner.threads) {
+    const Threads = require('./lib/threads')
+    runner.threads = new Threads(runner)
+  }
+
+  runner.threads.add(file)
 }

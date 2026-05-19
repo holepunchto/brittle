@@ -3,7 +3,9 @@ import { spawner } from './helpers/index.js'
 await spawner(
   function (test) {
     test('timeout option, classic, no plan', { timeout: 10 }, async function (t) {
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -11,13 +13,15 @@ await spawner(
 
   # timeout option, classic, no plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
   async function (test) {
     const t = test('timeout option, inverted, no plan', { timeout: 10 })
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     t.end()
   },
   `
@@ -25,14 +29,16 @@ await spawner(
 
   # timeout option, inverted, no plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
   function (test) {
     test('timeout option, classic, plan', { timeout: 10 }, async function (t) {
       t.plan(1)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -40,14 +46,16 @@ await spawner(
 
   # timeout option, classic, plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
   async function (test) {
     const t = test('timeout option, inverted, plan', { timeout: 10 })
     t.plan(1)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     await t
   },
   `
@@ -55,14 +63,16 @@ await spawner(
 
   # timeout option, inverted, plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
   function (test) {
     test('timeout method, classic, no plan', async function (t) {
       t.timeout(10)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -70,14 +80,16 @@ await spawner(
 
   # timeout method, classic, no plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
   async function (test) {
     const t = test('timeout method, inverted, no plan')
     t.timeout(10)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     t.end()
   },
   `
@@ -85,7 +97,7 @@ await spawner(
 
   # timeout method, inverted, no plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -93,7 +105,9 @@ await spawner(
     test('timeout method, classic, plan', async function (t) {
       t.timeout(10)
       t.plan(1)
-      await new Promise((resolve) => { setTimeout(resolve, 20) })
+      await new Promise((resolve) => {
+        setTimeout(resolve, 20)
+      })
     })
   },
   `
@@ -101,7 +115,7 @@ await spawner(
 
   # timeout method, classic, plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )
 
 await spawner(
@@ -109,7 +123,9 @@ await spawner(
     const t = test('timeout method, inverted, plan')
     t.timeout(10)
     t.plan(1)
-    await new Promise((resolve) => { setTimeout(resolve, 20) })
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20)
+    })
     await t
   },
   `
@@ -117,5 +133,5 @@ await spawner(
 
   # timeout method, inverted, plan
   `,
-  { exitCode: 1, stderr: { includes: 'Test timed out after 10 ms' } }
+  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
 )

@@ -1,6 +1,7 @@
 import { tester } from './helpers/index.js'
 
-await tester('multiline fail message',
+await tester(
+  'multiline fail message',
   function (t) {
     t.fail('this is\na multiline\nfail message')
   },
@@ -29,7 +30,8 @@ fail message
   { exitCode: 1, stderr: '' }
 )
 
-await tester('multiline fail message with stack trace',
+await tester(
+  'multiline fail message with stack trace',
   function (t) {
     const stack = [
       'Error: oh no',
@@ -65,7 +67,8 @@ await tester('multiline fail message with stack trace',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('multiline fail message with Windows stack trace',
+await tester(
+  'multiline fail message with Windows stack trace',
   function (t) {
     const stack = [
       'Error: oh no',

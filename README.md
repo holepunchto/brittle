@@ -2,16 +2,18 @@
 
 > tap à la mode
 
-A TAP test runner built for modern times.
+A TAP test runner built for [Bare](https://github.com/holepunchto/bare) runtime and [Node.js](https://nodejs.org)
 
 <img width=300 height=200 src=brittle.png>
 
+> Upgrading from v3? See the [V3 to V4 Migration](#v3-to-v4-migration) guide.
+
 ## Usage
 
-First install brittle from npm
+Install brittle into the project as a development dependency:
 
-```
-npm i brittle
+```sh
+npm i -D brittle
 ```
 
 Then start writing tests
@@ -36,7 +38,7 @@ test('basic', function (t) {
 })
 
 test('asynchronous', async function (t) {
-  await new Promise(r => setTimeout(r, 250))
+  await new Promise((r) => setTimeout(r, 250))
   t.pass()
 })
 
@@ -65,8 +67,12 @@ test('executions', async function (t) {
 })
 
 test('exceptions', async function (t) {
-  t.exception(() => { throw Error('expected to throw') })
-  await t.exception(async () => { throw Error('expected to reject') })
+  t.exception(() => {
+    throw Error('expected to throw')
+  })
+  await t.exception(async () => {
+    throw Error('expected to reject')
+  })
 })
 
 const a = test('inverted test without plan needs end()')
@@ -87,16 +93,44 @@ Every assertion can have a message, i.e. `t.pass('msg')`, `t.ok(false, 'should b
 There are also utilities like `t.timeout(ms)`, `t.teardown(fn)`, etc.\
 Check the API but also all the [assertions here](#assertions) and [utilities here](#utilities).
 
-## Test Runtimes
-When installed as a dependency or globally, the following commands for using different runtimes are available:
-* `brittle-node`/`brittle` - Runs tests using [Node.js](https://nodejs.org/).
-* `brittle-bare` - Runs tests using [Bare](https://docs.pears.com/bare-reference/overview).
-* `brittle-pear` - Runs tests using [Pear](https://docs.pears.com/).
+## Runtimes
+
+### Bare
+
+Use `brittle-bare` to run tests on [Bare](https://github.com/holepunchto/bare):
+
+```sh
+brittle-bare test/all.mjs
+```
+
+Bare must be installed on the system.
+
+If [CLI](#cli) flags are not needed then it's also possible to run tests directly on the runtime:
+
+```sh
+bare test/all.mjs
+```
+
+### Node.js
+
+[Node.js](https://nodejs.org/)
+
+```sh
+brittle-node test/all.mjs
+```
+
+Node must be installed on the system.
+
+If [CLI](#cli) flags are not needed then it's also possible to run tests directly on the runtime:
+
+```sh
+node test/all.mjs
+```
 
 ## API
 
 ```js
-import { test, solo, skip, hook, todo, configure } from 'brittle'
+import { test, solo, skip, hook, todo, configure, load } from 'brittle'
 ```
 
 #### `test([name], [options], callback)`
@@ -104,12 +138,13 @@ import { test, solo, skip, hook, todo, configure } from 'brittle'
 Create a classic test with an optional `name`.
 
 #### Available `options` for any test creation:
- * `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
- * `solo` (`false`) - Skip all other tests except the `solo()` ones.
- * `hook` (`false`) - setup and teardown resources.
- * `skip` (`false`) - skip this test, alternatively use the `skip()` function.
- * `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
- * `stealth` (`false`) - only print test summary.
+
+- `timeout` (`30000`) - milliseconds to wait before ending a stalling test.
+- `solo` (`false`) - Skip all other tests except the `solo()` ones.
+- `hook` (`false`) - setup and teardown resources.
+- `skip` (`false`) - skip this test, alternatively use the `skip()` function.
+- `todo` (`false`) - mark this test as todo and skip it, alternatively use the `todo()` function.
+- `stealth` (`false`) - only print test summary.
 
 The `callback` function (can be async) receives an object called `assert`.\
 `assert` (or `t`) provides the assertions and utilities interface.
@@ -209,6 +244,7 @@ const isOk = await t
 ```
 
 #### `stealth([name], [options], callback)`
+
 #### `stealth([name], [options]) => assert`
 
 Create a stealth test.\
@@ -217,6 +253,7 @@ This will provide a new sub-assert object that only prints the test summary with
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `t.test([name], [options], callback)`
+
 #### `t.test([name], [options]) => assert`
 
 A subtest can be created by calling `test` on an `assert` (or `t`) object.\
@@ -236,7 +273,7 @@ test('basic', async function (t) {
 
   setTimeout(() => a.ok(true), Math.random() * 1000)
   setTimeout(() => b.ok(true), Math.random() * 1000)
-  
+
   // Won't proceed past here until both a and b plans are fulfilled
   await a
   await b
@@ -250,7 +287,7 @@ Subtest test options can be set by passing an object to the `test` function:
 ```js
 test('parent', { timeout: 1000 }, function (t) {
   t.test('basic using parent config', async function (t) {
-    await new Promise(r => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 500))
     t.pass()
   })
 
@@ -272,6 +309,7 @@ test('basic', async function (t) {
 ```
 
 #### `t.stealth([name], [options], callback)`
+
 #### `t.stealth([name], [options]) => assert`
 
 Create a stealth sub-test.\
@@ -280,6 +318,7 @@ This will provide a new sub-assert object that only prints the test summary with
 All `options` are the same as `test` which are [listed here](#available-options-for-any-test-creation).
 
 #### `solo([name], [options], callback)`
+
 #### `solo([name], [options]) => assert`
 
 Filter out other tests by using the `solo` method:
@@ -302,6 +341,7 @@ If `solo` is used in a future tick (for example, in a `setTimeout` callback),\
 after `test` has already been used those tests won't be filtered.
 
 A few ways to enable `solo` functions:
+
 - Use `configure({ solo: true })` before any tests.
 - You can call `solo()` without callback underneath the imports.
 - Using the `--solo` flag with the `brittle` test runner.
@@ -316,7 +356,7 @@ t.end()
 
 #### `skip([name], [options], callback)`
 
-Skip a test: 
+Skip a test:
 
 ```js
 import { test, skip } from 'brittle'
@@ -336,31 +376,66 @@ test.skip('another skipped test', function (t) {
 
 Only the `middle test` will be executed.
 
-#### `hook([name], [options], callback)`
+#### `hook([name], [options], [callback])`
 
-Use before tests for setting up and after tests for tearing down. Runs the same way as `test` except always executes regardless of `solo` usage. 
+Use before tests for setting up and after tests for tearing down. Hooks run the same way as `test` except they can execute when solo tests are within its range.
+
+The `hook` function returns an `unhook` function that can be used to:
+
+1. Mark the end of the hook's range
+2. Register a cleanup/teardown function
 
 ```js
 import { test, solo, hook } from 'brittle'
 
-hook('setup hook', function (t) {
-  // setup resources
+const unhook = hook('setup hook', function (t) {
+  t.pass()
 })
 
 solo('solo test', function (t) {
   t.pass()
 })
 
-test('middle test', function (t) {
+unhook('teardown hook', function (t) {
   t.pass()
-})
-
-hook('teardown hook', function (t) {
-  // teardown resources
 })
 ```
 
-The `setup hook`, `solo test` and `teardown hook` will be executed.
+A hook will not run if a solo test is running beyond its range:
+
+```js
+// this hook/unhook will not run because it has been unhooked before the solo test
+const unhook = hook('setup hook', function (t) {
+  t.pass()
+})
+unhook()
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+// this hook/unhook will not run because it was hooked after the solo test
+const unhook2 = hook('setup hook', function (t) {
+  t.pass()
+})
+unhook2()
+```
+
+Hooks do not require a test function and can be used to explicitly setup an unhook for teardown:
+
+```js
+import { hook } from 'brittle'
+
+const unhook = hook('setup hook')
+
+solo('solo test', function (t) {
+  t.pass()
+})
+
+unhook('teardown hook', function (t) {
+  t.pass()
+})
+```
 
 #### `configure([options])`
 
@@ -369,17 +444,46 @@ It must be executed before any tests.
 
 #### Options
 
- * `timeout` (`30000`) - milliseconds to wait before ending a stalling test
- * `bail` (`false`) - exit the process on first test failure
- * `solo` (`false`) - skip all other tests except the `solo()` ones
- * `source` (`true`) - shows error `source` information
- * `unstealth` (`false`) - show assertions even if `stealth` is used
- * `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
+- `timeout` (`30000`) - milliseconds to wait before ending a stalling test
+- `bail` (`false`) - exit the process on first test failure
+- `solo` (`false`) - skip all other tests except the `solo()` ones
+- `source` (`true`) - shows error `source` information
+- `unstealth` (`false`) - show assertions even if `stealth` is used
+- `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
+- `jobs` (`1`) - number of test files to run concurrently (Bare-only)
 
 ```js
 import { configure } from 'brittle'
 
 configure({ timeout: 15000 }) // All tests will have a 15 seconds timeout
+```
+
+#### `load(file)`
+
+Load a test file. This is the recommended way to compose test suites.
+
+By default, `load` simply imports the file and tests run sequentially. On Bare, when `jobs` is greater than `1`, each loaded file runs in its own thread for parallel execution. See [Threads](#threads) for details.
+
+```js
+import test from 'brittle'
+
+configure({ bail: true })
+
+test.pause()
+await load(import.meta.resolve('./hello.js'))
+await load(import.meta.resolve('./world.js'))
+test.resume()
+```
+
+Each loaded file is a normal brittle test file:
+
+```js
+// test/hello.js
+const test = require('brittle')
+
+test('hello', function (t) {
+  t.pass()
+})
 ```
 
 ### Assertions
@@ -394,13 +498,13 @@ Compare `actual` to `expected` with `!==`
 
 #### `t.alike(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `===`.
 
 #### `t.unlike(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!==`.
 
@@ -415,7 +519,7 @@ Checks that `value` is falsy: `!!value === false`
 #### `t.pass([message])`
 
 Asserts success. Useful for explicitly confirming
-that a function was called, or that behavior is 
+that a function was called, or that behavior is
 as expected.
 
 #### `t.fail([message])`
@@ -428,19 +532,23 @@ that a function should not be called.
 Verify that a function throws, or a promise rejects.
 
 ```js
-t.exception(() => { throw Error('an err') }, /an err/)
-await t.exception(async () => { throw Error('an err') }, /an err/)
+t.exception(() => {
+  throw Error('an err')
+}, /an err/)
+await t.exception(async () => {
+  throw Error('an err')
+}, /an err/)
 await t.exception(Promise.reject(Error('an err')), /an err/)
 ```
 
 If the error is an instance of any of the following native error constructors,
 then this will still result in failure since native errors often tend to be unintentational.
 
-* `SyntaxError`
-* `ReferenceError`
-* `TypeError`
-* `EvalError`
-* `RangeError`
+- `SyntaxError`
+- `ReferenceError`
+- `TypeError`
+- `EvalError`
+- `RangeError`
 
 If a `t.exception` is async, then you're supposed to await it.
 
@@ -449,8 +557,12 @@ If a `t.exception` is async, then you're supposed to await it.
 Verify that a function throws, or a promise rejects, including native errors.
 
 ```js
-t.exception.all(() => { throw Error('an err') }, /an err/)
-await t.exception.all(async () => { throw Error('an err') }, /an err/)
+t.exception.all(() => {
+  throw Error('an err')
+}, /an err/)
+await t.exception.all(async () => {
+  throw Error('an err')
+}, /an err/)
 await t.exception.all(Promise.reject(new SyntaxError('native error')), /native error/)
 ```
 
@@ -481,16 +593,15 @@ Compare `actual` to `expected` with `!=`.
 
 #### `t.alike.coercively(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `==`.
 
 #### `t.unlike.coercively(actual, expected, [message])`
 
-Object comparison, comparing all primitives on the 
+Object comparison, comparing all primitives on the
 `actual` object to those on the `expected` object
 using `!=`.
-
 
 ### Utilities
 
@@ -506,8 +617,8 @@ Creates a temporary folder and returns a promise that resolves its path. Once a 
 
 **Options:**
 
- * `order` (`0`) - set the ascending position priority for a teardown to be executed.
- * `force` (`false`) - run the teardown on failure as well as success
+- `order` (`0`) - set the ascending position priority for a teardown to be executed.
+- `force` (`false`) - run the teardown on failure as well as success
 
 The function passed to `teardown` is called right after a test ends:
 
@@ -543,19 +654,25 @@ If two teardowns have the same `order` they are ordered per time of invocation w
 ```js
 test('teardown order', function (t) {
   t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
+    await new Promise((r) => setTimeout(r, 200))
     console.log('teardown B')
   })
 
-  t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
-    console.log('teardown A')
-  }, { order: -1 })
+  t.teardown(
+    async function () {
+      await new Promise((r) => setTimeout(r, 200))
+      console.log('teardown A')
+    },
+    { order: -1 }
+  )
 
-  t.teardown(async function () {
-    await new Promise(r => setTimeout(r, 200))
-    console.log('teardown C')
-  }, { order: 1 })
+  t.teardown(
+    async function () {
+      await new Promise((r) => setTimeout(r, 200))
+      console.log('teardown C')
+    },
+    { order: 1 }
+  )
 
   t.pass()
 })
@@ -577,20 +694,48 @@ Force end a test.\
 `end` is determined by `assert` resolution or when a containing async function completes.\
 In case of inverted tests, they're required to be explicitly called.
 
-
 ### Readable Properties
 
 #### `t.name`
+
 The name of the test.
 
 #### `t.passes`
+
 The number of assertions that passed within the test.
 
 #### `t.fails`
+
 The number of assertions that failed within the test.
 
 #### `t.assertions`
+
 The number of assertions that were executed within the test.
+
+## Threads
+
+On Bare, `load()` supports running test files concurrently in threads. Set `jobs` to a value greater than `1` via the `--jobs n` CLI flag or via `configure()` to enable this.
+
+TAP output is always printed sequentially in the order `load` was called, and the runner aggregates results (test counts, assertion counts, time) into a single TAP summary.
+
+Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `coverage`, and `source` to all threads.
+
+A thread may also set its own options by calling `configure()` within the thread which will override options set by the parent.
+
+When `bail` is enabled, a failing assertion in one thread will cause other threads to stop after their currently running test finishes.
+
+```js
+import { load, configure } from 'brittle'
+
+configure({ jobs: 4 })
+
+load('./test/hello.js')
+load('./test/world.js')
+load('./test/foo.js')
+load('./test/bar.js')
+```
+
+On Node.js or when `jobs` is `1`, `load` falls back to a sequential import — no threads are used.
 
 ## Runner
 
@@ -607,22 +752,56 @@ The following would run all `.js` files in the test folder:
   "name": "my-app",
   "version": "1.0.0",
   "scripts": {
-    "test": "brittle test/*.js"
+    "test": "npm run test:bare && npm run test:node",
+    "test:bare": "brittle-bare test/all.mjs",
+    "test:node": "brittle-node test/all.mjs"
   },
   "devDependencies": {
-    "brittle": "^3.0.0-alpha.3"
+    "brittle": "^4.0.0"
   }
 }
 ```
 
 ## CLI
 
-```sh
-npm install -g brittle
+Brittle comes with three commands:
+
+- `brittle-make-test`
+- `brittle-bare`
+- `brittle-node`
+
+The idea is to use these commands within the `package.json` `scripts` field:
+
+```json
+{
+  "make:test": "brittle-make-test test/index.js test/*.test.js",
+  "test": "npm run test:bare && npm run test:node",
+  "test:bare": "brittle-bare test",
+  "test:node": "brittle-node test"
+}
 ```
 
+Use `brittle-make-test` to generate an entrypoint for tests.
+
+```sh
+brittle-make-test [flags] <outfile> <files>
+
+Arguments:
+  <outfile>                 Generates an out file that contains all target tests
+  <files>
+
+Flags:
+  --solo, -s                Engage solo mode
+  --bail, -b                Bail out on first assert failure
+  --unstealth, -u           Print out assertions even if stealth is used
+  --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
+  --help|-h                 Show help
+```
+
+The `brittle-node` and `brittle-bare` commands are the same, they just execute per runtime.
+
 ```shell
-brittle [flags] <files>
+brittle-node|brittle-bare [flags] <files>
 
 Flags:
   --version, -v             Print the current version
@@ -632,42 +811,53 @@ Flags:
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
   --trace                   Trace all active promises and print them if the test fails
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
-  --runner, -r <runner>     Generates an out file that contains all target tests
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
+  --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
   --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```
 
 Note globbing is supported:
+
 ```sh
-brittle --coverage path/to/test/*.js
+brittle path/to/test/*.js
 ```
 
-Auto generate a single file containing "all tests":
-```shell
-brittle -r test/all.js test/*.js
+The `BRITTLE` environment variable can also set flags:
 
-node test/all.js
-```
-
-You can use an environment variable to also set flags:
 ```shell
-BRITTLE="--coverage --bail" brittle test.js
+BRITTLE="--coverage --bail" brittle-bare test.js
 ```
 
 Force disable coverage with an environment variable:
+
 ```shell
-BRITTLE_COVERAGE=false brittle test.js
+BRITTLE_COVERAGE=false brittle-node test.js
 ```
+
 ### Coverage
+
 If the `--coverage` flag is set, brittle will output the coverage summary as a table at the end of execution and generate a json coverage report in the coverage output directory (configurable using `--cov-dir`).
 
 The coverage output directory will contain a `coverage-final.json` file which contains an istanbul json coverage report and a `v8-coverage.json` file which contains the raw v8 coverage data.
 
 Istanbul can be used to convert the istanbul json report into other formats. e.g.:
-```
+
+```sh
 npx istanbul report html
 ```
 
+### V3 to V4 Migration
+
+- The `brittle` command is deprecated. Use `brittle-bare` and/or `brittle-node` instead.
+- Generating a test entrypoint file with `brittle -r` is deprecated. Use `brittle-make-test` instead.
+- Hooks return an unhook function (`unhook = hook()`) it must be called (`unhook(teardownFunction)`) to mark the end of the hook range.
+- `brittle-make-test` must be run to regenerate the test entrypoint (`all.mjs`)
+- test entrypoint must:
+  - use Brittle load method to include test files (v3 uses `import()`) in order to support concurrent threads in `brittle-bare`. Example: `brittle-bare -j 4` to run tests across four threads.
+  - be an `.mjs` file
+  - `await` the Brittle `runtests()` function
+
 ## License
+
 Apache-2.0

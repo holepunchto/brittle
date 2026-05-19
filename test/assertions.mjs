@@ -1,6 +1,7 @@
 import { tester, spawner } from './helpers/index.js'
 
-await tester('passing (default messages)',
+await tester(
+  'passing (default messages)',
   async function (t) {
     t.pass()
     t.ok(true)
@@ -17,8 +18,12 @@ await tester('passing (default messages)',
     await t.execution(async () => 'y')
     t.execution(() => 'y')
     await t.exception(Promise.reject(Error('n')))
-    await t.exception(async () => { throw Error('n') }, /n/)
-    t.exception(() => { throw Error('n') })
+    await t.exception(async () => {
+      throw Error('n')
+    }, /n/)
+    t.exception(() => {
+      throw Error('n')
+    })
   },
   `
   TAP version 13
@@ -53,7 +58,8 @@ await tester('passing (default messages)',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('passing (custom messages)',
+await tester(
+  'passing (custom messages)',
   async function (t) {
     t.pass('peanut')
     t.ok(true, 'brittle')
@@ -70,8 +76,20 @@ await tester('passing (custom messages)',
     await t.execution(async () => 'y', 'not really')
     t.execution(() => 'y', 'personally')
     await t.exception(Promise.reject(Error('n')), 'I have not had it')
-    await t.exception(async () => { throw Error('n') }, 'in a long', /n/)
-    t.exception(() => { throw Error('n') }, /n/, 'long time')
+    await t.exception(
+      async () => {
+        throw Error('n')
+      },
+      'in a long',
+      /n/
+    )
+    t.exception(
+      () => {
+        throw Error('n')
+      },
+      /n/,
+      'long time'
+    )
   },
   `
   TAP version 13
@@ -106,7 +124,8 @@ await tester('passing (custom messages)',
   { exitCode: 0, stderr: '' }
 )
 
-await tester('stringify - prints negative zero',
+await tester(
+  'stringify - prints negative zero',
   async function (t) {
     t.alike({ a: 0 }, { a: -0 }, 'check negative zero')
   },
@@ -137,7 +156,8 @@ await tester('stringify - prints negative zero',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('failing (default messages)',
+await tester(
+  'failing (default messages)',
   async function (t) {
     t.fail()
     t.ok(false)
@@ -153,8 +173,12 @@ await tester('failing (default messages)',
     t.alike(new Set([1, 2]), new Set([3, 4]))
     t.unlike(new Set([1, 2]), new Set([1, 2]))
     await t.execution(Promise.reject(Error('n')))
-    await t.execution(async () => { throw Error('n') })
-    t.execution(() => { throw Error('n') })
+    await t.execution(async () => {
+      throw Error('n')
+    })
+    t.execution(() => {
+      throw Error('n')
+    })
     await t.exception(Promise.resolve('y'))
     await t.exception(Promise.reject(Error('n')), /y/) // + before it was okay with 'n' and now it must be Error('n'), why? (Expected the Promise rejection reason to be an Error. (prefer-promise-reject-errors))
     await t.exception(async () => 'y')
@@ -366,7 +390,8 @@ await tester('failing (default messages)',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('failing (custom messages)',
+await tester(
+  'failing (custom messages)',
   async function (t) {
     t.fail('peanut')
     t.ok(false, 'brittle')
@@ -380,8 +405,12 @@ await tester('failing (custom messages)',
     t.unlike({ a: 2 }, { a: 2 }, 'try it')
     t.unlike.coercively({ a: 2 }, { a: '2' }, 'sometime')
     await t.execution(Promise.reject(Error('n')), 'but')
-    await t.execution(async () => { throw Error('n') }, 'not really')
-    t.execution(() => { throw Error('n') }, 'personally')
+    await t.execution(async () => {
+      throw Error('n')
+    }, 'not really')
+    t.execution(() => {
+      throw Error('n')
+    }, 'personally')
     await t.exception(Promise.resolve('y'), 'I have not had it')
     await t.exception(async () => 'y', 'in a long')
     t.exception(() => 'y', 'long time')
@@ -557,7 +586,8 @@ await tester('failing (custom messages)',
   { exitCode: 1, stderr: '' }
 )
 
-await tester('passing and failing mixed',
+await tester(
+  'passing and failing mixed',
   async function (t) {
     t.fail()
     t.pass()
@@ -584,15 +614,23 @@ await tester('passing and failing mixed',
     await t.execution(Promise.resolve('y'))
     await t.execution(Promise.reject(Error('n')))
     await t.execution(async () => 'y')
-    await t.execution(async () => { throw Error('n') })
+    await t.execution(async () => {
+      throw Error('n')
+    })
     t.execution(() => 'y')
-    t.execution(() => { throw Error('n') })
+    t.execution(() => {
+      throw Error('n')
+    })
     await t.exception(Promise.resolve('y'))
     await t.exception(Promise.reject(Error('n')))
     await t.exception(async () => 'y')
-    await t.exception(async () => { throw Error('n') })
+    await t.exception(async () => {
+      throw Error('n')
+    })
     t.exception(() => 'y')
-    t.exception(() => { throw Error('n') })
+    t.exception(() => {
+      throw Error('n')
+    })
   },
   `
   TAP version 13
@@ -800,8 +838,12 @@ await spawner(
     await t.execution(async () => 'y')
     t.execution(() => 'y')
     await t.exception(Promise.reject(Error('n')))
-    await t.exception(async () => { throw Error('n') }, /n/)
-    t.exception(() => { throw Error('n') })
+    await t.exception(async () => {
+      throw Error('n')
+    }, /n/)
+    t.exception(() => {
+      throw Error('n')
+    })
     t.end()
   },
   `
@@ -855,8 +897,20 @@ await spawner(
     await t.execution(async () => 'y', 'not really')
     t.execution(() => 'y', 'personally')
     await t.exception(Promise.reject(Error('n')), 'I have not had it')
-    await t.exception(async () => { throw Error('n') }, 'in a long', /n/)
-    t.exception(() => { throw Error('n') }, /n/, 'long time')
+    await t.exception(
+      async () => {
+        throw Error('n')
+      },
+      'in a long',
+      /n/
+    )
+    t.exception(
+      () => {
+        throw Error('n')
+      },
+      /n/,
+      'long time'
+    )
     t.end()
   },
   `
@@ -907,8 +961,12 @@ await spawner(
     t.unlike({ a: 2 }, { a: 2 })
     t.unlike.coercively({ a: 2 }, { a: '2' })
     await t.execution(Promise.reject(Error('n')))
-    await t.execution(async () => { throw Error('n') })
-    t.execution(() => { throw Error('n') })
+    await t.execution(async () => {
+      throw Error('n')
+    })
+    t.execution(() => {
+      throw Error('n')
+    })
     await t.exception(Promise.resolve('y'))
     await t.exception(Promise.reject(Error('n')), /y/)
     await t.exception(async () => 'y')
@@ -1176,8 +1234,12 @@ await spawner(
     t.unlike({ a: 2 }, { a: 2 }, 'try it')
     t.unlike.coercively({ a: 2 }, { a: '2' }, 'sometime')
     await t.execution(Promise.reject(Error('n')), 'but')
-    await t.execution(async () => { throw Error('n') }, 'not really')
-    t.execution(() => { throw Error('n') }, 'personally')
+    await t.execution(async () => {
+      throw Error('n')
+    }, 'not really')
+    t.execution(() => {
+      throw Error('n')
+    }, 'personally')
     await t.exception(Promise.resolve('y'), 'I have not had it')
     await t.exception(async () => 'y', 'in a long')
     t.exception(() => 'y', 'long time')
@@ -1448,15 +1510,23 @@ await spawner(
     await t.execution(Promise.resolve('y'))
     await t.execution(Promise.reject(Error('n')))
     await t.execution(async () => 'y')
-    await t.execution(async () => { throw Error('n') })
+    await t.execution(async () => {
+      throw Error('n')
+    })
     t.execution(() => 'y')
-    t.execution(() => { throw Error('n') })
+    t.execution(() => {
+      throw Error('n')
+    })
     await t.exception(Promise.resolve('y'))
     await t.exception(Promise.reject(Error('n')))
     await t.exception(async () => 'y')
-    await t.exception(async () => { throw Error('n') })
+    await t.exception(async () => {
+      throw Error('n')
+    })
     t.exception(() => 'y')
-    t.exception(() => { throw Error('n') })
+    t.exception(() => {
+      throw Error('n')
+    })
     t.end()
   },
   `
