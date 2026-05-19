@@ -5,10 +5,10 @@ console.error(`
   Example: package.json scripts
   
   {
-    "make:test": "brittle-make-test test/index.js test/*.test.js",
+    "make:test": "brittle-make-test test/all.mjs test/*.test.js",
     "test": "npm run test:bare && npm run test:node",
-    "test:bare": "brittle-bare test",
-    "test:node": "brittle-node test"
+    "test:bare": "brittle-bare -j 4 test/all.mjs",
+    "test:node": "brittle-node test/all.mjs",
   }
   
 `)
