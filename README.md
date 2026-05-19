@@ -809,7 +809,6 @@ Flags:
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
   --trace                   Trace all active promises and print them if the test fails
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
-  --runner, -r <runner>     Generates an out file that contains all target tests
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
   --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
   --unstealth, -u           Show assertions even if stealth is used

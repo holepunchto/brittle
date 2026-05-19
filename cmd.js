@@ -23,7 +23,6 @@ const cmd = command(
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
   flag('--trace', 'Trace all active promises and print them if the test fails'),
   flag('--timeout, -t <timeout>', 'Set the test timeout in milliseconds (default: 30000)'),
-  flag('--runner, -r <runner>', 'Generates an out file that contains all target tests'),
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
@@ -59,11 +58,6 @@ if (trace && !mine) {
     console.error()
     TracingPromise.print()
   })
-}
-
-if (argv.runner) {
-  require('./make-test.js')
-  process.exit(0)
 }
 
 if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
