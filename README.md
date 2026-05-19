@@ -848,6 +848,7 @@ npx istanbul report html
 ```
 
 ### V3 to V4 Migration
+
 - The `brittle` command is deprecated. Use `brittle-bare` and/or `brittle-node` instead.
 - Generating a test entrypoint file with `brittle -r` is deprecated. Use `brittle-make-test` instead.
 - Hooks return an unhook function (`unhook = hook()`) it must be called (`unhook(teardownFunction)`) to mark the end of the hook range.
