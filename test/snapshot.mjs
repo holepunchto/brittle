@@ -789,3 +789,60 @@ await tester(
 )
 
 rmSync(snapshotFile, { force: true })
+
+// A multiline string with a backslash escape (`\(`, as Swift codegen emits) and
+// no backtick, so the serializer takes the template-literal branch. The init run
+// writes the snapshot; the verify run re-requires it and must get the same value
+// back. Before the escaping fix the backslash collapsed and the verify failed.
+
+// Initialize snapshots: multiline strings escape template-literal specials
+await tester(
+  'multiline strings escape template-literal specials',
+  function (t) {
+    const tricky = 'switch v {\ndefault: fatalError("unknown \\(v)")\n}'
+    t.snapshot(tricky)
+  },
+  `
+  TAP version 13
+
+  # multiline strings escape template-literal specials
+      ok 1 - should match snapshot
+  ok 1 - multiline strings escape template-literal specials # time = 0ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 1/1 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' },
+  { scriptFile }
+)
+
+// Verify snapshots: multiline strings escape template-literal specials
+await tester(
+  'multiline strings escape template-literal specials',
+  function (t) {
+    const tricky = 'switch v {\ndefault: fatalError("unknown \\(v)")\n}'
+    t.snapshot(tricky)
+  },
+  `
+  TAP version 13
+
+  # multiline strings escape template-literal specials
+      ok 1 - should match snapshot
+  ok 1 - multiline strings escape template-literal specials # time = 0ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 1/1 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' },
+  { scriptFile }
+)
+
+rmSync(snapshotFile, { force: true })
