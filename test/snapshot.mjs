@@ -846,3 +846,45 @@ await tester(
 )
 
 rmSync(snapshotFile, { force: true })
+
+// A multiline string that *starts* with a newline. `indexOf('\n')` is 0 here, so
+// the old `> 0` check skipped the template-literal branch and emitted a single-
+// quoted string with a literal newline — a syntax error on re-require.
+//
+// We can't assert this through a verify run: getSnapshot() swallows the require
+// error and silently rewrites the snapshot, so a broken file still reports `ok`.
+// Instead the init run writes the snapshot, then we require the file directly and
+// check the value round-trips — the broken serialization throws SyntaxError here.
+
+// Initialize snapshots: multiline strings starting with a newline
+const leading = '\nline 2\nline 3'
+await tester(
+  'multiline strings starting with a newline',
+  function (t) {
+    t.snapshot('\nline 2\nline 3')
+  },
+  `
+  TAP version 13
+
+  # multiline strings starting with a newline
+      ok 1 - should match snapshot
+  ok 1 - multiline strings starting with a newline # time = 0ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 1/1 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' },
+  { scriptFile }
+)
+
+// throws SyntaxError if the serialization is broken (the old `> 0` bug)
+const { default: snapshot } = await import(snapshotFile)
+if (!Object.values(snapshot).includes(leading)) {
+  throw new Error('leading-newline snapshot did not round-trip through re-require')
+}
+
+rmSync(snapshotFile, { force: true })
