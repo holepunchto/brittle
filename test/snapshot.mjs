@@ -790,89 +790,54 @@ await tester(
 
 rmSync(snapshotFile, { force: true })
 
-// A multiline string with a backslash escape (`\(`, as Swift codegen emits) and
-// no backtick, so the serializer takes the template-literal branch. The init run
-// writes the snapshot; the verify run re-requires it and must get the same value
-// back. Before the escaping fix the backslash collapsed and the verify failed.
-
-// Initialize snapshots: multiline strings escape template-literal specials
-await tester(
-  'multiline strings escape template-literal specials',
-  function (t) {
-    const tricky = 'switch v {\ndefault: fatalError("unknown \\(v)")\n}'
-    t.snapshot(tricky)
-  },
-  `
-  TAP version 13
-
-  # multiline strings escape template-literal specials
-      ok 1 - should match snapshot
-  ok 1 - multiline strings escape template-literal specials # time = 0ms
-
-  1..1
-  # tests = 1/1 pass
-  # asserts = 1/1 pass
-  # time = 0ms
-
-  # ok
-  `,
-  { exitCode: 0, stderr: '' },
-  { scriptFile }
-)
-
-// Verify snapshots: multiline strings escape template-literal specials
-await tester(
-  'multiline strings escape template-literal specials',
-  function (t) {
-    const tricky = 'switch v {\ndefault: fatalError("unknown \\(v)")\n}'
-    t.snapshot(tricky)
-  },
-  `
-  TAP version 13
-
-  # multiline strings escape template-literal specials
-      ok 1 - should match snapshot
-  ok 1 - multiline strings escape template-literal specials # time = 0ms
-
-  1..1
-  # tests = 1/1 pass
-  # asserts = 1/1 pass
-  # time = 0ms
-
-  # ok
-  `,
-  { exitCode: 0, stderr: '' },
-  { scriptFile }
-)
-
-rmSync(snapshotFile, { force: true })
-
-// A multiline string that *starts* with a newline. `indexOf('\n')` is 0 here, so
-// the old `> 0` check skipped the template-literal branch and emitted a single-
-// quoted string with a literal newline — a syntax error on re-require.
+// Strings that the serializer has to quote carefully so they survive a
+// re-require. Each exercises a different branch / failure mode:
+//   - backslash + multiline   → template literal, `\` must be escaped (Swift codegen)
+//   - leading newline         → template literal; the old `> 0` check missed it
+//   - backtick + ${} multiline → template literal, both must be escaped
+//   - carriage return         → literal CR is a syntax error in a quoted string
+//   - CRLF                    → template literals normalize \r\n to \n, corrupting it
 //
-// We can't assert this through a verify run: getSnapshot() swallows the require
-// error and silently rewrites the snapshot, so a broken file still reports `ok`.
-// Instead the init run writes the snapshot, then we require the file directly and
-// check the value round-trips — the broken serialization throws SyntaxError here.
+// A verify run can't catch these: getSnapshot() swallows the require error and
+// silently rewrites the snapshot, so a broken file still reports `ok`. Instead we
+// write the snapshots, then re-import the file directly — a broken serialization
+// throws SyntaxError, and a corrupted value fails the round-trip check below.
+//
+// Keep this list in sync with the copy inside the test function.
+const tricky = [
+  'switch v {\ndefault: fatalError("unknown \\(v)")\n}',
+  '\nleading newline\nthird line',
+  'first `tick`\nsecond ${x}',
+  'carriage\rreturn',
+  'crlf\r\nvalue'
+]
 
-// Initialize snapshots: multiline strings starting with a newline
-const leading = '\nline 2\nline 3'
 await tester(
-  'multiline strings starting with a newline',
+  'special-character strings round-trip',
   function (t) {
-    t.snapshot('\nline 2\nline 3')
+    const tricky = [
+      'switch v {\ndefault: fatalError("unknown \\(v)")\n}',
+      '\nleading newline\nthird line',
+      'first `tick`\nsecond ${x}',
+      'carriage\rreturn',
+      'crlf\r\nvalue'
+    ]
+    for (const v of tricky) t.snapshot(v)
   },
   `
   TAP version 13
 
-  # multiline strings starting with a newline
+  # special-character strings round-trip
       ok 1 - should match snapshot
-  ok 1 - multiline strings starting with a newline # time = 0ms
+      ok 2 - should match snapshot
+      ok 3 - should match snapshot
+      ok 4 - should match snapshot
+      ok 5 - should match snapshot
+  ok 1 - special-character strings round-trip # time = 0ms
 
   1..1
   # tests = 1/1 pass
-  # asserts = 1/1 pass
+  # asserts = 5/5 pass
   # time = 0ms
 
   # ok
@@ -881,10 +846,14 @@ await tester(
   { scriptFile }
 )
 
-// throws SyntaxError if the serialization is broken (the old `> 0` bug)
+// Re-import the written snapshot: throws SyntaxError on a broken file, and any
+// value that didn't survive serialization fails the includes() check.
 const { default: snapshot } = await import(snapshotFile)
-if (!Object.values(snapshot).includes(leading)) {
-  throw new Error('leading-newline snapshot did not round-trip through re-require')
+const stored = Object.values(snapshot)
+for (const v of tricky) {
+  if (!stored.includes(v)) {
+    throw new Error('snapshot did not round-trip: ' + JSON.stringify(v))
+  }
 }
 
 rmSync(snapshotFile, { force: true })
