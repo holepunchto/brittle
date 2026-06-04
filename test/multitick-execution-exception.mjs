@@ -46,7 +46,7 @@ await tester(
       ok 1 - first
       not ok 2 - should resolve
         ---
-        actual: 
+        actual: Error: test
         expected: null
         operator: execution
         stack: async _fn ([eval]:5:5)
@@ -165,7 +165,7 @@ await tester(
       ok 2 - second
       not ok 3 - should resolve
         ---
-        actual: 
+        actual: Error: test
         expected: null
         operator: execution
         ...

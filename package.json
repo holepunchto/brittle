@@ -83,6 +83,10 @@
     "events": {
       "bare": "bare-events",
       "default": "events"
+    },
+    "util": {
+      "bare": "bare-utils",
+      "default": "util"
     }
   },
   "repository": {
