@@ -1,6 +1,6 @@
 {
   "name": "brittle",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "A TAP test runner built for Bare runtime and Node.js",
   "main": "index.js",
   "bin": {
