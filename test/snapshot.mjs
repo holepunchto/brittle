@@ -1,7 +1,7 @@
 import { tester } from './helpers/index.js'
 import { rmSync } from 'fs'
 import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { fileURLToPath, pathToFileURL } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -787,5 +787,73 @@ await tester(
   { exitCode: 1, stderr: '' },
   { scriptFile }
 )
+
+rmSync(snapshotFile, { force: true })
+
+// Strings that the serializer has to quote carefully so they survive a
+// re-require. Each exercises a different branch / failure mode:
+//   - backslash + multiline   → template literal, `\` must be escaped (Swift codegen)
+//   - leading newline         → template literal; the old `> 0` check missed it
+//   - backtick + ${} multiline → template literal, both must be escaped
+//   - carriage return         → literal CR is a syntax error in a quoted string
+//   - CRLF                    → template literals normalize \r\n to \n, corrupting it
+//
+// A verify run can't catch these: getSnapshot() swallows the require error and
+// silently rewrites the snapshot, so a broken file still reports `ok`. Instead we
+// write the snapshots, then re-import the file directly — a broken serialization
+// throws SyntaxError, and a corrupted value fails the round-trip check below.
+//
+// Keep this list in sync with the copy inside the test function.
+const tricky = [
+  'switch v {\ndefault: fatalError("unknown \\(v)")\n}',
+  '\nleading newline\nthird line',
+  'first `tick`\nsecond ${x}',
+  'carriage\rreturn',
+  'crlf\r\nvalue'
+]
+
+await tester(
+  'special-character strings round-trip',
+  function (t) {
+    const tricky = [
+      'switch v {\ndefault: fatalError("unknown \\(v)")\n}',
+      '\nleading newline\nthird line',
+      'first `tick`\nsecond ${x}',
+      'carriage\rreturn',
+      'crlf\r\nvalue'
+    ]
+    for (const v of tricky) t.snapshot(v)
+  },
+  `
+  TAP version 13
+
+  # special-character strings round-trip
+      ok 1 - should match snapshot
+      ok 2 - should match snapshot
+      ok 3 - should match snapshot
+      ok 4 - should match snapshot
+      ok 5 - should match snapshot
+  ok 1 - special-character strings round-trip # time = 0ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 5/5 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' },
+  { scriptFile }
+)
+
+// Re-import the written snapshot: throws SyntaxError on a broken file, and any
+// value that didn't survive serialization fails the includes() check.
+const { default: snapshot } = await import(pathToFileURL(snapshotFile).href)
+const stored = Object.values(snapshot)
+for (const v of tricky) {
+  if (!stored.includes(v)) {
+    throw new Error('snapshot did not round-trip: ' + JSON.stringify(v))
+  }
+}
 
 rmSync(snapshotFile, { force: true })
