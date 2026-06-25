@@ -749,11 +749,9 @@ class Test {
     try {
       await fn(this)
     } catch (err) {
-      if (
-        !(
-          err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed'
-        )
-      ) {
+      if (!(
+        err instanceof AssertionError && err.message === 'ERR_ASSERTION: Stealth assertion failed'
+      )) {
         this._wait = false
         await this._runTeardown(err)
         throw err

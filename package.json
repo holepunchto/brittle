@@ -33,7 +33,7 @@
     "bare-os": "^3.7.1",
     "bare-path": "^3.0.0",
     "bare-process": "^4.3.0",
-    "bare-subprocess": "^5.2.2",
+    "bare-subprocess": "^6.1.0",
     "bare-url": "^2.3.2",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.3",
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "bare-events": "^2.8.2",
-    "lunte": "^1.6.0",
+    "lunte": "^1.8.4",
     "prettier": "^3.8.1",
     "prettier-config-holepunch": "^2.0.0",
     "safety-catch": "^1.0.2"

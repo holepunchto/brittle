@@ -2,6 +2,7 @@ const path = require('path')
 const { spawn } = require('child_process')
 const process = require('process')
 const fs = require('fs')
+const os = require('os')
 const { isWindows, isBare } = require('which-runtime')
 
 const PRINT_ENABLED = false
@@ -180,7 +181,7 @@ function executeCode(script, scriptFile = null) {
 
     child.on('exit', function (exitCode, signal) {
       if (scriptFile) fs.rmSync(scriptFile, { force: true })
-      if (exitCode === 0 && signal) exitCode = 128 + signal
+      if (signal) exitCode = 128 + toSignalCode(signal)
       resolve({ exitCode, stdout, stderr })
     })
 
@@ -197,6 +198,11 @@ function executeCode(script, scriptFile = null) {
       stderr += chunk
     })
   })
+}
+
+function toSignalCode(signal) {
+  if (typeof signal === 'number') return signal
+  return os.constants.signals[signal] ?? 0
 }
 
 function standardizeTap(stdout) {
