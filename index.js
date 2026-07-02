@@ -47,6 +47,8 @@ class Runner {
     this.coverage = false
     this.jobs = 1
     this.threads = null
+    this.testNumber = undefined
+    this._testCount = 0
 
     this.hooks = new Set()
 
@@ -126,7 +128,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, testNumber } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -137,6 +139,7 @@ class Runner {
     if (unstealth !== undefined) this.unstealth = unstealth
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
+    if (testNumber !== undefined) this.testNumber = testNumber
   }
 
   resume() {
@@ -951,6 +954,8 @@ function test(name, opts, fn, overrides) {
     return unhook
   }
 
+  soloByTestNumber(t)
+
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
 
@@ -964,6 +969,16 @@ function test(name, opts, fn, overrides) {
   t._onstart(opts)
 
   return t
+}
+
+function soloByTestNumber(t) {
+  const runner = t._runner
+  if (runner.testNumber === undefined) return
+
+  if (runner._testCount++ === runner.testNumber) {
+    t._isSolo = true
+    Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
+  }
 }
 
 function hook(name, opts, fn) {

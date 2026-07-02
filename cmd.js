@@ -18,6 +18,7 @@ const cmd = command(
   'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
+  flag('--test-number, -n <number>', 'Solo the nth (0-indexed) top-level test'),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
@@ -45,7 +46,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, testNumber } = argv
 
 process.title = 'brittle'
 
@@ -73,13 +74,14 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs) {
+  if (bail || solo || unstealth || timeout || jobs || testNumber !== undefined) {
     brittle.configure({
       bail,
       solo,
       unstealth,
       timeout: timeout ? Number(timeout) : undefined,
-      jobs: jobs ? Number(jobs) : undefined
+      jobs: jobs ? Number(jobs) : undefined,
+      testNumber: testNumber !== undefined ? Number(testNumber) : undefined
     })
   }
 
@@ -104,6 +106,7 @@ async function startMining() {
     .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
+    .concat(testNumber !== undefined ? ['--test-number', testNumber + ''] : [])
     .concat(files)
 
   const running = new Set()
