@@ -49,6 +49,7 @@ class Runner {
     this.threads = null
     this.testNumber = undefined
     this._testCount = 0
+    this.numberedTest = null
 
     this.hooks = new Set()
 
@@ -247,6 +248,11 @@ class Runner {
   }
 
   _shouldTest(test) {
+    if (this.numberedTest) {
+      if (test._parentHook) return this.hooks.has(test._parentHook)
+      if (test._isHook) return this.hooks.has(test)
+      return test === this.numberedTest
+    }
     if (this.skipAll && !test._isHook) return false
     else if (this.solos.size > 0 || this.assumeSolo) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
@@ -986,6 +992,9 @@ function soloByTestNumber(t) {
 
   if (runner._testCount++ === runner.testNumber) {
     t._isSolo = true
+    t._isSkip = false
+    t._isTodo = false
+    runner.numberedTest = t
     Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
   }
 }

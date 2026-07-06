@@ -362,6 +362,10 @@ Flags must come before the file arguments:
 brittle --num=5 test/basic.js
 ```
 
+`--num` takes priority over everything else: the selected test runs even if it was\
+marked `skip` or `todo`, and any other `solo`'d tests (whether via `--solo`, `.solo()`,\
+or `configure({ solo: true })`) are ignored in favor of the selected test.
+
 #### `skip([name], [options], callback)`
 
 Skip a test:

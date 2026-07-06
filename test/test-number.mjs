@@ -92,3 +92,36 @@ await spawner(
   `,
   { exitCode: 'error', stderr: { includes: '--num 5 is out of range' } }
 )
+
+await spawner(
+  function ({ test, skip, solo, configure }) {
+    configure({ testNumber: 1 })
+
+    skip('zeroth test', function (t) {
+      t.fail('should not run')
+    })
+
+    test('only this one should run, even though it was marked skip', function (t) {
+      t.pass()
+    })
+
+    solo('an unrelated solo test', function (t) {
+      t.fail('should not run, num should override other solos')
+    })
+  },
+  `
+  TAP version 13
+
+  # only this one should run, even though it was marked skip
+      ok 1 - passed
+  ok 1 - only this one should run, even though it was marked skip # time = 0.613949ms
+
+  1..1
+  # tests = 1/1 pass
+  # asserts = 1/1 pass
+  # time = 3.695355ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
