@@ -48,6 +48,11 @@ if (files.length === 0) {
 
 const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, num } = argv
 
+if (solo && num !== undefined) {
+  console.error('Error: --solo and --num cannot be used together')
+  process.exit(1)
+}
+
 process.title = 'brittle'
 
 if (trace && !mine) {
