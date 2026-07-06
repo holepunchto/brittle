@@ -90,5 +90,5 @@ await spawner(
   `
   TAP version 13
   `,
-  { exitCode: 'error', stderr: { includes: '--test-number 5 is out of range' } }
+  { exitCode: 'error', stderr: { includes: '--num 5 is out of range' } }
 )

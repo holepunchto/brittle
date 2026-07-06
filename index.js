@@ -232,7 +232,7 @@ class Runner {
 
     if (this.testNumber < 0 || this.testNumber >= this._testCount) {
       throw new Error(
-        `--test-number ${this.testNumber} is out of range (registered ${this._testCount} top-level test(s), valid range 0-${Math.max(this._testCount - 1, 0)})`
+        `--num ${this.testNumber} is out of range (registered ${this._testCount} top-level test(s), valid range 0-${Math.max(this._testCount - 1, 0)})`
       )
     }
   }

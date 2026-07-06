@@ -355,11 +355,11 @@ t.end()
 ```
 
 You can also solo a test by its position in the file from the command line, without\
-editing the file, using the `--test-number` flag (0-indexed, counting top-level `test`/`solo`/`skip`/`todo` calls).\
+editing the file, using the `--num`/`-n` flag (0-indexed, counting top-level `test`/`solo`/`skip`/`todo` calls).\
 Flags must come before the file arguments:
 
 ```sh
-brittle --test-number=5 test/basic.js
+brittle --num=5 test/basic.js
 ```
 
 #### `skip([name], [options], callback)`
@@ -814,7 +814,7 @@ brittle-node|brittle-bare [flags] <files>
 Flags:
   --version, -v             Print the current version
   --solo, -s                Engage solo mode
-  --test-number, -n <n>     Solo the nth (0-indexed) top-level test
+  --num, -n <n>             Solo the nth (0-indexed) top-level test
   --bail, -b                Bail out on first assert failure
   --coverage, -c            Turn on coverage
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
