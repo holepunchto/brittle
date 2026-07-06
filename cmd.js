@@ -53,6 +53,11 @@ if (solo && num !== undefined) {
   process.exit(1)
 }
 
+if (jobs && Number(jobs) > 1 && num !== undefined) {
+  console.error('Error: --jobs and --num cannot be used together')
+  process.exit(1)
+}
+
 process.title = 'brittle'
 
 if (trace && !mine) {
