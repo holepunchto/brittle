@@ -366,7 +366,8 @@ brittle --num=5 test/basic.js
 marked `skip` or `todo`, and any other `solo`'d tests (via `.solo()` or\
 `configure({ solo: true })`) are ignored in favor of the selected test. `--num` cannot be\
 combined with `--solo` or with `--jobs` set above `1` — both will error, since isolating a\
-single test makes solo mode and concurrent test files redundant.
+single test makes solo mode and concurrent test files redundant. `--num` can only be passed\
+once; passing it more than once is also an error.
 
 #### `skip([name], [options], callback)`
 

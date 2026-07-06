@@ -18,7 +18,7 @@ const cmd = command(
   'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
-  flag('--num, -n <number>', 'Solo the nth (0-indexed) top-level test'),
+  flag('--num, -n <number>', 'Solo the nth (0-indexed) top-level test').multiple(),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
@@ -46,7 +46,14 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, num } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+
+if (argv.num && argv.num.length > 1) {
+  console.error('Error: --num can only be used once')
+  process.exit(1)
+}
+
+const num = argv.num ? argv.num[0] : undefined
 
 if (solo && num !== undefined) {
   console.error('Error: --solo and --num cannot be used together')
