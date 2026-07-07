@@ -47,6 +47,9 @@ class Runner {
     this.coverage = false
     this.jobs = 1
     this.threads = null
+    this.index = undefined
+    this.count = 0
+    this.picked = null
 
     this.hooks = new Set()
 
@@ -126,7 +129,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -137,10 +140,12 @@ class Runner {
     if (unstealth !== undefined) this.unstealth = unstealth
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
+    if (index !== undefined) this.index = index
   }
 
   resume() {
     if (!this._paused) return
+    this._checkTestNumber()
     this._resume()
     this._resume = this._paused = null
   }
@@ -223,6 +228,16 @@ class Runner {
     return false
   }
 
+  _checkTestNumber() {
+    if (this.index === undefined) return
+
+    if (this.index < 0 || this.index >= this.count) {
+      throw new Error(
+        `--pick ${this.index} is out of range (registered ${this.count} top-level test(s), valid range 0-${Math.max(this.count - 1, 0)})`
+      )
+    }
+  }
+
   _skip(reason, test) {
     if (this._shouldTest(test)) {
       test._header()
@@ -233,6 +248,11 @@ class Runner {
   }
 
   _shouldTest(test) {
+    if (this.picked) {
+      if (test._parentHook) return this.hooks.has(test._parentHook)
+      if (test._isHook) return this.hooks.has(test)
+      return test === this.picked
+    }
     if (this.skipAll && !test._isHook) return false
     else if (this.solos.size > 0 || this.assumeSolo) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
@@ -736,6 +756,19 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
+  _pick() {
+    const runner = this._runner
+    if (runner.index === undefined) return
+
+    if (runner.count++ === runner.index) {
+      this._isSolo = true
+      this._isSkip = false
+      this._isTodo = false
+      runner.picked = this
+      Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
+    }
+  }
+
   async _run(fn, opts) {
     this._isQueued = true
 
@@ -948,6 +981,8 @@ function test(name, opts, fn, overrides) {
 
     return unhook
   }
+
+  t._pick()
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)

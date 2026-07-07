@@ -354,6 +354,21 @@ t.pass()
 t.end()
 ```
 
+You can run a test in isolation according to its position in the file from the command line, without\
+editing the file, using the `--pick`/`-p` flag (0-indexed, counting top-level `test`/`solo`/`skip`/`todo` calls).\
+Flags must come before the file arguments:
+
+```sh
+brittle --pick=5 test/basic.js
+```
+
+`--pick` takes priority over the selected test's own annotations: it runs even if it was\
+marked `skip` or `todo`, and any other `solo`'d tests (via `.solo()` or\
+`configure({ solo: true })`) are ignored in favor of the selected test. `--pick` cannot be\
+combined with `--solo` or with `--jobs` set above `1` — both will error, since isolating a\
+single test makes solo mode and concurrent test files redundant. `--pick` can only be passed\
+once; passing it more than once is also an error.
+
 #### `skip([name], [options], callback)`
 
 Skip a test:
@@ -806,6 +821,7 @@ brittle-node|brittle-bare [flags] <files>
 Flags:
   --version, -v             Print the current version
   --solo, -s                Engage solo mode
+  --pick, -p <n>            Isolate the nth (0-indexed) top-level test
   --bail, -b                Bail out on first assert failure
   --coverage, -c            Turn on coverage
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
