@@ -18,7 +18,7 @@ const cmd = command(
   'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
-  flag('--num, -n <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
+  flag('--pick, -p <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
@@ -48,20 +48,20 @@ if (files.length === 0) {
 
 const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
 
-if (argv.num && argv.num.length > 1) {
-  console.error('Error: --num can only be used once')
+if (argv.pick && argv.pick.length > 1) {
+  console.error('Error: --pick can only be used once')
   process.exit(1)
 }
 
-const num = argv.num ? argv.num[0] : undefined
+const pick = argv.pick ? argv.pick[0] : undefined
 
-if (solo && num !== undefined) {
-  console.error('Error: --solo and --num cannot be used together')
+if (solo && pick !== undefined) {
+  console.error('Error: --solo and --pick cannot be used together')
   process.exit(1)
 }
 
-if (jobs && Number(jobs) > 1 && num !== undefined) {
-  console.error('Error: --jobs and --num cannot be used together')
+if (jobs && Number(jobs) > 1 && pick !== undefined) {
+  console.error('Error: --jobs and --pick cannot be used together')
   process.exit(1)
 }
 
@@ -91,14 +91,14 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs || num !== undefined) {
+  if (bail || solo || unstealth || timeout || jobs || pick !== undefined) {
     brittle.configure({
       bail,
       solo,
       unstealth,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
-      testNumber: num !== undefined ? Number(num) : undefined
+      testNumber: pick !== undefined ? Number(pick) : undefined
     })
   }
 
@@ -123,7 +123,7 @@ async function startMining() {
     .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
-    .concat(num !== undefined ? ['--num', num + ''] : [])
+    .concat(pick !== undefined ? ['--pick', pick + ''] : [])
     .concat(files)
 
   const running = new Set()

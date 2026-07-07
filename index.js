@@ -47,9 +47,9 @@ class Runner {
     this.coverage = false
     this.jobs = 1
     this.threads = null
-    this.testNumber = undefined
-    this._testCount = 0
-    this.numberedTest = null
+    this.index = undefined
+    this.count = 0
+    this.picked = null
 
     this.hooks = new Set()
 
@@ -129,7 +129,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, testNumber } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, testNumber: index } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -140,7 +140,7 @@ class Runner {
     if (unstealth !== undefined) this.unstealth = unstealth
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
-    if (testNumber !== undefined) this.testNumber = testNumber
+    if (index !== undefined) this.index = index
   }
 
   resume() {
@@ -229,11 +229,11 @@ class Runner {
   }
 
   _checkTestNumber() {
-    if (this.testNumber === undefined) return
+    if (this.index === undefined) return
 
-    if (this.testNumber < 0 || this.testNumber >= this._testCount) {
+    if (this.index < 0 || this.index >= this.count) {
       throw new Error(
-        `--num ${this.testNumber} is out of range (registered ${this._testCount} top-level test(s), valid range 0-${Math.max(this._testCount - 1, 0)})`
+        `--pick ${this.index} is out of range (registered ${this.count} top-level test(s), valid range 0-${Math.max(this.count - 1, 0)})`
       )
     }
   }
@@ -248,10 +248,10 @@ class Runner {
   }
 
   _shouldTest(test) {
-    if (this.numberedTest) {
+    if (this.picked) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
       if (test._isHook) return this.hooks.has(test)
-      return test === this.numberedTest
+      return test === this.picked
     }
     if (this.skipAll && !test._isHook) return false
     else if (this.solos.size > 0 || this.assumeSolo) {
@@ -988,13 +988,13 @@ function test(name, opts, fn, overrides) {
 
 function soloByTestNumber(t) {
   const runner = t._runner
-  if (runner.testNumber === undefined) return
+  if (runner.index === undefined) return
 
-  if (runner._testCount++ === runner.testNumber) {
+  if (runner.count++ === runner.index) {
     t._isSolo = true
     t._isSkip = false
     t._isTodo = false
-    runner.numberedTest = t
+    runner.picked = t
     Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
   }
 }

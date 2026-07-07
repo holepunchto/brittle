@@ -90,7 +90,7 @@ await spawner(
   `
   TAP version 13
   `,
-  { exitCode: 'error', stderr: { includes: '--num 5 is out of range' } }
+  { exitCode: 'error', stderr: { includes: '--pick 5 is out of range' } }
 )
 
 await spawner(
@@ -106,7 +106,7 @@ await spawner(
     })
 
     solo('an unrelated solo test', function (t) {
-      t.fail('should not run, num should override other solos')
+      t.fail('should not run, pick should override other solos')
     })
   },
   `
