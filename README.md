@@ -354,7 +354,7 @@ t.pass()
 t.end()
 ```
 
-You can also solo a test by its position in the file from the command line, without\
+You can run a test in isolation according to its position in the file from the command line, without\
 editing the file, using the `--num`/`-n` flag (0-indexed, counting top-level `test`/`solo`/`skip`/`todo` calls).\
 Flags must come before the file arguments:
 
