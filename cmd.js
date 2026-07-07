@@ -18,7 +18,7 @@ const cmd = command(
   'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
-  flag('--num, -n <number>', 'Solo the nth (0-indexed) top-level test').multiple(),
+  flag('--num, -n <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
