@@ -129,7 +129,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, testNumber: index } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -756,6 +756,19 @@ class Test {
     return fn ? t._run(fn, opts || {}) : t
   }
 
+  _pick() {
+    const runner = this._runner
+    if (runner.index === undefined) return
+
+    if (runner.count++ === runner.index) {
+      this._isSolo = true
+      this._isSkip = false
+      this._isTodo = false
+      runner.picked = this
+      Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
+    }
+  }
+
   async _run(fn, opts) {
     this._isQueued = true
 
@@ -969,7 +982,7 @@ function test(name, opts, fn, overrides) {
     return unhook
   }
 
-  pickByTestNumber(t)
+  t._pick()
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
@@ -984,19 +997,6 @@ function test(name, opts, fn, overrides) {
   t._onstart(opts)
 
   return t
-}
-
-function pickByTestNumber(t) {
-  const runner = t._runner
-  if (runner.index === undefined) return
-
-  if (runner.count++ === runner.index) {
-    t._isSolo = true
-    t._isSkip = false
-    t._isTodo = false
-    runner.picked = t
-    Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
-  }
 }
 
 function hook(name, opts, fn) {
