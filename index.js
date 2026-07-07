@@ -969,7 +969,7 @@ function test(name, opts, fn, overrides) {
     return unhook
   }
 
-  soloByTestNumber(t)
+  pickByTestNumber(t)
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
@@ -986,7 +986,7 @@ function test(name, opts, fn, overrides) {
   return t
 }
 
-function soloByTestNumber(t) {
+function pickByTestNumber(t) {
   const runner = t._runner
   if (runner.index === undefined) return
 
