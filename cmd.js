@@ -98,7 +98,7 @@ async function start() {
       unstealth,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
-      testNumber: pick !== undefined ? Number(pick) : undefined
+      pick: pick !== undefined ? Number(pick) : undefined
     })
   }
 
