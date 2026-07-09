@@ -673,6 +673,8 @@ class Test {
     )
     this._assertion(ok, message, explanation, this._execution, top)
     this._checkEnd()
+
+    return actual
   }
 
   async _execution(functionOrPromise, message) {
