@@ -19,6 +19,7 @@ const cmd = command(
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--pick, -p <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
+  flag('--name, -n <name>', 'Run only top-level tests whose name contains <name>').multiple(),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
   flag('--cov-dir <dir>', 'Configure coverage output directory (default: ./coverage)'),
@@ -46,7 +47,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, name } = argv
 
 if (argv.pick && argv.pick.length > 1) {
   console.error('Error: --pick can only be used once')
@@ -62,6 +63,11 @@ if (solo && pick !== undefined) {
 
 if (jobs && Number(jobs) > 1 && pick !== undefined) {
   console.error('Error: --jobs and --pick cannot be used together')
+  process.exit(1)
+}
+
+if (name && jobs && Number(jobs) > 1) {
+  console.error('Error: --jobs and --name cannot be used together')
   process.exit(1)
 }
 
@@ -91,14 +97,15 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs || pick !== undefined) {
+  if (bail || solo || unstealth || timeout || jobs || pick !== undefined || name) {
     brittle.configure({
       bail,
       solo,
       unstealth,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
-      pick: pick !== undefined ? Number(pick) : undefined
+      pick: pick !== undefined ? Number(pick) : undefined,
+      name
     })
   }
 
@@ -124,6 +131,7 @@ async function startMining() {
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
     .concat(pick !== undefined ? ['--pick', pick + ''] : [])
+    .concat(name ? name.flatMap((n) => ['--name', n]) : [])
     .concat(files)
 
   const running = new Set()

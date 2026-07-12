@@ -50,6 +50,8 @@ class Runner {
     this.index = undefined
     this.count = 0
     this.picked = null
+    this.names = null
+    this.named = new Set()
 
     this.hooks = new Set()
 
@@ -129,7 +131,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index, name } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -141,6 +143,7 @@ class Runner {
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
     if (index !== undefined) this.index = index
+    if (name !== undefined) this.names = Array.isArray(name) ? name : [name]
   }
 
   resume() {
@@ -232,8 +235,12 @@ class Runner {
     if (this.index === undefined) return
 
     if (this.index < 0 || this.index >= this.count) {
+      const registered =
+        this.names !== null
+          ? `${this.count} top-level test(s) matched --name "${this.names.join('", "')}"`
+          : `registered ${this.count} top-level test(s)`
       throw new Error(
-        `--pick ${this.index} is out of range (registered ${this.count} top-level test(s), valid range 0-${Math.max(this.count - 1, 0)})`
+        `--pick ${this.index} is out of range (${registered}, valid range 0-${Math.max(this.count - 1, 0)})`
       )
     }
   }
@@ -254,7 +261,11 @@ class Runner {
       return test === this.picked
     }
     if (this.skipAll && !test._isHook) return false
-    else if (this.solos.size > 0 || this.assumeSolo) {
+    else if (this.names !== null) {
+      if (test._parentHook) return this.hooks.has(test._parentHook)
+      if (test._isHook) return this.hooks.has(test)
+      return this.named.has(test)
+    } else if (this.solos.size > 0 || this.assumeSolo) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
       if (test._isHook) return this.hooks.has(test)
       return this.solos.has(test)
@@ -759,6 +770,7 @@ class Test {
   _pick() {
     const runner = this._runner
     if (runner.index === undefined) return
+    if (runner.names !== null && !this._matchesName()) return
 
     if (runner.count++ === runner.index) {
       this._isSolo = true
@@ -767,6 +779,20 @@ class Test {
       runner.picked = this
       Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
     }
+  }
+
+  _match() {
+    const runner = this._runner
+    if (runner.names === null || runner.index !== undefined) return
+
+    if (this._matchesName()) {
+      runner.named.add(this)
+      Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
+    }
+  }
+
+  _matchesName() {
+    return !!this.name && this._runner.names.some((n) => this.name.includes(n))
   }
 
   async _run(fn, opts) {
@@ -983,6 +1009,7 @@ function test(name, opts, fn, overrides) {
   }
 
   t._pick()
+  t._match()
 
   if (fn) return t._run(fn, opts)
   if (t._isTodo) return t._run(() => {}, opts)
