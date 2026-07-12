@@ -369,6 +369,28 @@ combined with `--solo` or with `--jobs` set above `1` — both will error, since
 single test makes solo mode and concurrent test files redundant. `--pick` can only be passed\
 once; passing it more than once is also an error.
 
+Tests can also be isolated by name with the `--name`/`-n` flag. It runs only the top-level\
+tests whose name contains the given string (case-sensitive substring match, no regex):
+
+```sh
+brittle --name="network" test/basic.js
+```
+
+`--name` can be passed multiple times to run the tests matching any of the given names. If no\
+test matches, the run ends successfully with `0/0` tests reported, so scripted filters that\
+match nothing yet are fine. Like `--pick`, it takes priority over any `solo`'d tests and cannot\
+be combined with `--solo` or with `--jobs` set above `1`. Unlike `--pick`, it does not override\
+`skip`/`todo` annotations: a matched `skip` test stays skipped.
+
+Combining `--name` with `--pick` picks the nth (0-indexed) test among the matches:
+
+```sh
+brittle --name="network" --pick=1 test/basic.js
+```
+
+Since `--pick` overrides `skip`/`todo` annotations, this also runs a matched test that is\
+otherwise skipped.
+
 #### `skip([name], [options], callback)`
 
 Skip a test:
@@ -822,6 +844,7 @@ Flags:
   --version, -v             Print the current version
   --solo, -s                Engage solo mode
   --pick, -p <n>            Isolate the nth (0-indexed) top-level test
+  --name, -n <name>         Run only top-level tests whose name contains <name>
   --bail, -b                Bail out on first assert failure
   --coverage, -c            Turn on coverage
   --cov-dir <dir>           Configure coverage output directory (default: ./coverage)
