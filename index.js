@@ -47,9 +47,9 @@ class Runner {
     this.coverage = false
     this.jobs = 1
     this.threads = null
-    this.index = undefined
+    this.picks = null
     this.count = 0
-    this.picked = null
+    this.picked = new Set()
     this.names = null
     this.named = new Set()
 
@@ -136,7 +136,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index, name } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick, name } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -147,7 +147,7 @@ class Runner {
     if (unstealth !== undefined) this.unstealth = unstealth
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
-    if (index !== undefined) this.index = index
+    if (pick !== undefined) this.picks = Array.isArray(pick) ? pick : [pick]
     if (name !== undefined) this.names = Array.isArray(name) ? name : [name]
   }
 
@@ -237,16 +237,18 @@ class Runner {
   }
 
   _checkTestNumber() {
-    if (this.index === undefined) return
+    if (this.picks === null) return
 
-    if (this.index < 0 || this.index >= this.count) {
-      const registered =
-        this.names !== null
-          ? `${this.count} top-level test(s) matched --name "${this.names.join('", "')}"`
-          : `registered ${this.count} top-level test(s)`
-      throw new Error(
-        `--pick ${this.index} is out of range (${registered}, valid range 0-${Math.max(this.count - 1, 0)})`
-      )
+    for (const index of this.picks) {
+      if (index < 0 || index >= this.count) {
+        const registered =
+          this.names !== null
+            ? `${this.count} top-level test(s) matched --name "${this.names.join('", "')}"`
+            : `registered ${this.count} top-level test(s)`
+        throw new Error(
+          `--pick ${index} is out of range (${registered}, valid range 0-${Math.max(this.count - 1, 0)})`
+        )
+      }
     }
   }
 
@@ -260,10 +262,10 @@ class Runner {
   }
 
   _shouldTest(test) {
-    if (this.picked) {
+    if (this.picked.size > 0) {
       if (test._parentHook) return this.hooks.has(test._parentHook)
       if (test._isHook) return this.hooks.has(test)
-      return test === this.picked
+      return this.picked.has(test)
     }
     if (this.skipAll && !test._isHook) return false
     else if (this.names !== null) {
@@ -774,21 +776,21 @@ class Test {
 
   _pick() {
     const runner = this._runner
-    if (runner.index === undefined) return
+    if (runner.picks === null) return
     if (runner.names !== null && !this._matchesName()) return
 
-    if (runner.count++ === runner.index) {
+    if (runner.picks.includes(runner.count++)) {
       this._isSolo = true
       this._isSkip = false
       this._isTodo = false
-      runner.picked = this
+      runner.picked.add(this)
       Test.currentHooks.forEach((hook) => runner.hooks.add(hook))
     }
   }
 
   _match() {
     const runner = this._runner
-    if (runner.names === null || runner.index !== undefined) return
+    if (runner.names === null || runner.picks !== null) return
 
     if (this._matchesName()) {
       runner.named.add(this)

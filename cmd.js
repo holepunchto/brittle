@@ -18,7 +18,7 @@ const cmd = command(
   'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
-  flag('--pick, -p <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
+  flag('--pick, -p <number>', 'Isolate the nth (0-indexed) top-level test (repeatable)').multiple(),
   flag('--name, -n <name>', 'Run only top-level tests whose name contains <name>').multiple(),
   flag('--bail, -b', 'Bail out on first assert failure'),
   flag('--coverage, -c', 'Turn on coverage'),
@@ -49,19 +49,14 @@ if (files.length === 0) {
 
 const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, name } = argv
 
-if (argv.pick && argv.pick.length > 1) {
-  console.error('Error: --pick can only be used once')
-  process.exit(1)
-}
+const picks = argv.pick ? argv.pick.map(Number) : undefined
 
-const pick = argv.pick ? argv.pick[0] : undefined
-
-if (solo && pick !== undefined) {
+if (solo && picks) {
   console.error('Error: --solo and --pick cannot be used together')
   process.exit(1)
 }
 
-if (jobs && Number(jobs) > 1 && pick !== undefined) {
+if (jobs && Number(jobs) > 1 && picks) {
   console.error('Error: --jobs and --pick cannot be used together')
   process.exit(1)
 }
@@ -92,14 +87,14 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs || pick !== undefined || name) {
+  if (bail || solo || unstealth || timeout || jobs || picks || name) {
     brittle.configure({
       bail,
       solo,
       unstealth,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
-      pick: pick !== undefined ? Number(pick) : undefined,
+      pick: picks,
       name
     })
   }
@@ -125,7 +120,7 @@ async function startMining() {
     .concat(trace ? ['--trace'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
-    .concat(pick !== undefined ? ['--pick', pick + ''] : [])
+    .concat(picks ? picks.flatMap((p) => ['--pick', p + '']) : [])
     .concat(name ? name.flatMap((n) => ['--name', n]) : [])
     .concat(files)
 
