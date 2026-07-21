@@ -62,9 +62,14 @@ class Runner {
 
     if (isBrittleChildThread) {
       const threadStreams = require('./lib/thread-streams')
-      this._threadStream = threadStreams.createStreamFrom(global.Bare.Thread.self.data.handle)
+      const data = global.Bare.Thread.self.data
+      this._threadStream = threadStreams.createStreamFrom(data.handle)
       this._stateSent = false
       this._configApplied = false
+
+      // Applied before the thread's test file registers any tests, so name
+      // filtering (which runs at registration time) sees the filter.
+      if (data.names != null) this.names = data.names
 
       this.pendingConfig = {}
 

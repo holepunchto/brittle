@@ -66,11 +66,6 @@ if (jobs && Number(jobs) > 1 && pick !== undefined) {
   process.exit(1)
 }
 
-if (name && jobs && Number(jobs) > 1) {
-  console.error('Error: --jobs and --name cannot be used together')
-  process.exit(1)
-}
-
 process.title = 'brittle'
 
 if (trace && !mine) {

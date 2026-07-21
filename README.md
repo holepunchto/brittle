@@ -379,7 +379,8 @@ brittle --name="network" test/basic.js
 `--name` can be passed multiple times to run the tests matching any of the given names. If no\
 test matches, the run ends successfully with `0/0` tests reported, so scripted filters that\
 match nothing yet are fine. Like `--pick`, it takes priority over any `solo`'d tests and cannot\
-be combined with `--solo` or with `--jobs` set above `1`. Unlike `--pick`, it does not override\
+be combined with `--solo`. Unlike `--pick`, it can be combined with `--jobs`: the filter is\
+applied within each concurrent test file. Also unlike `--pick`, it does not override\
 `skip`/`todo` annotations: a matched `skip` test stays skipped.
 
 Combining `--name` with `--pick` picks the nth (0-indexed) test among the matches:
