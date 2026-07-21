@@ -143,3 +143,53 @@ await spawner(
   `,
   { exitCode: 'error', stderr: { includes: 'Error: ERROR' } }
 )
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ name: 'network', jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/name/alpha.js'))
+    await brittle.load(require.resolve('./fixtures/threads/name/beta.mjs'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # network alpha
+      ok 1 - matched in alpha
+  ok 1 - network alpha # time = 0ms
+
+  # network beta
+      ok 1 - matched in beta
+  ok 2 - network beta # time = 0ms
+
+  1..2
+  # tests = 2/2 pass
+  # asserts = 2/2 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ name: 'nonexistent', jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/name/alpha.js'))
+    await brittle.load(require.resolve('./fixtures/threads/name/beta.mjs'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  1..0
+  # tests = 0/0 pass
+  # asserts = 0/0 pass
+  # time = 0ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
