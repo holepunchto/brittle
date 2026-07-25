@@ -378,10 +378,20 @@ brittle-bare --name="network" test/basic.js
 
 `--name` can be passed multiple times to run the tests matching any of the given names. If no\
 test matches, the run ends successfully with `0/0` tests reported, so scripted filters that\
-match nothing yet are fine. Like `--pick`, it takes priority over any `solo`'d tests and cannot\
-be combined with `--solo`. Unlike `--pick`, it can be combined with `--jobs`: the filter is\
-applied within each concurrent test file. Also unlike `--pick`, it does not override\
-`skip`/`todo` annotations: a matched `skip` test stays skipped.
+match nothing yet are fine. Like `--pick`, it takes priority over any `solo`'d tests: every\
+match runs, whether or not it is `solo`'d, and a `solo`'d test that does not match is not run.\
+Unlike `--pick`, it can be combined with `--jobs`: the filter is applied within each concurrent\
+test file. Also unlike `--pick`, it does not override `skip`/`todo` annotations: a matched\
+`skip` test stays skipped.
+
+Combining `--name` with `--solo` runs only the `solo`'d tests among the matches:
+
+```sh
+brittle-bare --name="network" --solo test/basic.js
+```
+
+This is the way to narrow a name filter down to the test currently under investigation. Since\
+the two flags intersect, the run reports `0/0` when none of the matched tests are `solo`'d.
 
 Combining `--name` with `--pick` picks the nth (0-indexed) test among the matches:
 
