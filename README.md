@@ -829,6 +829,7 @@ Flags:
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
   --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
+  --watch, -w               Rerun the tests when a test file changes
   --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```
@@ -850,6 +851,55 @@ Force disable coverage with an environment variable:
 ```shell
 BRITTLE_COVERAGE=false brittle-node test.js
 ```
+
+### Watch mode
+
+`--watch` keeps the process alive, watching the test files that were matched and rerunning
+them when one changes.
+
+```sh
+brittle-node --watch test/*.mjs
+brittle-bare -w -b test/all.mjs
+```
+
+Each file runs in its own process, so a pass or fail is attributed per file, and a summary is
+printed at the end of every run:
+
+```
+ PASS  test/pass.mjs 61ms
+ FAIL  test/nesting.mjs 128ms
+
+Files:   1 failed, 1 passed, 2 total
+Tests:   1 failed, 42 passed, 43 total
+Asserts: 1 failed, 98 passed, 99 total
+Time:    0.19s
+
+Failed files:
+  - test/nesting.mjs
+```
+
+When stdin is a terminal, watch mode is interactive:
+
+```
+Watch Usage
+ › Press a to run all tests.
+ › Press f to run only failed files.
+ › Press o to run only changed files.
+ › Press p to filter by a filename regex.
+ › Press q to quit watch mode.
+ › Press enter to trigger a test run.
+```
+
+`f` and `o` narrow the run to the files that failed, or changed, since the last run. `p`
+prompts for a regex that is matched against the file paths — an empty pattern clears it, and
+`a` clears every filter. When stdin is not a terminal (CI, a pipe) the keys are skipped and
+watch mode just reruns on change.
+
+Only the matched test files are watched, not the code under test, so editing an
+implementation file does not trigger a rerun on its own — press enter, or save the test.
+
+The other flags are forwarded to each run, so `--bail`, `--timeout`, `--solo`, `--pick`,
+`--coverage` and `--jobs` all behave as usual. `--watch` cannot be combined with `--mine`.
 
 ### Coverage
 

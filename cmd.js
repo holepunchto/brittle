@@ -27,6 +27,7 @@ const cmd = command(
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
+  flag('--watch, -w', 'Rerun the tests when a test file changes'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -46,7 +47,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, watch } = argv
 
 if (argv.pick && argv.pick.length > 1) {
   console.error('Error: --pick can only be used once')
@@ -65,6 +66,11 @@ if (jobs && Number(jobs) > 1 && pick !== undefined) {
   process.exit(1)
 }
 
+if (watch && mine) {
+  console.error('Error: --watch and --mine cannot be used together')
+  process.exit(1)
+}
+
 process.title = 'brittle'
 
 if (trace && !mine) {
@@ -78,9 +84,13 @@ if (trace && !mine) {
   })
 }
 
-if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
+// in watch mode coverage belongs to the spawned runs, not to the watcher itself
+if (coverage && !watch && process.env.BRITTLE_COVERAGE !== 'false') {
+  require('bare-cov')({ dir: covDir })
+}
 
-if (mine) startMining().catch()
+if (watch) startWatching()
+else if (mine) startMining().catch()
 else start().catch(onerror)
 
 function onerror(err) {
@@ -113,6 +123,30 @@ async function start() {
   }
 
   brittle.resume()
+}
+
+function startWatching() {
+  const { watch: run } = require('./lib/watch')
+
+  run({
+    cmd: __filename,
+    files,
+    args: forwardedFlags(),
+    color: process.stdout?.isTTY === true && !process.env.NO_COLOR
+  })
+}
+
+function forwardedFlags() {
+  return []
+    .concat(solo ? ['--solo'] : [])
+    .concat(bail ? ['--bail'] : [])
+    .concat(unstealth ? ['--unstealth'] : [])
+    .concat(trace ? ['--trace'] : [])
+    .concat(coverage ? ['--coverage'] : [])
+    .concat(covDir ? ['--cov-dir', covDir] : [])
+    .concat(timeout ? ['--timeout', timeout + ''] : [])
+    .concat(jobs ? ['--jobs', jobs] : [])
+    .concat(pick !== undefined ? ['--pick', pick + ''] : [])
 }
 
 async function startMining() {
