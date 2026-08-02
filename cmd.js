@@ -27,6 +27,7 @@ const cmd = command(
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
+  flag('--color', 'Colorize the output, --no-color to disable (default: auto-detect)'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -47,6 +48,8 @@ if (files.length === 0) {
 }
 
 const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+
+const color = cmd.indices.flags.color === undefined ? undefined : argv.color
 
 if (argv.pick && argv.pick.length > 1) {
   console.error('Error: --pick can only be used once')
@@ -91,11 +94,12 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs || pick !== undefined) {
+  if (bail || solo || unstealth || timeout || jobs || pick !== undefined || color !== undefined) {
     brittle.configure({
       bail,
       solo,
       unstealth,
+      color,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
       pick: pick !== undefined ? Number(pick) : undefined
@@ -124,6 +128,7 @@ async function startMining() {
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
     .concat(pick !== undefined ? ['--pick', pick + ''] : [])
+    .concat(color === undefined ? [] : [color ? '--color' : '--no-color'])
     .concat(files)
 
   const running = new Set()

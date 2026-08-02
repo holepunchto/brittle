@@ -12,7 +12,7 @@ const ERROR_EXIT_CODE = isBare ? (isWindows ? 3221226505 : 134) : 1
 const EXIT_CODES_KV = { ok: 0, error: ERROR_EXIT_CODE }
 const EXIT_CODES_VK = { 0: 'ok', [ERROR_EXIT_CODE]: 'error' }
 
-module.exports = { tester, spawner, standardizeTap, ERROR_EXIT_CODE }
+module.exports = { tester, spawner, raw, standardizeTap, ERROR_EXIT_CODE }
 
 async function tester(name, fn, expectedOut, expectedMore, opts) {
   log('Tester', name)
@@ -28,22 +28,25 @@ async function spawner(fn, expectedOut, expectedMore, opts) {
   return executeTap(script, expectedOut, expectedMore, opts)
 }
 
-async function executeTap(
-  script,
-  expectedOut,
-  more = {},
-  opts = {
-    scriptFile: path.resolve(
-      __dirname,
-      '..',
-      `_testscript-${Math.random().toString(16).slice(2)}.js`
-    )
-  }
-) {
+async function raw(fn, opts = {}) {
+  log('Raw')
+  const script = `const test = require(${pkg})\n\nconst _fn = (${fn.toString()})\n\n_fn(test)`
+  const scriptFile =
+    opts.scriptFile ??
+    path.resolve(__dirname, '..', `_testscript-${Math.random().toString(16).slice(2)}.js`)
+
+  return executeCode(script, scriptFile, opts)
+}
+
+async function executeTap(script, expectedOut, more = {}, opts = {}) {
   if (typeof expectedOut !== 'string') throw new Error('Expected stdout is required as a string')
   if (more.stderr === undefined) throw new Error('Expected stderr is required')
 
-  const { exitCode, error, stdout, stderr } = await executeCode(script, opts.scriptFile)
+  const scriptFile =
+    opts.scriptFile ??
+    path.resolve(__dirname, '..', `_testscript-${Math.random().toString(16).slice(2)}.js`)
+
+  const { exitCode, error, stdout, stderr } = await executeCode(script, scriptFile, opts)
   const errors = new Errors()
   let tapout
   let tapexp
@@ -168,12 +171,13 @@ class Errors {
   }
 }
 
-function executeCode(script, scriptFile = null) {
+function executeCode(script, scriptFile = null, { env } = {}) {
   return new Promise((resolve, reject) => {
     if (scriptFile) fs.writeFileSync(scriptFile, script, 'utf-8')
 
     const args = scriptFile ? [scriptFile] : ['-e', script]
     const opts = { timeout: 30000, cwd: path.join(__dirname, '../..') }
+    if (env) opts.env = { ...process.env, ...env }
     const child = spawn(process.execPath, args, opts)
 
     let stdout = ''

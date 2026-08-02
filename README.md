@@ -466,6 +466,7 @@ It must be executed before any tests.
 - `unstealth` (`false`) - show assertions even if `stealth` is used
 - `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 - `jobs` (`1`) - number of test files to run concurrently (Bare-only)
+- `color` (auto-detected) - colorize the output. See [Colors](#colors)
 
 ```js
 import { configure } from 'brittle'
@@ -829,6 +830,7 @@ Flags:
   --timeout, -t <timeout>   Set the test timeout in milliseconds (default: 30000)
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
   --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
+  --color                   Colorize the output, --no-color to disable (default: auto-detect)
   --unstealth, -u           Show assertions even if stealth is used
   --help|-h                 Show help
 ```
@@ -849,6 +851,33 @@ Force disable coverage with an environment variable:
 
 ```shell
 BRITTLE_COVERAGE=false brittle-node test.js
+```
+
+### Colors
+
+Output is colorized when it is written to a terminal and left as plain TAP otherwise, so
+piping to a TAP consumer or a log file is unaffected.
+
+- `ok` is green, bold for a test result and plain for an assertion
+- `not ok` is bold red, followed by the message in red
+- skipped and todo tests are yellow with a bold `# SKIP` / `# TODO` marker
+- failure explanations read like a diff: `actual` in red, `expected` in green, other keys
+  bold with gray values, the `^` source pointer bold red, and the stack dimmed
+- the tallies are green when everything passed and bold red otherwise
+- timings, plan lines and `TAP version 13` are dimmed
+
+Detection can be overridden, highest precedence first:
+
+- `configure({ color: true })` / `configure({ color: false })`
+- `--color` / `--no-color`
+- `NO_COLOR` set to a non-empty value disables colors
+- `FORCE_COLOR` enables colors, except when set to `0` or `false`
+- `TERM=dumb` disables colors
+
+```shell
+brittle-node --no-color test.js
+NO_COLOR=1 brittle-node test.js
+FORCE_COLOR=1 brittle-node test.js | less -R
 ```
 
 ### Coverage

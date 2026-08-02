@@ -4,6 +4,7 @@ const b4a = require('b4a')
 const { getSnapshot, createTypedArray } = require('./lib/snapshot')
 const { INDENT, RUNNER, IS_NODE, IS_BARE, DEFAULT_TIMEOUT } = require('./lib/constants')
 const AssertionError = require('./lib/assertion-error')
+const { createColors } = require('./lib/colors')
 const TracingPromise = require('./lib/tracing-promise')
 const Promise = TracingPromise.Untraced // never trace internal onces
 
@@ -50,6 +51,7 @@ class Runner {
     this.index = undefined
     this.count = 0
     this.picked = null
+    this.colors = createColors()
 
     this.hooks = new Set()
 
@@ -99,37 +101,121 @@ class Runner {
     }
 
     return (type, ...args) => {
+      const colors = this.colors
+
       if (type === 'start') {
-        console.log('TAP version 13')
+        console.log(colors.dim('TAP version 13'))
       } else if (type === 'assert') {
         const [indent, oknotok, number, message] = args
-        console.log(`${indent}${oknotok} ${number} ${message}`)
+        console.log(`${indent}${this._formatAssert(indent, oknotok, number, message)}`)
       } else if (type === 'comment') {
         const [indent, ...rest] = args
-        console.log(`${indent}#`, ...rest)
+        const style = indent === '' ? colors.bold : colors.dim
+        if (rest.every((part) => typeof part === 'string')) {
+          console.log(style(indent + (rest.length ? '# ' + rest.join(' ') : '#')))
+        } else {
+          console.log(style(`${indent}#`), ...rest)
+        }
+      } else if (type === 'explanation') {
+        console.log(this._formatExplanation(args.join(' ')))
       } else if (type === 'results') {
         const [tests, assertions] = args
 
-        if (this.bail && this.skipAll) console.log('Bail out!')
+        if (this.bail && this.skipAll) console.log(colors.boldRed('Bail out!'))
 
         this.padding()
 
-        console.log('1..' + tests.count)
-        console.log('# tests = ' + tests.pass + '/' + tests.count + ' pass')
-        console.log('# asserts = ' + assertions.pass + '/' + assertions.count + ' pass')
-        console.log('# time = ' + this._timer() + 'ms')
+        const testsOk = tests.count === tests.pass
+        const assertionsOk = assertions.count === assertions.pass
+
+        console.log(colors.dim('1..' + tests.count))
+        console.log(
+          (testsOk ? colors.green : colors.boldRed)(
+            '# tests = ' + tests.pass + '/' + tests.count + ' pass'
+          )
+        )
+        console.log(
+          (assertionsOk ? colors.green : colors.boldRed)(
+            '# asserts = ' + assertions.pass + '/' + assertions.count + ' pass'
+          )
+        )
+        console.log(colors.dim('# time = ' + this._timer() + 'ms'))
         console.log()
 
-        const isOk = tests.count === tests.pass && assertions.count === assertions.pass
-        console.log(`# ${isOk ? 'ok' : 'not ok'}`)
+        const isOk = testsOk && assertionsOk
+        console.log((isOk ? colors.boldGreen : colors.boldRed)(`# ${isOk ? 'ok' : 'not ok'}`))
       } else {
         console.log(...args)
       }
     }
   }
 
+  _formatAssert(indent, oknotok, number, message) {
+    const colors = this.colors
+    if (!colors.enabled) return `${oknotok} ${number} ${message}`
+
+    const top = indent === ''
+    const time = message.match(/ # time = .*$/)
+    const description = time ? message.slice(0, time.index) : message
+
+    if (oknotok !== 'ok') {
+      return `${colors.boldRed('not ok')}${colors.red(` ${number} ${description}`)}${
+        time ? colors.dim(time[0]) : ''
+      }`
+    }
+
+    if (/ # (?:SKIP|TODO)\b/.test(message)) {
+      const marker = message.match(/ # (?:SKIP|TODO)\b.*$/)
+      return `${colors.boldYellow('ok')}${colors.yellow(
+        ` ${number} ${message.slice(0, marker.index)}`
+      )}${colors.boldYellow(marker[0])}`
+    }
+
+    const ok = top ? colors.boldGreen('ok') : colors.green('ok')
+
+    return `${ok} ${number} ${description}${time ? colors.dim(time[0]) : ''}`
+  }
+
+  // the explanation is a YAML block. Style it like a diff: expected in green,
+  // actual in red, the source pointer highlighted, the stack pushed into the background
+  _formatExplanation(block) {
+    const colors = this.colors
+    if (!colors.enabled) return block
+
+    const top = INDENT.length + 2
+    let key = null
+
+    return block
+      .split('\n')
+      .map((line) => {
+        const trimmed = line.trim()
+        if (trimmed === '') return line
+
+        if (trimmed === '---' || trimmed === '...') {
+          key = null
+          return colors.dim(line)
+        }
+
+        const pair = /^(\s*)([\w$]+): ?(.*)$/.exec(line)
+
+        if (pair && pair[1].length === top) {
+          key = pair[2]
+          const [label, value] = styleOf(colors, key)
+          return label(`${pair[1]}${key}:`) + (pair[3] === '' ? '' : ' ' + value(pair[3]))
+        }
+
+        if (key === 'stack') return colors.dim(line)
+        if (key === 'source') {
+          return /^-*\^$/.test(trimmed) ? colors.boldRed(line) : colors.gray(line)
+        }
+
+        return styleOf(colors, key)[1](line)
+      })
+      .join('\n')
+  }
+
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index } = config
+    const { timeout, bail, solo, unstealth, source, jobs, coverage, color, pick: index } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -141,6 +227,7 @@ class Runner {
     if (source !== undefined) this.source = source
     if (jobs !== undefined) this.jobs = jobs
     if (index !== undefined) this.index = index
+    if (color !== undefined) this.colors = createColors(color)
   }
 
   resume() {
@@ -1099,6 +1186,12 @@ function isUncaught(err) {
 function getRunner() {
   if (!global[RUNNER]) global[RUNNER] = new Runner()
   return global[RUNNER]
+}
+
+function styleOf(colors, key) {
+  if (key === 'actual') return [colors.boldRed, colors.red]
+  if (key === 'expected') return [colors.boldGreen, colors.green]
+  return [colors.bold, colors.gray]
 }
 
 function prematureEnd(t, message) {
