@@ -866,6 +866,24 @@ piping to a TAP consumer or a log file is unaffected.
 - the tallies are green when everything passed and bold red otherwise
 - timings, plan lines and `TAP version 13` are dimmed
 
+Every failed test is also listed in a roll-up before the final verdict, so a long run does
+not have to be scrolled to find what broke:
+
+```
+1..5
+# tests = 4/5 pass
+# asserts = 3/4 pass
+# time = 15ms
+
+# failures:
+#   - failing
+
+# not ok
+```
+
+The roll-up is emitted as TAP comments, so it is present with or without colors and is
+ignored by TAP consumers.
+
 Detection can be overridden, highest precedence first:
 
 - `configure({ color: true })` / `configure({ color: false })`

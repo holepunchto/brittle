@@ -52,6 +52,7 @@ class Runner {
     this.count = 0
     this.picked = null
     this.colors = createColors()
+    this._failures = []
 
     this.hooks = new Set()
 
@@ -107,6 +108,7 @@ class Runner {
         console.log(colors.dim('TAP version 13'))
       } else if (type === 'assert') {
         const [indent, oknotok, number, message] = args
+        if (oknotok !== 'ok' && indent === '') this._failures.push(describeTest(message))
         console.log(`${indent}${this._formatAssert(indent, oknotok, number, message)}`)
       } else if (type === 'comment') {
         const [indent, ...rest] = args
@@ -140,6 +142,13 @@ class Runner {
           )
         )
         console.log(colors.dim('# time = ' + this._timer() + 'ms'))
+
+        if (this._failures.length > 0) {
+          console.log()
+          console.log(colors.boldRed('# failures:'))
+          for (const name of this._failures) console.log(colors.red('#   - ' + name))
+        }
+
         console.log()
 
         const isOk = testsOk && assertionsOk
@@ -1192,6 +1201,13 @@ function styleOf(colors, key) {
   if (key === 'actual') return [colors.boldRed, colors.red]
   if (key === 'expected') return [colors.boldGreen, colors.green]
   return [colors.bold, colors.gray]
+}
+
+// '- name # time = 1ms' -> 'name'
+function describeTest(message) {
+  const name = message.replace(/^- /, '')
+  const marker = name.indexOf(' # ')
+  return marker === -1 ? name : name.slice(0, marker)
 }
 
 function prematureEnd(t, message) {

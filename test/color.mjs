@@ -168,6 +168,8 @@ const NEUTRAL = { NO_COLOR: '', FORCE_COLOR: '', TERM: 'xterm-256color' }
     'a failing tally is bold red'
   )
   assert.ok(stdout.includes(DIM + '# time = '), 'the total time is dimmed')
+  assert.ok(stdout.includes(BOLD_RED + '# failures:' + RESET), 'the failures roll-up is bold red')
+  assert.ok(stdout.includes(RED + '#   - failing' + RESET), 'each failed test name is listed')
   assert.ok(stdout.includes(BOLD_RED + '# not ok' + RESET), 'the final verdict is bold red')
 }
 
@@ -202,6 +204,36 @@ const NEUTRAL = { NO_COLOR: '', FORCE_COLOR: '', TERM: 'xterm-256color' }
     /\x1b\[1m {6}stack:\x1b\[0m \x1b\[90m\|\x1b\[0m\n\x1b\[2m\s+\S/.test(stdout),
     'stack frames are dimmed'
   )
+}
+
+// the failures roll-up lists every failed test, and is absent when all pass
+
+{
+  const failing = await raw(
+    function (test) {
+      test('first', (t) => t.pass())
+      test('second', (t) => {
+        t.plan(1)
+        t.fail()
+      })
+      test('third', (t) => {
+        t.plan(1)
+        t.fail()
+      })
+    },
+    { env: NEUTRAL }
+  )
+
+  assert.ok(failing.stdout.includes('# failures:\n#   - second\n#   - third'), 'both are listed')
+
+  const passing = await raw(
+    function (test) {
+      test('first', (t) => t.pass())
+    },
+    { env: NEUTRAL }
+  )
+
+  assert.ok(!passing.stdout.includes('# failures:'), 'no roll-up when everything passes')
 }
 
 // an all-passing run gets green tallies and a green verdict
@@ -307,6 +339,8 @@ const NEUTRAL = { NO_COLOR: '', FORCE_COLOR: '', TERM: 'xterm-256color' }
     'failing assert is red'
   )
   assert.ok(stdout.includes(DIM + '      ---' + RESET), 'the explanation delimiter is dim')
+  assert.ok(stdout.includes(BOLD_RED + '# failures:' + RESET), 'the failures roll-up is shown')
+  assert.ok(stdout.includes(RED + '#   - failing' + RESET), 'the failed test is named')
   assert.ok(stdout.includes(BOLD_RED + '# not ok' + RESET), 'the verdict is bold red')
 }
 
