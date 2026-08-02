@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "b4a": "^1.8.0",
+    "bare-ansi-escapes": "^2.2.3",
     "bare-assert": "^1.2.0",
     "bare-buffer": "^3.6.0",
     "bare-channel": "^5.2.3",
