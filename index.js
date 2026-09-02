@@ -1,3 +1,5 @@
+const util = require('util')
+const process = require('process')
 const sameObject = require('same-object')
 const tmp = require('test-tmp')
 const b4a = require('b4a')
@@ -963,7 +965,10 @@ function cmp(a, b) {
 }
 
 function commentLines(message) {
-  return message.join(' ').trimEnd().split(/\r?\n/)
+  return util
+    .formatWithOptions({ colors: process.stdout.isTTY }, ...message)
+    .trimEnd()
+    .split(/\r?\n/)
 }
 
 function test(name, opts, fn, overrides) {

@@ -35,6 +35,7 @@
     "bare-process": "^4.3.0",
     "bare-subprocess": "^6.1.0",
     "bare-url": "^2.3.2",
+    "bare-utils": "^1.6.0",
     "error-stack-parser": "^2.1.4",
     "globbie": "^1.0.3",
     "paparam": "^1.10.0",
