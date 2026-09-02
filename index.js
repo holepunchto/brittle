@@ -963,7 +963,7 @@ function cmp(a, b) {
 }
 
 function commentLines(message) {
-  return message.join(' ').trimEnd().split('\n')
+  return message.join(' ').trimEnd().split(/\r?\n/)
 }
 
 function test(name, opts, fn, overrides) {
