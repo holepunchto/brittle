@@ -289,7 +289,8 @@ class Runner {
   }
 
   comment(...message) {
-    this.log('comment', '', ...message)
+    if (!message.length) return this.log('comment', '')
+    commentLines(message).forEach((l) => this.log('comment', '', l))
   }
 
   end() {
@@ -504,7 +505,8 @@ class Test {
 
   _comment(...m) {
     if (this._isResolved) throw new Error("Can't comment after end")
-    this._runner.log('comment', INDENT, ...m)
+    if (!m.length) return this._runner.log('comment', INDENT)
+    commentLines(m).forEach((l) => this._runner.log('comment', INDENT, l))
   }
 
   _message(message) {
@@ -958,6 +960,10 @@ function highDefTimerFallback() {
 
 function cmp(a, b) {
   return a[0] - b[0]
+}
+
+function commentLines(message) {
+  return message.join(' ').trimEnd().split('\n')
 }
 
 function test(name, opts, fn, overrides) {
