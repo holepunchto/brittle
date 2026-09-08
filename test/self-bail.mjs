@@ -33,13 +33,6 @@ await spawner(
         ...
   not ok 2 - fail # time = 3.498153ms
   Bail out!
-
-  1..2
-  # tests = 1/2 pass
-  # asserts = 1/2 pass
-  # time = 7.370518ms
-
-  # not ok
   `,
   { exitCode: 1, stderr: '' }
 )
