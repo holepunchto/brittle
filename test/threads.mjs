@@ -85,13 +85,6 @@ await spawner(
       ok 3 - hi world
   ok 3 - hi world # time = 301ms
   Bail out!
-
-  1..3
-  # tests = 2/3 pass
-  # asserts = 6/7 pass
-  # time = 332ms
-
-  # not ok
   `,
   { exitCode: 1, stderr: '' }
 )
@@ -142,4 +135,31 @@ await spawner(
   # thrown
   `,
   { exitCode: 'error', stderr: { includes: 'Error: ERROR' } }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/error/exit.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 301ms
+
+  # before exit
+      ok 1 - passed
+  ok 2 - before exit # time = 0ms
+
+  Bail out! Job exited without reporting results
+  `,
+  { exitCode: 1, stderr: '' }
 )

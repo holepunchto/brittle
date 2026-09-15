@@ -110,9 +110,12 @@ class Runner {
         const [indent, ...rest] = args
         console.log(`${indent}#`, ...rest)
       } else if (type === 'results') {
-        const [tests, assertions] = args
+        const [tests, assertions, ...rest] = args
 
-        if (this.bail && this.skipAll) console.log('Bail out!')
+        if (this.skipAll) {
+          console.log('Bail out!', ...rest)
+          return
+        }
 
         this.padding()
 
