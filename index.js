@@ -338,7 +338,7 @@ class Runner {
     this.log('results', this.tests, this.assertions)
   }
 
-  bailout(reason) {
+  bailout(reason = '') {
     this.skipAll = true
 
     if (isBrittleChildThread) {
@@ -352,7 +352,9 @@ class Runner {
     // a bail out is a single line, so anything below it goes to stderr
     const [message, ...rest] = reason.split('\n')
 
-    this.log('results', null, null, message)
+    if (message) this.log('results', null, null, message)
+    else this.log('results')
+
     if (rest.length) console.error(rest.join('\n'))
   }
 
