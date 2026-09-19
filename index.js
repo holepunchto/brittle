@@ -82,6 +82,14 @@ class Runner {
         if (data.type === 'start') threadStart()
         else if (data.type === 'state') this._updateState(data)
       })
+
+      const onerror = (event, reason) => (err) => {
+        // bail if no one else handles it
+        if (global.Bare.listenerCount(event) === 1) this.bailout(reason + '\n' + util.inspect(err))
+      }
+
+      global.Bare.on('uncaughtException', onerror('uncaughtException', 'Uncaught exception'))
+      global.Bare.on('unhandledRejection', onerror('unhandledRejection', 'Unhandled rejection'))
     }
 
     const ondeadlock = () => {
@@ -328,6 +336,21 @@ class Runner {
     }
 
     this.log('results', this.tests, this.assertions)
+  }
+
+  bailout(reason = '') {
+    this.skipAll = true
+
+    if (isBrittleChildThread) {
+      this._threadStream.write({ type: 'state', skipAll: true })
+      this._threadStream.write({ type: 'result', bailout: reason })
+      return
+    }
+
+    program.exitCode = 1
+
+    if (reason) this.log('results', null, null, reason)
+    else this.log('results')
   }
 
   assert(indent, ok, number, message, explanation, stealth) {

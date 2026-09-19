@@ -210,6 +210,7 @@ function standardizeTap(stdout) {
     .replace(/#.+(?:\n|$)/g, '\n') // strip comments
     .replace(/stack: [\s\S]*\.\.\.\n/gm, '...\n') // strip stack traces
     .replace(/source: [\s\S]*\.\.\.\n/gm, '...\n') // strip source traces
+    .replace(/^\s*at .*$/gm, '') // strip stack frames
     .replace(/[/\\]/g, '/')
     .replace(/(\n[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*)+/g, '\n[coverage]')
     .split('\n')

@@ -101,8 +101,11 @@ await spawner(
   TAP version 13
 
   # plan
+  Bail out! Unhandled rejection
+  Error: Test did not end (plan) [assertion count (0) did not reach plan (1)]
+      at prematureEnd (./index.js:1139:10)
   `,
-  { exitCode: 'error', stderr: { includes: 'Error: Test did not end (plan)' } }
+  { exitCode: 1, stderr: '' }
 )
 
 await spawner(
@@ -117,14 +120,18 @@ await spawner(
   TAP version 13
 
   # timeout
+  Bail out! Unhandled rejection
+  Error: Test "timeout" timed out after 10 ms
+      at ontimeout (./index.js:517:19)
   `,
-  { exitCode: 'error', stderr: { includes: 'timed out after 10 ms' } }
+  { exitCode: 1, stderr: '' }
 )
 
 await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
     brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     await brittle.load(require.resolve('./fixtures/threads/error/thrown.js'))
     await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.resume()
@@ -132,9 +139,98 @@ await spawner(
   `
   TAP version 13
 
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 301ms
+
+  # before thrown
+      ok 1 - passed
+  ok 2 - before thrown # time = 0ms
+
   # thrown
+  Bail out! Unhandled rejection
+  Error: ERROR
+      at ./test/fixtures/threads/error/thrown.js:8:9
   `,
-  { exitCode: 'error', stderr: { includes: 'Error: ERROR' } }
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/lingering.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # lingering
+  Bail out! Unhandled rejection
+  Error: Test "lingering" timed out after 10 ms
+      at ontimeout (./index.js:517:19)
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/handled.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # handled
+      ok 1 - should deep equal
+  ok 1 - handled # time = 22ms
+
+  # after handled
+      ok 1 - passed
+  ok 2 - after handled # time = 0ms
+
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 3 - hello world # time = 303ms
+
+  1..3
+  # tests = 3/3 pass
+  # asserts = 5/5 pass
+  # time = 482ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/stray.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # stray
+      ok 1 - passed
+  ok 1 - stray # time = 11ms
+
+  Bail out! Uncaught exception
+  Error: STRAY
+      at ./test/fixtures/threads/error/stray.js:5:11
+  `,
+  { exitCode: 1, stderr: '' }
 )
 
 await spawner(
