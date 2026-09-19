@@ -349,13 +349,8 @@ class Runner {
 
     program.exitCode = 1
 
-    // a bail out is a single line, so anything below it goes to stderr
-    const [message, ...rest] = reason.split('\n')
-
-    if (message) this.log('results', null, null, message)
+    if (reason) this.log('results', null, null, reason)
     else this.log('results')
-
-    if (rest.length) console.error(rest.join('\n'))
   }
 
   assert(indent, ok, number, message, explanation, stealth) {
