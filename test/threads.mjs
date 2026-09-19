@@ -155,6 +155,23 @@ await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
     brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/error/lingering.js'))
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # lingering
+  Bail out! Unhandled rejection
+  `,
+  { exitCode: 1, stderr: { includes: 'timed out after 10 ms' } }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
     await brittle.load(require.resolve('./fixtures/threads/error/handled.js'))
     await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.resume()
