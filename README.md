@@ -97,10 +97,10 @@ Check the API but also all the [assertions here](#assertions) and [utilities her
 
 ### Bare
 
-Use `brittle-bare` to run tests on [Bare](https://github.com/holepunchto/bare):
+Use `brittle` to run tests on [Bare](https://github.com/holepunchto/bare):
 
 ```sh
-brittle-bare test/all.mjs
+brittle test/all.mjs
 ```
 
 Bare must be installed on the system.
@@ -768,7 +768,7 @@ The following would run all `.js` files in the test folder:
   "version": "1.0.0",
   "scripts": {
     "test": "npm run test:bare && npm run test:node",
-    "test:bare": "brittle-bare test/all.mjs",
+    "test:bare": "brittle test/all.mjs",
     "test:node": "brittle-node test/all.mjs"
   },
   "devDependencies": {
@@ -781,9 +781,9 @@ The following would run all `.js` files in the test folder:
 
 Brittle comes with three commands:
 
-- `brittle-make-test`
-- `brittle-bare`
+- `brittle`
 - `brittle-node`
+- `brittle-make-test`
 
 The idea is to use these commands within the `package.json` `scripts` field:
 
@@ -791,7 +791,7 @@ The idea is to use these commands within the `package.json` `scripts` field:
 {
   "make:test": "brittle-make-test test/index.js test/*.test.js",
   "test": "npm run test:bare && npm run test:node",
-  "test:bare": "brittle-bare test",
+  "test:bare": "brittle test",
   "test:node": "brittle-node test"
 }
 ```
@@ -813,10 +813,10 @@ Flags:
   --help|-h                 Show help
 ```
 
-The `brittle-node` and `brittle-bare` commands are the same, they just execute per runtime.
+The `brittle` and `brittle-node` commands are the same, they just execute per runtime.
 
 ```shell
-brittle-node|brittle-bare [flags] <files>
+brittle|brittle-node [flags] <files>
 
 Flags:
   --version, -v             Print the current version
@@ -842,7 +842,7 @@ brittle path/to/test/*.js
 The `BRITTLE` environment variable can also set flags:
 
 ```shell
-BRITTLE="--coverage --bail" brittle-bare test.js
+BRITTLE="--coverage --bail" brittle test.js
 ```
 
 Force disable coverage with an environment variable:
@@ -865,12 +865,12 @@ npx istanbul report html
 
 ### V3 to V4 Migration
 
-- The `brittle` command is deprecated. Use `brittle-bare` and/or `brittle-node` instead.
+- The `brittle` command runs tests on Bare. Use `brittle-node` to run tests on Node.js.
 - Generating a test entrypoint file with `brittle -r` is deprecated. Use `brittle-make-test` instead.
 - Hooks return an unhook function (`unhook = hook()`) it must be called (`unhook(teardownFunction)`) to mark the end of the hook range.
 - `brittle-make-test` must be run to regenerate the test entrypoint (`all.mjs`)
 - test entrypoint must:
-  - use Brittle load method to include test files (v3 uses `import()`) in order to support concurrent threads in `brittle-bare`. Example: `brittle-bare -j 4` to run tests across four threads.
+  - use Brittle load method to include test files (v3 uses `import()`) in order to support concurrent threads in `brittle`. Example: `brittle -j 4` to run tests across four threads.
   - be an `.mjs` file
   - `await` the Brittle `runtests()` function
 
