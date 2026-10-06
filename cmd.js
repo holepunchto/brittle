@@ -15,7 +15,7 @@ const args = (process.env.BRITTLE || '')
   .filter((s) => s)
   .concat(process.argv.slice(2))
 const cmd = command(
-  'brittle-' + runtime,
+  runtime === 'bare' ? 'brittle' : 'brittle-' + runtime,
   flag('--version|-v', 'Print the current version'),
   flag('--solo, -s', 'Engage solo mode'),
   flag('--pick, -p <number>', 'Isolate the nth (0-indexed) top-level test').multiple(),
