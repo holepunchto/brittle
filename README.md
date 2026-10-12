@@ -465,6 +465,7 @@ It must be executed before any tests.
 - `source` (`true`) - shows error `source` information
 - `unstealth` (`false`) - show assertions even if `stealth` is used
 - `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
+- `autoExit` (`false`) - end the run once the last test has finished, rather than waiting for the event loop to drain
 - `jobs` (`1`) - number of test files to run concurrently (Bare-only)
 
 ```js
