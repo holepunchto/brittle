@@ -280,7 +280,7 @@ class Runner {
     try {
       await test
       await wait(10) // wait 10 ticks...
-      if (this.next === test) {
+      if (this.next === null) {
         this.end()
       }
     } catch {}
