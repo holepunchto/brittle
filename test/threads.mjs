@@ -174,6 +174,31 @@ await spawner(
 
 await spawner(
   async function (brittle) {
+    brittle.configure({ bail: true, jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/bail/delayed.js'))
+    for (let i = 0; i < 5; i++) {
+      await brittle.load(require.resolve('./fixtures/threads/bail/timed.js'))
+    }
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # delayed bailout
+  test started
+  test finished
+  test started
+  test finished
+  test started
+  Bail out! Error: Test "delayed bailout" timed out after 500 ms
+      at ontimeout (./index.js:517:19)
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
     brittle.configure({ jobs: 2 })
     brittle.pause()
     await brittle.load(require.resolve('./fixtures/threads/error/handled.js'))
