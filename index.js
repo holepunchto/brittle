@@ -47,7 +47,6 @@ class Runner {
     this.assumeSolo = false
     this.source = true
     this.autoExit = false
-    this.ended = false
     this.coverage = false
     this.jobs = 1
     this.threads = null
@@ -94,13 +93,13 @@ class Runner {
       global.Bare.on('unhandledRejection', onerror('unhandledRejection'))
     }
 
-    const ondeadlock = () => {
+    this._ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
-      program.off('beforeExit', ondeadlock)
+      program.off('beforeExit', this._ondeadlock)
       if (!this.threads) this.end()
     }
 
-    program.on('beforeExit', ondeadlock)
+    program.on('beforeExit', this._ondeadlock)
   }
 
   getLogger() {
@@ -282,6 +281,7 @@ class Runner {
       await test
       await wait(10) // wait 10 ticks...
       if (this.next === null) {
+        program.off('beforeExit', this._ondeadlock)
         this.end()
       }
     } catch {}
@@ -325,9 +325,6 @@ class Runner {
         return
       }
     }
-
-    if (this.ended) return
-    this.ended = true
 
     if (isBrittleChildThread) {
       this._threadStream.write({
