@@ -54,3 +54,44 @@ await spawner(
   `,
   { exitCode: 0, stderr: '' }
 )
+
+await spawner(
+  function ({ configure, test }) {
+    configure({ autoExit: true })
+
+    test('first', function (t) {
+      t.pass()
+    })
+
+    test('second', function (t) {
+      t.pass()
+    })
+
+    test('third', function (t) {
+      t.pass()
+    })
+  },
+  `
+  TAP version 13
+
+  # first
+      ok 1 - passed
+  ok 1 - first # time = 0.166167ms
+
+  # second
+      ok 1 - passed
+  ok 2 - second # time = 0.029458ms
+
+  # third
+      ok 1 - passed
+  ok 3 - third # time = 0.021625ms
+
+  1..3
+  # tests = 3/3 pass
+  # asserts = 3/3 pass
+  # time = 9.471375ms
+
+  # ok
+  `,
+  { exitCode: 0, stderr: '' }
+)

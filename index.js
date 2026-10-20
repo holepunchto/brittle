@@ -36,6 +36,7 @@ class Runner {
     this.assertions = { count: 0, pass: 0 }
 
     this.next = null
+    this.exiting = null
     this.solos = new Set()
     this.padded = true
     this.started = false
@@ -235,7 +236,9 @@ class Runner {
       this.next = test
       test._header()
 
-      if (this.autoExit || (!IS_NODE && !IS_BARE)) this._autoExit(test)
+      if (this.autoExit || (!IS_NODE && !IS_BARE)) {
+        if (this.exiting === null) this.exiting = this._autoExit()
+      }
 
       return true
     }
@@ -276,14 +279,14 @@ class Runner {
     } else return true
   }
 
-  async _autoExit(test) {
+  async _autoExit() {
     try {
-      await test
-      await wait(10) // wait 10 ticks...
-      if (this.next === null) {
-        program.off('beforeExit', this._ondeadlock)
-        this.end()
+      while (this.next !== null) {
+        await this.next
+        await wait(10) // wait 10 ticks for another test to be queued
       }
+      program.off('beforeExit', this._ondeadlock)
+      this.end()
     } catch {}
   }
 
