@@ -467,6 +467,7 @@ It must be executed before any tests.
 - `coverage` (`false`) - enable coverage reporting (string path of the output directory or `true` for default)
 - `autoExit` (`false`) - print the final summary once the last test has finished, rather than waiting for the event loop to drain
 - `jobs` (`1`) - number of test files to run concurrently (Bare-only)
+- `failuresLast` (`false`) - print a compact list of failed test names at the end of the run
 
 ```js
 import { configure } from 'brittle'
@@ -734,7 +735,7 @@ On Bare, `load()` supports running test files concurrently in threads. Set `jobs
 
 TAP output is always printed sequentially in the order `load` was called, and the runner aggregates results (test counts, assertion counts, time) into a single TAP summary.
 
-Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `coverage`, and `source` to all threads.
+Use `configure()` before `load` calls to propagate options like `bail`, `timeout`, `solo`, `unstealth`, `coverage`, `source`, and `failuresLast` to all threads.
 
 A thread may also set its own options by calling `configure()` within the thread which will override options set by the parent.
 
@@ -831,6 +832,7 @@ Flags:
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
   --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
   --unstealth, -u           Show assertions even if stealth is used
+  --failures-last           Print a compact list of failed tests at the end of the run
   --help|-h                 Show help
 ```
 
