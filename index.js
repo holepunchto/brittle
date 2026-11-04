@@ -49,6 +49,10 @@ class Runner {
     this.source = true
     this.autoExit = false
     this.coverage = false
+    this.failuresLast = false
+    this.failedTests = []
+    this._failedTestsPrinted = false
+    this._failuresLastExitHook = false
     this.jobs = 1
     this.threads = null
     this.index = undefined
@@ -124,6 +128,7 @@ class Runner {
 
         if (this.skipAll) {
           console.log('Bail out!', ...rest)
+          this._printFailedTests()
           return
         }
 
@@ -137,14 +142,47 @@ class Runner {
 
         const isOk = tests.count === tests.pass && assertions.count === assertions.pass
         console.log(`# ${isOk ? 'ok' : 'not ok'}`)
+
+        this._printFailedTests()
       } else {
         console.log(...args)
       }
     }
   }
 
+  _printFailedTests() {
+    if (!this.failuresLast || !this.failedTests.length || this._failedTestsPrinted) return
+
+    this._failedTestsPrinted = true
+    console.log()
+    console.log('# failed tests')
+    for (const name of this.failedTests) {
+      console.log('# - ' + name)
+    }
+  }
+
+  _enableFailuresLastExitHook() {
+    if (this._failuresLastExitHook || isBrittleChildThread) return
+
+    this._failuresLastExitHook = true
+    program.on('exit', () => {
+      this._printFailedTests()
+    })
+  }
+
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, autoExit, jobs, coverage, pick: index } = config
+    const {
+      timeout,
+      bail,
+      solo,
+      unstealth,
+      source,
+      autoExit,
+      jobs,
+      coverage,
+      failuresLast,
+      pick: index
+    } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -156,6 +194,10 @@ class Runner {
     if (source !== undefined) this.source = source
     if (autoExit !== undefined) this.autoExit = autoExit
     if (jobs !== undefined) this.jobs = jobs
+    if (failuresLast !== undefined) {
+      this.failuresLast = failuresLast
+      if (failuresLast) this._enableFailuresLastExitHook()
+    }
     if (index !== undefined) this.index = index
   }
 
@@ -185,6 +227,7 @@ class Runner {
     if (state.unstealth !== undefined) this.unstealth = state.unstealth
     if (state.source !== undefined) this.source = state.source
     if (state.skipAll !== undefined) this.skipAll = state.skipAll
+    if (state.failuresLast !== undefined) this.failuresLast = state.failuresLast
   }
 
   async _sendState() {
@@ -335,7 +378,8 @@ class Runner {
         bail: this.bail,
         skipAll: this.skipAll,
         tests: { pass: this.tests.pass, count: this.tests.count },
-        asserts: { pass: this.assertions.pass, count: this.assertions.count }
+        asserts: { pass: this.assertions.pass, count: this.assertions.count },
+        failedTests: this.failedTests
       })
 
       return
@@ -368,6 +412,9 @@ class Runner {
       if (IS_NODE) process.exitCode = 1
       if (IS_BARE) global.Bare.exitCode = 1
       this.log('assert', ind, 'not ok', number, message)
+      if (this.failuresLast && !indent) {
+        this.failedTests.push(failureName(message))
+      }
       if (explanation) this.log('explanation', lazy.errors.stringify(explanation))
       if (this.bail && !this.skipAll) {
         if (isBrittleChildThread) this._threadStream.write({ type: 'state', skipAll: true })
@@ -922,11 +969,15 @@ class Test {
 
     this._timeout(0) // just to be sure incase someone ran this during teardown...
 
-    const ok = this.fails === 0
+    const ok = this.fails === 0 && !err
 
     if (this._isMain && !err) {
       const time = this._timer ? ' # time = ' + this._timer() + 'ms' : ''
       this._runner.assert(false, ok, this._track(true, ok), '- ' + (this.name || '') + time, null)
+    } else if (this._isMain && err && this._runner.failuresLast) {
+      // Fatal paths (timeout/throw) may abort before the normal summary; emit now.
+      this._runner.assert(false, false, this._track(true, false), '- ' + (this.name || ''), null)
+      this._runner._printFailedTests()
     }
 
     this._isResolved = true
@@ -1074,6 +1125,12 @@ function wait(ticks = 1) {
       tickish(loop)
     })
   })
+}
+
+function failureName(message) {
+  return String(message)
+    .replace(/^-\s*/, '')
+    .replace(/\s+# time = .*$/, '')
 }
 
 function tickish(fn) {
