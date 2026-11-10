@@ -36,6 +36,7 @@ class Runner {
     this.assertions = { count: 0, pass: 0 }
 
     this.next = null
+    this.exiting = null
     this.solos = new Set()
     this.padded = true
     this.started = false
@@ -46,6 +47,7 @@ class Runner {
     this.explicitSolo = false
     this.assumeSolo = false
     this.source = true
+    this.autoExit = false
     this.coverage = false
     this.jobs = 1
     this.threads = null
@@ -92,13 +94,13 @@ class Runner {
       global.Bare.on('unhandledRejection', onerror('unhandledRejection'))
     }
 
-    const ondeadlock = () => {
+    this._ondeadlock = () => {
       if (this.next && this.next._checkDeadlock === false) return
-      program.off('beforeExit', ondeadlock)
+      program.off('beforeExit', this._ondeadlock)
       if (!this.threads) this.end()
     }
 
-    program.on('beforeExit', ondeadlock)
+    program.on('beforeExit', this._ondeadlock)
   }
 
   getLogger() {
@@ -142,7 +144,7 @@ class Runner {
   }
 
   applyConfig(config) {
-    const { timeout, bail, solo, unstealth, source, jobs, coverage, pick: index } = config
+    const { timeout, bail, solo, unstealth, source, autoExit, jobs, coverage, pick: index } = config
     if (coverage && !this.coverage) {
       this.coverage = coverage
       require('bare-cov')({ dir: typeof coverage === 'string' ? coverage : undefined })
@@ -152,6 +154,7 @@ class Runner {
     if (solo !== undefined) this.explicitSolo = solo
     if (unstealth !== undefined) this.unstealth = unstealth
     if (source !== undefined) this.source = source
+    if (autoExit !== undefined) this.autoExit = autoExit
     if (jobs !== undefined) this.jobs = jobs
     if (index !== undefined) this.index = index
   }
@@ -233,7 +236,9 @@ class Runner {
       this.next = test
       test._header()
 
-      if (!IS_NODE && !IS_BARE) this._autoExit(test)
+      if (this.autoExit || (!IS_NODE && !IS_BARE)) {
+        if (this.exiting === null) this.exiting = this._autoExit()
+      }
 
       return true
     }
@@ -274,13 +279,14 @@ class Runner {
     } else return true
   }
 
-  async _autoExit(test) {
+  async _autoExit() {
     try {
-      await test
-      await wait(10) // wait 10 ticks...
-      if (this.next === test) {
-        this.end()
+      while (this.next !== null) {
+        await this.next
+        await wait(10) // wait 10 ticks for another test to be queued
       }
+      program.off('beforeExit', this._ondeadlock)
+      this.end()
     } catch {}
   }
 
