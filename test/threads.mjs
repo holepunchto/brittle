@@ -205,7 +205,7 @@ await spawner(
     brittle.pause()
     await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     await brittle.load(require.resolve('./fixtures/threads/bail/before-start.js'))
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     brittle.resume()
   },
   `
