@@ -172,6 +172,55 @@ await spawner(
   { exitCode: 1, stderr: '' }
 )
 
+// Bailing test should prevent upcoming tests from starting and should not immediately stop a running test
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/error/lingering.js'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/queued-hook.js'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/queued-hook.js'))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 300ms
+
+  # lingering
+  Bail out! Error: Test "lingering" timed out after 10 ms
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+// Bailing before runner resume should not prevent tests loaded before it from running
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/before-start.js'))
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 300ms
+  Bail out! Error: before start
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
 await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
