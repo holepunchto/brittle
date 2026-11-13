@@ -172,6 +172,7 @@ await spawner(
   { exitCode: 1, stderr: '' }
 )
 
+// bailing test should prevent upcoming tests from starting and should not immediately stop a running test
 await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
@@ -197,6 +198,7 @@ await spawner(
   { exitCode: 1, stderr: '' }
 )
 
+// bailing before runner resume should not prevent tests loaded before it from running
 await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
