@@ -201,6 +201,28 @@ await spawner(
   async function (brittle) {
     brittle.configure({ jobs: 2 })
     brittle.pause()
+    await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
+    await brittle.load(require.resolve('./fixtures/threads/bail/before-start.js'))
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    brittle.resume()
+  },
+  `
+  TAP version 13
+
+  # hello world
+      ok 1 - hello world
+      ok 2 - hello world
+      ok 3 - hello world
+  ok 1 - hello world # time = 300ms
+  Bail out! Error: before start
+  `,
+  { exitCode: 1, stderr: '' }
+)
+
+await spawner(
+  async function (brittle) {
+    brittle.configure({ jobs: 2 })
+    brittle.pause()
     await brittle.load(require.resolve('./fixtures/threads/error/handled.js'))
     await brittle.load(require.resolve('./fixtures/threads/helloworld.js'))
     brittle.resume()
