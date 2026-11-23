@@ -27,6 +27,7 @@ const cmd = command(
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
+  flag('--failures-last', 'Print a compact list of failed tests at the end of the run'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -46,7 +47,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, failuresLast } = argv
 
 if (argv.pick && argv.pick.length > 1) {
   console.error('Error: --pick can only be used once')
@@ -91,11 +92,12 @@ function onerror(err) {
 async function start() {
   const brittle = require('./')
 
-  if (bail || solo || unstealth || timeout || jobs || pick !== undefined) {
+  if (bail || solo || unstealth || timeout || jobs || failuresLast || pick !== undefined) {
     brittle.configure({
       bail,
       solo,
       unstealth,
+      failuresLast,
       timeout: timeout ? Number(timeout) : undefined,
       jobs: jobs ? Number(jobs) : undefined,
       pick: pick !== undefined ? Number(pick) : undefined
@@ -121,6 +123,7 @@ async function startMining() {
     .concat(bail ? ['--bail'] : [])
     .concat(unstealth ? ['--unstealth'] : [])
     .concat(trace ? ['--trace'] : [])
+    .concat(failuresLast ? ['--failures-last'] : [])
     .concat(timeout ? ['--timeout', timeout + ''] : [])
     .concat(jobs ? ['--jobs', jobs] : [])
     .concat(pick !== undefined ? ['--pick', pick + ''] : [])
