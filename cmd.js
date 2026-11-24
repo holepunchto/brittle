@@ -27,6 +27,7 @@ const cmd = command(
   flag('--mine, -m <miners>', 'Keep running the tests in <miners> processes until they fail.'),
   flag('--unstealth, -u', 'Print out assertions even if stealth is used'),
   flag('--jobs, -j <jobs>', 'Run <jobs> test files concurrently [Bare-only] (default: 1)'),
+  flag('--expose-gc', 'Expose global gc()'),
   rest('<files>')
 ).parse(args)
 if (!cmd) process.exit(0)
@@ -46,7 +47,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs } = argv
+const { solo, bail, timeout, coverage, covDir, mine, trace, unstealth, jobs, exposeGc } = argv
 
 if (argv.pick && argv.pick.length > 1) {
   console.error('Error: --pick can only be used once')
@@ -116,7 +117,8 @@ async function start() {
 }
 
 async function startMining() {
-  const args = [__filename]
+  const args = (exposeGc ? ['--expose-gc'] : [])
+    .concat([__filename])
     .concat(solo ? ['--solo'] : [])
     .concat(bail ? ['--bail'] : [])
     .concat(unstealth ? ['--unstealth'] : [])

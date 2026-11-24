@@ -1,0 +1,1 @@
+globalThis.preloaded = true
