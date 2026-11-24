@@ -79,6 +79,11 @@ if (trace && !mine) {
   })
 }
 
+if (exposeGc && runtime === 'node' && typeof gc !== 'function') {
+  require('v8').setFlagsFromString('--expose-gc')
+  global.gc = require('vm').runInNewContext('gc')
+}
+
 if (coverage && process.env.BRITTLE_COVERAGE !== 'false') require('bare-cov')({ dir: covDir })
 
 if (mine) startMining().catch()
