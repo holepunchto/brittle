@@ -18,7 +18,7 @@ const EXPECTED_PASS_TAP = `
 TAP version 13
 
 # gc is exposed
-    ok 1 - passed
+    ok 1 - should be equal
 ok 1 - gc is exposed # time = 0.5ms
 
 1..1
@@ -32,8 +32,8 @@ ok 1 - gc is exposed # time = 0.5ms
 // Fails without --expose-gc
 {
   const res = await run([entry, 'pass.js'])
-  assert.ok(res.exitCode !== 0 || res.signal !== null)
-  assert.ok(res.stderr.includes('gc is not defined'), res.stderr)
+  assert.strictEqual(res.exitCode, 1)
+  assert.ok(res.stdout.includes('not ok 1 - should be equal'), res.stdout)
 }
 
 // Passes with --expose-gc
@@ -58,8 +58,8 @@ ok 1 - gc is exposed # time = 0.5ms
 // --expose-gc anywhere in its arguments)
 if (!isBare) {
   const res = await run([entry, '--', '--expose-gc', 'pass.js'])
-  assert.ok(res.exitCode !== 0 || res.signal !== null)
-  assert.ok(res.stderr.includes('gc is not defined'), res.stderr)
+  assert.strictEqual(res.exitCode, 1)
+  assert.ok(res.stdout.includes('not ok 1 - should be equal'), res.stdout)
 }
 
 // Lists --expose-gc in --help
