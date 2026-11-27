@@ -831,6 +831,7 @@ Flags:
   --mine, -m <miners>       Keep running the tests in <miners> processes until they fail.
   --jobs, -j <jobs>         Run <jobs> test files concurrently [Bare-only] (default: 1)
   --unstealth, -u           Show assertions even if stealth is used
+  --expose-gc               Expose global gc()
   --help|-h                 Show help
 ```
 
